@@ -63,20 +63,20 @@ export type SupportedTimezones =
 
 export interface Config {
   auth: {
-    users: UserAuthOperations;
+    usuarios: UsuarioAuthOperations;
   };
   blocks: {};
   collections: {
-    users: User;
-    media: Media;
+    usuarios: Usuario;
+    ciudadanos: Ciudadano;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
   collectionsJoins: {};
   collectionsSelect: {
-    users: UsersSelect<false> | UsersSelect<true>;
-    media: MediaSelect<false> | MediaSelect<true>;
+    usuarios: UsuariosSelect<false> | UsuariosSelect<true>;
+    ciudadanos: CiudadanosSelect<false> | CiudadanosSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -87,15 +87,15 @@ export interface Config {
   globals: {};
   globalsSelect: {};
   locale: null;
-  user: User & {
-    collection: 'users';
+  user: Usuario & {
+    collection: 'usuarios';
   };
   jobs: {
     tasks: unknown;
     workflows: unknown;
   };
 }
-export interface UserAuthOperations {
+export interface UsuarioAuthOperations {
   forgotPassword: {
     email: string;
     password: string;
@@ -115,9 +115,9 @@ export interface UserAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users".
+ * via the `definition` "usuarios".
  */
-export interface User {
+export interface Usuario {
   id: string;
   updatedAt: string;
   createdAt: string;
@@ -139,22 +139,14 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
+ * via the `definition` "ciudadanos".
  */
-export interface Media {
+export interface Ciudadano {
   id: string;
-  alt: string;
+  dni: string;
   updatedAt: string;
   createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
+  deletedAt?: string | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -164,17 +156,17 @@ export interface PayloadLockedDocument {
   id: string;
   document?:
     | ({
-        relationTo: 'users';
-        value: string | User;
+        relationTo: 'usuarios';
+        value: string | Usuario;
       } | null)
     | ({
-        relationTo: 'media';
-        value: string | Media;
+        relationTo: 'ciudadanos';
+        value: string | Ciudadano;
       } | null);
   globalSlug?: string | null;
   user: {
-    relationTo: 'users';
-    value: string | User;
+    relationTo: 'usuarios';
+    value: string | Usuario;
   };
   updatedAt: string;
   createdAt: string;
@@ -186,8 +178,8 @@ export interface PayloadLockedDocument {
 export interface PayloadPreference {
   id: string;
   user: {
-    relationTo: 'users';
-    value: string | User;
+    relationTo: 'usuarios';
+    value: string | Usuario;
   };
   key?: string | null;
   value?:
@@ -215,9 +207,9 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "users_select".
+ * via the `definition` "usuarios_select".
  */
-export interface UsersSelect<T extends boolean = true> {
+export interface UsuariosSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -237,21 +229,13 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media_select".
+ * via the `definition` "ciudadanos_select".
  */
-export interface MediaSelect<T extends boolean = true> {
-  alt?: T;
+export interface CiudadanosSelect<T extends boolean = true> {
+  dni?: T;
   updatedAt?: T;
   createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
+  deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
