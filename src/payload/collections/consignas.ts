@@ -1,4 +1,5 @@
 import { HIDE_API_URL } from '@/config'
+import { CATEGORIAS_AUTO, CATEGORIAS_MOTO } from '@/data/categorias'
 import type { CollectionConfig } from 'payload'
 
 export const Consignas: CollectionConfig = {
@@ -20,6 +21,15 @@ export const Consignas: CollectionConfig = {
       required: true,
       unique: true,
       index: true,
+    },
+    {
+      name: 'categorias',
+      type: 'select',
+      label: 'Categorías',
+      options: [...CATEGORIAS_MOTO, ...CATEGORIAS_AUTO],
+      defaultValue: [CATEGORIAS_MOTO[0]],
+      hasMany: true,
+      required: true,
     },
     {
       name: 'pregunta',

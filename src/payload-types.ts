@@ -194,6 +194,7 @@ export interface Fut {
 export interface Consigna {
   id: string;
   titulo: string;
+  categorias: ('A1' | 'A2' | 'A3' | 'B1' | 'B2' | 'B3' | 'B4')[];
   pregunta: string;
   opciones?:
     | {
@@ -228,6 +229,7 @@ export interface Consigna {
 export interface Examene {
   id: string;
   fut: string | Fut;
+  consignas: (string | Consigna)[];
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -361,6 +363,7 @@ export interface ArchivosSelect<T extends boolean = true> {
  * via the `definition` "futs_select".
  */
 export interface FutsSelect<T extends boolean = true> {
+  id?: T;
   ciudadano?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -372,6 +375,7 @@ export interface FutsSelect<T extends boolean = true> {
  */
 export interface ConsignasSelect<T extends boolean = true> {
   titulo?: T;
+  categorias?: T;
   pregunta?: T;
   opciones?:
     | T
@@ -407,6 +411,7 @@ export interface ConsignasSelect<T extends boolean = true> {
  */
 export interface ExamenesSelect<T extends boolean = true> {
   fut?: T;
+  consignas?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

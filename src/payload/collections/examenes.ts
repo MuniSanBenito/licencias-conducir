@@ -19,5 +19,13 @@ export const Examenes: CollectionConfig = {
       relationTo: 'futs',
       required: true,
     },
+    {
+      name: 'consignas',
+      type: 'relationship',
+      label: 'Consignas',
+      relationTo: 'consignas',
+      hasMany: true,
+      required: true,
+    },
   ],
 }

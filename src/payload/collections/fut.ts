@@ -9,9 +9,11 @@ export const Fut: CollectionConfig = {
   },
   admin: {
     hideAPIURL: HIDE_API_URL,
+    useAsTitle: 'id',
   },
   trash: true,
   fields: [
+    { name: 'id', type: 'text', label: 'FUT', required: true, unique: true, index: true },
     {
       name: 'ciudadano',
       type: 'relationship',
