@@ -8,8 +8,13 @@ import { es } from 'payload/i18n/es'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 import { DATABASE_URI, PAYLOAD_SECRET } from './config'
+import { Archivos } from './payload/collections/archivos'
 import { Ciudadanos } from './payload/collections/ciudadanos'
+import { Consignas } from './payload/collections/consignas'
+import { Examenes } from './payload/collections/examenes'
+import { Fut } from './payload/collections/fut'
 import { Usuarios } from './payload/collections/usuarios'
+import { storagePlugin } from './payload/plugins/storage'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -33,7 +38,7 @@ export default buildConfig({
       },
     },
   },
-  collections: [Usuarios, Ciudadanos],
+  collections: [Usuarios, Ciudadanos, Archivos, Fut, Consignas, Examenes],
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,
   typescript: {
@@ -45,7 +50,37 @@ export default buildConfig({
   sharp,
   plugins: [
     payloadCloudPlugin(),
-    // storage-adapter-placeholder
+    storagePlugin,
+    /* formBuilderPlugin({
+      fields: {
+        checkbox: true,
+        select: true,
+      },
+
+      formOverrides: {
+        labels: {
+          singular: 'Formulario',
+          plural: 'Formularios',
+        },
+        fields: ({ defaultFields }) => [
+          {
+            name: 'fut',
+            type: 'relationship',
+            label: 'FUT',
+            relationTo: 'futs',
+            required: true,
+          },
+          ...defaultFields,
+        ],
+      },
+      formSubmissionOverrides: {
+        labels: {
+          singular: 'Envío de formulario',
+          plural: 'Envíos de formularios',
+        },
+        fields: ({ defaultFields }) => [...defaultFields],
+      },
+    }), */
   ],
   i18n: {
     fallbackLanguage: 'es',

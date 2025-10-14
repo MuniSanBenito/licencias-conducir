@@ -1,4 +1,4 @@
-import { CollectionConfig } from 'payload'
+import type { CollectionConfig } from 'payload'
 
 export const Ciudadanos: CollectionConfig = {
   slug: 'ciudadanos',
@@ -14,6 +14,7 @@ export const Ciudadanos: CollectionConfig = {
     {
       name: 'dni',
       type: 'text',
+      label: 'DNI',
       required: true,
       unique: true,
       index: true,

@@ -69,6 +69,10 @@ export interface Config {
   collections: {
     usuarios: Usuario;
     ciudadanos: Ciudadano;
+    archivos: Archivo;
+    futs: Fut;
+    consignas: Consigna;
+    examenes: Examene;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -77,6 +81,10 @@ export interface Config {
   collectionsSelect: {
     usuarios: UsuariosSelect<false> | UsuariosSelect<true>;
     ciudadanos: CiudadanosSelect<false> | CiudadanosSelect<true>;
+    archivos: ArchivosSelect<false> | ArchivosSelect<true>;
+    futs: FutsSelect<false> | FutsSelect<true>;
+    consignas: ConsignasSelect<false> | ConsignasSelect<true>;
+    examenes: ExamenesSelect<false> | ExamenesSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -150,6 +158,82 @@ export interface Ciudadano {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "archivos".
+ */
+export interface Archivo {
+  id: string;
+  prefix?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "futs".
+ */
+export interface Fut {
+  id: string;
+  ciudadano: string | Ciudadano;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "consignas".
+ */
+export interface Consigna {
+  id: string;
+  titulo: string;
+  pregunta: string;
+  opciones?:
+    | {
+        opcion?:
+          | (
+              | {
+                  texto: string;
+                  id?: string | null;
+                  blockName?: string | null;
+                  blockType: 'texto';
+                }
+              | {
+                  imagen: string | Archivo;
+                  id?: string | null;
+                  blockName?: string | null;
+                  blockType: 'imagen';
+                }
+            )[]
+          | null;
+        correcta: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "examenes".
+ */
+export interface Examene {
+  id: string;
+  fut: string | Fut;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -162,6 +246,22 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'ciudadanos';
         value: string | Ciudadano;
+      } | null)
+    | ({
+        relationTo: 'archivos';
+        value: string | Archivo;
+      } | null)
+    | ({
+        relationTo: 'futs';
+        value: string | Fut;
+      } | null)
+    | ({
+        relationTo: 'consignas';
+        value: string | Consigna;
+      } | null)
+    | ({
+        relationTo: 'examenes';
+        value: string | Examene;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -233,6 +333,80 @@ export interface UsuariosSelect<T extends boolean = true> {
  */
 export interface CiudadanosSelect<T extends boolean = true> {
   dni?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "archivos_select".
+ */
+export interface ArchivosSelect<T extends boolean = true> {
+  prefix?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "futs_select".
+ */
+export interface FutsSelect<T extends boolean = true> {
+  ciudadano?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "consignas_select".
+ */
+export interface ConsignasSelect<T extends boolean = true> {
+  titulo?: T;
+  pregunta?: T;
+  opciones?:
+    | T
+    | {
+        opcion?:
+          | T
+          | {
+              texto?:
+                | T
+                | {
+                    texto?: T;
+                    id?: T;
+                    blockName?: T;
+                  };
+              imagen?:
+                | T
+                | {
+                    imagen?: T;
+                    id?: T;
+                    blockName?: T;
+                  };
+            };
+        correcta?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "examenes_select".
+ */
+export interface ExamenesSelect<T extends boolean = true> {
+  fut?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
