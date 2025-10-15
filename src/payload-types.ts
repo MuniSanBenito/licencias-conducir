@@ -193,8 +193,6 @@ export interface Fut {
  */
 export interface Consigna {
   id: string;
-  titulo: string;
-  categorias: ('A1' | 'A2' | 'A3' | 'B1' | 'B2' | 'B3' | 'B4')[];
   pregunta: string;
   opciones?:
     | {
@@ -218,6 +216,14 @@ export interface Consigna {
         id?: string | null;
       }[]
     | null;
+  /**
+   * Selecciona una o más categorías para esta consigna.
+   */
+  categorias: ('A1' | 'A2' | 'A3' | 'B1' | 'B2' | 'B3' | 'B4')[];
+  /**
+   * Si está marcada, la consigna es eliminatoria.
+   */
+  eliminatoria: boolean;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -229,7 +235,18 @@ export interface Consigna {
 export interface Examene {
   id: string;
   fut: string | Fut;
-  consignas: (string | Consigna)[];
+  consignas?:
+    | {
+        consigna: string | Consigna;
+        respuesta: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Selecciona una o más categorías para esta consigna.
+   */
+  categorias: ('A1' | 'A2' | 'A3' | 'B1' | 'B2' | 'B3' | 'B4')[];
+  finalizado?: boolean | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -374,8 +391,6 @@ export interface FutsSelect<T extends boolean = true> {
  * via the `definition` "consignas_select".
  */
 export interface ConsignasSelect<T extends boolean = true> {
-  titulo?: T;
-  categorias?: T;
   pregunta?: T;
   opciones?:
     | T
@@ -401,6 +416,8 @@ export interface ConsignasSelect<T extends boolean = true> {
         correcta?: T;
         id?: T;
       };
+  categorias?: T;
+  eliminatoria?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -411,7 +428,15 @@ export interface ConsignasSelect<T extends boolean = true> {
  */
 export interface ExamenesSelect<T extends boolean = true> {
   fut?: T;
-  consignas?: T;
+  consignas?:
+    | T
+    | {
+        consigna?: T;
+        respuesta?: T;
+        id?: T;
+      };
+  categorias?: T;
+  finalizado?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

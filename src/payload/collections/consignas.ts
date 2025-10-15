@@ -10,27 +10,10 @@ export const Consignas: CollectionConfig = {
   },
   admin: {
     hideAPIURL: HIDE_API_URL,
-    useAsTitle: 'titulo',
+    useAsTitle: 'pregunta',
   },
   trash: true,
   fields: [
-    {
-      name: 'titulo',
-      type: 'text',
-      label: 'Título',
-      required: true,
-      unique: true,
-      index: true,
-    },
-    {
-      name: 'categorias',
-      type: 'select',
-      label: 'Categorías',
-      options: [...CATEGORIAS_MOTO, ...CATEGORIAS_AUTO],
-      defaultValue: [CATEGORIAS_MOTO[0]],
-      hasMany: true,
-      required: true,
-    },
     {
       name: 'pregunta',
       type: 'text',
@@ -102,6 +85,31 @@ export const Consignas: CollectionConfig = {
           required: true,
         },
       ],
+    },
+    // aside fields
+    {
+      name: 'categorias',
+      type: 'select',
+      label: 'Categorías',
+      options: [...CATEGORIAS_MOTO, ...CATEGORIAS_AUTO],
+      defaultValue: [CATEGORIAS_MOTO[0]],
+      hasMany: true,
+      required: true,
+      admin: {
+        description: 'Selecciona una o más categorías para esta consigna.',
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'eliminatoria',
+      type: 'checkbox',
+      label: 'Eliminatoria',
+      admin: {
+        description: 'Si está marcada, la consigna es eliminatoria.',
+        position: 'sidebar',
+      },
+      required: true,
+      defaultValue: false,
     },
   ],
 }
