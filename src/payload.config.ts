@@ -12,6 +12,7 @@ import { Archivos } from './payload/collections/archivos'
 import { Ciudadanos } from './payload/collections/ciudadanos'
 import { Consignas } from './payload/collections/consignas'
 import { Examenes } from './payload/collections/examenes'
+import { ExamenesFinalizados } from './payload/collections/examenes-finalizados'
 import { Fut } from './payload/collections/fut'
 import { Usuarios } from './payload/collections/usuarios'
 import { storagePlugin } from './payload/plugins/storage'
@@ -38,7 +39,7 @@ export default buildConfig({
       },
     },
   },
-  collections: [Usuarios, Ciudadanos, Archivos, Fut, Consignas, Examenes],
+  collections: [Usuarios, Ciudadanos, Archivos, Fut, Consignas, Examenes, ExamenesFinalizados],
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,
   typescript: {
