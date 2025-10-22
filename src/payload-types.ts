@@ -73,6 +73,7 @@ export interface Config {
     futs: Fut;
     consignas: Consigna;
     examenes: Examene;
+    'examenes-finalizados': ExamenesFinalizado;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -85,6 +86,7 @@ export interface Config {
     futs: FutsSelect<false> | FutsSelect<true>;
     consignas: ConsignasSelect<false> | ConsignasSelect<true>;
     examenes: ExamenesSelect<false> | ExamenesSelect<true>;
+    'examenes-finalizados': ExamenesFinalizadosSelect<false> | ExamenesFinalizadosSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -253,6 +255,18 @@ export interface Examene {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "examenes-finalizados".
+ */
+export interface ExamenesFinalizado {
+  id: string;
+  examen: string | Examene;
+  ciudadanos: string | Ciudadano;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -281,6 +295,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'examenes';
         value: string | Examene;
+      } | null)
+    | ({
+        relationTo: 'examenes-finalizados';
+        value: string | ExamenesFinalizado;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -437,6 +455,17 @@ export interface ExamenesSelect<T extends boolean = true> {
       };
   categorias?: T;
   finalizado?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "examenes-finalizados_select".
+ */
+export interface ExamenesFinalizadosSelect<T extends boolean = true> {
+  examen?: T;
+  ciudadanos?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

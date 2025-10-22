@@ -3,8 +3,7 @@ import { CATEGORIAS_AUTO, CATEGORIAS_MOTO } from '@/data/categorias'
 import type { Examene } from '@/payload-types'
 import type { CollectionConfig, FilterOptions } from 'payload'
 
-const consignaFilter: FilterOptions<Examene> = ({ data, siblingData }) => {
-  console.log(data, siblingData)
+const consignaFilter: FilterOptions<Examene> = ({ data }) => {
   if (!data.categorias || data.categorias.length < 1) {
     return false
   }
