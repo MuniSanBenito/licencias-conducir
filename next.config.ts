@@ -3,14 +3,14 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   // Your Next.js config here
-  /* turbopack: (turbopack) => {
-    turbopack.resolve.extensionAlias = {
+  /* webpack: (webpack) => {
+    webpack.resolve.extensionAlias = {
       '.cjs': ['.cts', '.cjs'],
       '.js': ['.ts', '.tsx', '.js', '.jsx'],
       '.mjs': ['.mts', '.mjs'],
     }
 
-    return turbopack
+    return webpack
   }, */
   reactCompiler: true,
   turbopack: {},
