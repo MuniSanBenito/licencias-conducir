@@ -83,4 +83,21 @@ export const Examenes: CollectionConfig = {
       },
     },
   ],
+  endpoints: [
+    {
+      path: '/iniciar-examen',
+      method: 'put',
+      handler: async (req) => {
+        const usuarios = await req.payload.find({
+          collection: 'usuarios',
+        })
+        console.log('users', usuarios)
+        const data = req.json && (await req.json())
+        console.log('Iniciar examen endpoint called with args:', data)
+        return Response.json({
+          message: 'Examen iniciado',
+        })
+      },
+    },
+  ],
 }

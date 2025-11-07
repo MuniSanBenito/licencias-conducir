@@ -1,3 +1,4 @@
+'use client'
 import { Logo } from '@/payload/brand/logo'
 
 export default function ExamenPage() {
@@ -11,6 +12,25 @@ export default function ExamenPage() {
           <input type="text" className="input" />
         </label>
       </form>
+      <button
+        className="btn"
+        onClick={async () => {
+          const response = await fetch('/api/examenes/iniciar-examen', {
+            method: 'PUT',
+            body: JSON.stringify({
+              dni: '12345678',
+            }),
+            headers: {
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
+            },
+          })
+          const data = await response.text()
+          console.log(data)
+        }}
+      >
+        Peticion
+      </button>
     </main>
   )
 }
