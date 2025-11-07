@@ -1,5 +1,5 @@
 import { HIDE_API_URL } from '@/config'
-import { CATEGORIAS_AUTO, CATEGORIAS_MOTO } from '@/data/categorias'
+import { CATEGORIAS_AUTO, CATEGORIAS_MOTO } from '@/constants/categorias'
 import type { CollectionConfig } from 'payload'
 
 export const Consignas: CollectionConfig = {

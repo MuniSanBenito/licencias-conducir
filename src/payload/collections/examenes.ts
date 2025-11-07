@@ -1,5 +1,5 @@
 import { HIDE_API_URL } from '@/config'
-import { CATEGORIAS_AUTO, CATEGORIAS_MOTO } from '@/data/categorias'
+import { CATEGORIAS_AUTO, CATEGORIAS_MOTO } from '@/constants/categorias'
 import type { Examene } from '@/payload-types'
 import type { CollectionConfig, FilterOptions } from 'payload'
 
