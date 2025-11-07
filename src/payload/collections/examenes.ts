@@ -52,6 +52,12 @@ export const Examenes: CollectionConfig = {
           label: 'Respuesta',
           required: true,
         },
+        {
+          name: 'correcta',
+          type: 'checkbox',
+          label: 'Correcta',
+          defaultValue: false,
+        },
       ],
     }, // aside fields
     {

@@ -73,7 +73,6 @@ export interface Config {
     futs: Fut;
     consignas: Consigna;
     examenes: Examene;
-    'examenes-finalizados': ExamenesFinalizado;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -87,7 +86,6 @@ export interface Config {
     futs: FutsSelect<false> | FutsSelect<true>;
     consignas: ConsignasSelect<false> | ConsignasSelect<true>;
     examenes: ExamenesSelect<false> | ExamenesSelect<true>;
-    'examenes-finalizados': ExamenesFinalizadosSelect<false> | ExamenesFinalizadosSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -131,8 +129,10 @@ export interface UsuarioAuthOperations {
  */
 export interface Usuario {
   id: string;
+  dev?: boolean | null;
   updatedAt: string;
   createdAt: string;
+  deletedAt?: string | null;
   email: string;
   resetPasswordToken?: string | null;
   resetPasswordExpiration?: string | null;
@@ -243,6 +243,7 @@ export interface Examene {
     | {
         consigna: string | Consigna;
         respuesta: string;
+        correcta?: boolean | null;
         id?: string | null;
       }[]
     | null;
@@ -251,18 +252,6 @@ export interface Examene {
    */
   categorias: ('A1' | 'A2' | 'A3' | 'B1' | 'B2' | 'B3' | 'B4')[];
   finalizado?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-  deletedAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "examenes-finalizados".
- */
-export interface ExamenesFinalizado {
-  id: string;
-  examen: string | Examene;
-  ciudadanos: string | Ciudadano;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -314,10 +303,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'examenes';
         value: string | Examene;
-      } | null)
-    | ({
-        relationTo: 'examenes-finalizados';
-        value: string | ExamenesFinalizado;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -366,8 +351,10 @@ export interface PayloadMigration {
  * via the `definition` "usuarios_select".
  */
 export interface UsuariosSelect<T extends boolean = true> {
+  dev?: T;
   updatedAt?: T;
   createdAt?: T;
+  deletedAt?: T;
   email?: T;
   resetPasswordToken?: T;
   resetPasswordExpiration?: T;
@@ -470,21 +457,11 @@ export interface ExamenesSelect<T extends boolean = true> {
     | {
         consigna?: T;
         respuesta?: T;
+        correcta?: T;
         id?: T;
       };
   categorias?: T;
   finalizado?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  deletedAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "examenes-finalizados_select".
- */
-export interface ExamenesFinalizadosSelect<T extends boolean = true> {
-  examen?: T;
-  ciudadanos?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

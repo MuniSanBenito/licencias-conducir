@@ -6,7 +6,7 @@ export const metadata = {
   title: 'Payload Blank Template',
 }
 
-export default async function RootLayout({ children }: PropsWithChildren) {
+export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="es" data-theme="light">
       <body>
