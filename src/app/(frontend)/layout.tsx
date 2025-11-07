@@ -9,9 +9,7 @@ export const metadata = {
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="es" data-theme="light">
-      <body>
-        <main>{children}</main>
-      </body>
+      <body>{children}</body>
     </html>
   )
 }
