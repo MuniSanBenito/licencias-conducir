@@ -1,5 +1,5 @@
-import { redirect } from 'next/navigation'
+import { redirect, RedirectType } from 'next/navigation'
 
 export default async function HomePage() {
-  redirect('/examen')
+  redirect('/examen', RedirectType.replace)
 }

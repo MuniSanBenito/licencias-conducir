@@ -8,7 +8,7 @@ export const metadata = {
 
 export default async function RootLayout({ children }: PropsWithChildren) {
   return (
-    <html lang="es">
+    <html lang="es" data-theme="light">
       <body>
         <main>{children}</main>
       </body>
