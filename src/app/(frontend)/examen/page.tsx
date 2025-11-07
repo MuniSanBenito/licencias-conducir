@@ -1,3 +1,3 @@
 export default function ExamenPage() {
-  return <div>Examen Page</div>
+  return <div className="text-2xl">Examen Page</div>
 }
