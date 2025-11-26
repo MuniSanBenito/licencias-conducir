@@ -6,6 +6,7 @@ import type {
   CollectionConfig,
   FieldHook,
   FilterOptions,
+  Where,
 } from 'payload'
 
 const afterChangeTitulo: FieldHook<Examen, string, Examen> = async ({ data, req }) => {
@@ -71,11 +72,29 @@ const consignaFilter: FilterOptions<Examen> = ({ data }) => {
     return false
   }
 
-  return {
-    categorias: {
-      in: data.categorias,
-    },
+  const consignasAsignadas =
+    data.consignas
+      ?.map((item) => {
+        return typeof item.consigna === 'string' ? item.consigna : item.consigna?.id
+      })
+      .filter(Boolean) || []
+
+  const filter: Where = {
+    and: [
+      {
+        categorias: {
+          in: data.categorias,
+        },
+      },
+      {
+        id: {
+          not_in: consignasAsignadas,
+        },
+      },
+    ],
   }
+
+  return filter
 }
 
 export const Examenes: CollectionConfig = {
