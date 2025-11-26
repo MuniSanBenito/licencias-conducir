@@ -72,7 +72,7 @@ export interface Config {
     archivos: Archivo;
     futs: Fut;
     consignas: Consigna;
-    examenes: Examene;
+    examenes: Examen;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -94,6 +94,7 @@ export interface Config {
   db: {
     defaultIDType: string;
   };
+  fallbackLocale: null;
   globals: {};
   globalsSelect: {};
   locale: null;
@@ -186,6 +187,7 @@ export interface Archivo {
  */
 export interface Fut {
   id: string;
+  futId: string;
   ciudadano: string | Ciudadano;
   updatedAt: string;
   createdAt: string;
@@ -236,13 +238,13 @@ export interface Consigna {
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "examenes".
  */
-export interface Examene {
+export interface Examen {
   id: string;
   fut: string | Fut;
   consignas?:
     | {
         consigna: string | Consigna;
-        respuesta: string;
+        respuesta?: number | null;
         correcta?: boolean | null;
         id?: string | null;
       }[]
@@ -252,6 +254,7 @@ export interface Examene {
    */
   categorias: ('A1' | 'A2' | 'A3' | 'B1' | 'B2' | 'B3' | 'B4')[];
   finalizado?: boolean | null;
+  titulo?: string | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -302,7 +305,7 @@ export interface PayloadLockedDocument {
       } | null)
     | ({
         relationTo: 'examenes';
-        value: string | Examene;
+        value: string | Examen;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -404,7 +407,7 @@ export interface ArchivosSelect<T extends boolean = true> {
  * via the `definition` "futs_select".
  */
 export interface FutsSelect<T extends boolean = true> {
-  id?: T;
+  futId?: T;
   ciudadano?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -462,6 +465,7 @@ export interface ExamenesSelect<T extends boolean = true> {
       };
   categorias?: T;
   finalizado?: T;
+  titulo?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

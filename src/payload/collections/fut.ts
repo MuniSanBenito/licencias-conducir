@@ -1,7 +1,7 @@
 import { HIDE_API_URL } from '@/config'
 import type { CollectionConfig } from 'payload'
 
-export const Fut: CollectionConfig = {
+export const Futs: CollectionConfig = {
   slug: 'futs',
   labels: {
     singular: 'FUT',
@@ -9,11 +9,18 @@ export const Fut: CollectionConfig = {
   },
   admin: {
     hideAPIURL: HIDE_API_URL,
-    useAsTitle: 'id',
+    useAsTitle: 'futId',
   },
   trash: true,
   fields: [
-    { name: 'id', type: 'text', label: 'FUT', required: true, unique: true, index: true },
+    {
+      name: 'futId',
+      type: 'text',
+      label: 'FUT',
+      required: true,
+      unique: true,
+      index: true,
+    },
     {
       name: 'ciudadano',
       type: 'relationship',

@@ -1,3 +1,4 @@
+import { HIDE_API_URL } from '@/config'
 import type { CollectionConfig } from 'payload'
 
 export const Ciudadanos: CollectionConfig = {
@@ -8,6 +9,7 @@ export const Ciudadanos: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'dni',
+    hideAPIURL: HIDE_API_URL,
   },
   trash: true,
   fields: [

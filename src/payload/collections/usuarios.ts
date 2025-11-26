@@ -1,3 +1,4 @@
+import { HIDE_API_URL } from '@/config'
 import type { CollectionConfig } from 'payload'
 
 export const Usuarios: CollectionConfig = {
@@ -8,6 +9,8 @@ export const Usuarios: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'email',
+    hideAPIURL: HIDE_API_URL,
+    hidden: ({ user }) => !user?.dev,
   },
   auth: true,
   trash: true,
