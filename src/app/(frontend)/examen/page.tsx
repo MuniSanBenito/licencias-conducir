@@ -1,36 +1,62 @@
 'use client'
 import { Logo } from '@/payload/brand/logo'
+import { toast } from '@payloadcms/ui'
+import { useRouter } from 'next/navigation'
+import { useState, type FormEvent } from 'react'
+import { iniciarExamen } from '../actions/iniciar-examen'
 
-export default function ExamenPage() {
+export default function IniciarExamenPage() {
+  const router = useRouter()
+
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setIsSubmitting(true)
+
+    const dni: string = event.currentTarget.dni.value
+    if (!dni) {
+      toast.error('Por favor ingrese un DNI')
+      setIsSubmitting(false)
+      return
+    }
+
+    const res = await iniciarExamen({ dni })
+    setIsSubmitting(false)
+
+    if (!res.ok) {
+      toast.error(res.message)
+      return
+    }
+
+    router.push(`/examen/${res.examenId}`)
+  }
+
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center gap-8">
       <Logo height={100} />
-      <form>
-        <h2 className="text-xl font-bold">Ingrese su DNI para comenzar el examen</h2>
-        <label className="fieldset">
-          <span className="label">DNI</span>
-          <input type="text" className="input" />
-        </label>
+      <form className="flex flex-col items-center gap-6" onSubmit={handleSubmit}>
+        <h2 className="font-bold">Ingrese su DNI para comenzar el examen</h2>
+        <fieldset className="fieldset w-full">
+          <label htmlFor="dni" className="fieldset-legend">
+            DNI
+          </label>
+          <input
+            name="dni"
+            id="dni"
+            type="number"
+            min={1000000}
+            max={999999999}
+            required
+            placeholder="27384961"
+            className="input"
+          />
+          <span className="label">Ingrese su DNI, sin puntos ni espacios</span>
+        </fieldset>
+        <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+          Iniciar examen
+        </button>
       </form>
-      <button
-        className="btn"
-        onClick={async () => {
-          const response = await fetch('/api/examenes/iniciar-examen', {
-            method: 'PUT',
-            body: JSON.stringify({
-              dni: '12345678',
-            }),
-            headers: {
-              'Content-Type': 'application/json',
-              Accept: 'application/json',
-            },
-          })
-          const data = await response.text()
-          console.log(data)
-        }}
-      >
-        Peticion
-      </button>
     </main>
   )
 }
