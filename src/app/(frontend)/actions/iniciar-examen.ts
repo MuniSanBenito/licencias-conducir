@@ -12,24 +12,11 @@ export async function iniciarExamen({
     return { ok: false, message: 'DNI es requerido', examenId: null }
   }
 
-  const { docs: ciudadanos } = await basePayload.find({
-    collection: 'ciudadanos',
-    where: {
-      dni: {
-        equals: dni,
-      },
-    },
-  })
-  if (!ciudadanos || ciudadanos.length === 0) {
-    return { ok: false, message: 'Ciudadano no encontrado', examenId: null }
-  }
-  const [ciudadano] = ciudadanos
-
   const { docs: futs } = await basePayload.find({
     collection: 'futs',
     where: {
-      ciudadano: {
-        equals: ciudadano.id,
+      'ciudadano.dni': {
+        equals: dni,
       },
     },
   })
@@ -37,6 +24,22 @@ export async function iniciarExamen({
     return { ok: false, message: 'FUT no encontrado para el ciudadano', examenId: null }
   }
   const [fut] = futs
+
+  const { docs: examenes } = await basePayload.find({
+    collection: 'examenes',
+    where: {
+      fut: {
+        equals: fut.id,
+      },
+    },
+    limit: 1,
+    sort: '-createdAt',
+  })
+  if (!examenes || examenes.length === 0) {
+    return { ok: false, message: 'No hay examenes asignados para este FUT', examenId: null }
+  }
+
+  const [examen] = examenes
 
   return { ok: true, message: 'Examen iniciado', examenId: '12345' }
 }

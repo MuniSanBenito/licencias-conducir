@@ -51,12 +51,13 @@ const beforeChange: CollectionBeforeChangeHook<Examen> = async ({ operation, dat
     },
   })
 
-  const indices = getUniqueRandomIndicesFisherYates(consignas.totalDocs, 2)
+  const indices = getUniqueRandomIndicesFisherYates(consignas.totalDocs, 3)
 
   const selectedConsignas = indices.map((index) => {
     const consigna = consignas.docs[index]
+    console.log('Consignas encontradas para el examen:', consigna)
     return {
-      consigna: consigna,
+      consigna: consigna.id,
       respuesta: null,
       correcta: null,
     }
@@ -73,11 +74,9 @@ const consignaFilter: FilterOptions<Examen> = ({ data }) => {
   }
 
   const consignasAsignadas =
-    data.consignas
-      ?.map((item) => {
-        return typeof item.consigna === 'string' ? item.consigna : item.consigna?.id
-      })
-      .filter(Boolean) || []
+    data.consignas?.map((item) =>
+      typeof item.consigna === 'string' ? item.consigna : item.consigna?.id,
+    ) || []
 
   const filter: Where = {
     and: [
@@ -86,11 +85,11 @@ const consignaFilter: FilterOptions<Examen> = ({ data }) => {
           in: data.categorias,
         },
       },
-      {
+      /* {
         id: {
           not_in: consignasAsignadas,
         },
-      },
+      }, */
     ],
   }
 
@@ -131,7 +130,6 @@ export const Examenes: CollectionConfig = {
           type: 'relationship',
           label: 'Consigna',
           relationTo: 'consignas',
-          hasMany: false,
           required: true,
           filterOptions: consignaFilter,
         },
