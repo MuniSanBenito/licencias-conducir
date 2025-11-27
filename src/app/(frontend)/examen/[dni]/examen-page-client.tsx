@@ -83,48 +83,51 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
                 <div className="mt-4 space-y-2">
                   {consigna.opciones?.map((opcion, opcionIndex) => {
                     const isSelected = respuestas[consignaId] === opcionIndex
+                    const radioId = `consigna-${consignaId}-opcion-${opcionIndex}`
 
                     return (
-                      <div
+                      <label
                         key={opcionIndex}
-                        className={`form-control ${isSelected ? 'bg-primary/10' : ''} rounded-lg border-2 p-4 transition-all ${
-                          isSelected ? 'border-primary' : 'border-base-300'
+                        htmlFor={radioId}
+                        className={`flex cursor-pointer items-start gap-4 rounded-lg border-2 p-4 transition-all ${
+                          isSelected
+                            ? 'border-primary bg-primary/10'
+                            : 'border-base-300 hover:border-primary/50'
                         }`}
                       >
-                        <label className="label cursor-pointer justify-start gap-4">
-                          <input
-                            type="radio"
-                            name={`consigna-${consignaId}`}
-                            className="radio radio-primary"
-                            value={opcionIndex}
-                            checked={isSelected}
-                            onChange={() => handleRespuestaChange(consignaId, opcionIndex)}
-                          />
-                          <span className="label-text flex-1 text-base">
-                            {opcion.opcion?.map((bloque, bloqueIndex) => {
-                              if (bloque.blockType === 'texto') {
-                                return <span key={bloqueIndex}>{bloque.texto}</span>
-                              }
-                              if (bloque.blockType === 'imagen') {
-                                const imagen =
-                                  typeof bloque.imagen === 'string'
-                                    ? bloque.imagen
-                                    : bloque.imagen?.url
-                                return (
-                                  <div key={bloqueIndex} className="mt-3">
-                                    <img
-                                      src={imagen || ''}
-                                      alt="Opción"
-                                      className="max-h-48 rounded-lg"
-                                    />
-                                  </div>
-                                )
-                              }
-                              return null
-                            })}
-                          </span>
-                        </label>
-                      </div>
+                        <input
+                          type="radio"
+                          id={radioId}
+                          name={`consigna-${consignaId}`}
+                          className="radio radio-primary mt-0.5"
+                          value={opcionIndex}
+                          checked={isSelected}
+                          onChange={() => handleRespuestaChange(consignaId, opcionIndex)}
+                        />
+                        <span className="flex-1 text-base">
+                          {opcion.opcion?.map((bloque, bloqueIndex) => {
+                            if (bloque.blockType === 'texto') {
+                              return <span key={bloqueIndex}>{bloque.texto}</span>
+                            }
+                            if (bloque.blockType === 'imagen') {
+                              const imagen =
+                                typeof bloque.imagen === 'string'
+                                  ? bloque.imagen
+                                  : bloque.imagen?.url
+                              return (
+                                <div key={bloqueIndex} className="mt-3">
+                                  <img
+                                    src={imagen || ''}
+                                    alt="Opción"
+                                    className="max-h-48 rounded-lg"
+                                  />
+                                </div>
+                              )
+                            }
+                            return null
+                          })}
+                        </span>
+                      </label>
                     )
                   })}
                 </div>

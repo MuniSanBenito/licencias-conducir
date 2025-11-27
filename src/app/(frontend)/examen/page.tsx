@@ -3,7 +3,6 @@ import { Logo } from '@/payload/brand/logo'
 import { toast } from '@payloadcms/ui'
 import { useRouter } from 'next/navigation'
 import { useState, type FormEvent } from 'react'
-import { iniciarExamen } from '../actions/iniciar-examen'
 
 export default function IniciarExamenPage() {
   const router = useRouter()
@@ -21,7 +20,9 @@ export default function IniciarExamenPage() {
       return
     }
 
-    const res = await iniciarExamen({ dni })
+    router.push(`/examen/${dni}`)
+
+    /* const res = await iniciarExamen({ dni })
     setIsSubmitting(false)
 
     if (!res.ok) {
@@ -29,7 +30,7 @@ export default function IniciarExamenPage() {
       return
     }
 
-    router.push(`/examen/${res.examen.id}`)
+    router.push(`/examen/${res.examen.id}`) */
   }
 
   return (
