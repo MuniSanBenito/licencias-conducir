@@ -1,12 +1,12 @@
 import { HIDE_API_URL } from '@/config'
 import { CATEGORIAS_AUTO, CATEGORIAS_MOTO } from '@/constants/categorias'
-import type { Ciudadano, Examen } from '@/payload-types'
-import type {
-  CollectionBeforeChangeHook,
-  CollectionConfig,
-  FieldHook,
-  FilterOptions,
-  Where,
+import type { Ciudadano, Consigna, Examen } from '@/payload-types'
+import {
+  APIError,
+  type CollectionBeforeChangeHook,
+  type CollectionConfig,
+  type FieldHook,
+  type FilterOptions,
 } from 'payload'
 
 const afterChangeTitulo: FieldHook<Examen, string, Examen> = async ({ data, req }) => {
@@ -39,6 +39,38 @@ function getUniqueRandomIndicesFisherYates(cantidad: number, k = 2): number[] {
 
 const beforeChange: CollectionBeforeChangeHook<Examen> = async ({ operation, data, req }) => {
   if (operation === 'update') {
+    // Verificar duplicados en update
+    const consignas: Consigna[] = []
+    for (const item of data?.consignas || []) {
+      const consigna =
+        typeof item.consigna === 'string'
+          ? await req.payload.findByID({
+              collection: 'consignas',
+              id: item.consigna,
+            })
+          : item.consigna
+
+      consignas.push(consigna)
+    }
+
+    console.log('Consignas en update:', consignas)
+
+    const duplicados =
+      consignas?.filter(
+        (consigna, index) =>
+          consignas.map((consigna) => consigna.id)?.indexOf(consigna.id) !== index,
+      ) || []
+    console.log('Consignas duplicadas encontradas en update:', duplicados)
+
+    if (duplicados.length > 0) {
+      throw new APIError(
+        `Consignas duplicadas: ${duplicados.map((d) => d.pregunta).join(', ')}`,
+        400,
+        null,
+        true,
+      )
+    }
+
     return data
   }
 
@@ -73,27 +105,11 @@ const consignaFilter: FilterOptions<Examen> = ({ data }) => {
     return false
   }
 
-  const consignasAsignadas =
-    data.consignas?.map((item) =>
-      typeof item.consigna === 'string' ? item.consigna : item.consigna?.id,
-    ) || []
-
-  const filter: Where = {
-    and: [
-      {
-        categorias: {
-          in: data.categorias,
-        },
-      },
-      /* {
-        id: {
-          not_in: consignasAsignadas,
-        },
-      }, */
-    ],
+  return {
+    categorias: {
+      in: data.categorias,
+    },
   }
-
-  return filter
 }
 
 export const Examenes: CollectionConfig = {
