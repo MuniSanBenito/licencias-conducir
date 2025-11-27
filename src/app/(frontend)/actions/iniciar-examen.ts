@@ -1,4 +1,5 @@
 'use server'
+import type { Examen } from '@/payload-types'
 import type { ResNOK, ResOK } from '@/types'
 import { basePayload } from '@/web/payload'
 
@@ -7,9 +8,9 @@ interface Args {
 }
 export async function iniciarExamen({
   dni,
-}: Args): Promise<(ResOK & { examenId: string }) | (ResNOK & { examenId: null })> {
+}: Args): Promise<(ResOK & { examen: Examen }) | (ResNOK & { examen: null })> {
   if (!dni) {
-    return { ok: false, message: 'DNI es requerido', examenId: null }
+    return { ok: false, message: 'DNI es requerido', examen: null }
   }
 
   const { docs: futs } = await basePayload.find({
@@ -21,25 +22,34 @@ export async function iniciarExamen({
     },
   })
   if (!futs || futs.length === 0) {
-    return { ok: false, message: 'FUT no encontrado para el ciudadano', examenId: null }
+    return { ok: false, message: 'FUT no encontrado para el ciudadano', examen: null }
   }
   const [fut] = futs
 
   const { docs: examenes } = await basePayload.find({
     collection: 'examenes',
     where: {
-      fut: {
-        equals: fut.id,
-      },
+      and: [
+        {
+          'fut.id': {
+            equals: fut.id,
+          },
+        },
+        {
+          finalizado: {
+            equals: false,
+          },
+        },
+      ],
     },
     limit: 1,
     sort: '-createdAt',
   })
   if (!examenes || examenes.length === 0) {
-    return { ok: false, message: 'No hay examenes asignados para este FUT', examenId: null }
+    return { ok: false, message: 'No hay examenes asignados para este FUT', examen: null }
   }
 
   const [examen] = examenes
 
-  return { ok: true, message: 'Examen iniciado', examenId: '12345' }
+  return { ok: true, message: 'Examen iniciado', examen }
 }

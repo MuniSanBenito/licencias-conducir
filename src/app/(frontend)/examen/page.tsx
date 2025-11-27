@@ -29,7 +29,7 @@ export default function IniciarExamenPage() {
       return
     }
 
-    // router.push(`/examen/${res.examenId}`)
+    router.push(`/examen/${res.examen.id}`)
   }
 
   return (
