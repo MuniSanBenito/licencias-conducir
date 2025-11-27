@@ -5,27 +5,8 @@ import {
   APIError,
   type CollectionBeforeChangeHook,
   type CollectionConfig,
-  type FieldHook,
   type FilterOptions,
 } from 'payload'
-
-const afterChangeTitulo: FieldHook<Examen, string, Examen> = async ({ data, req }) => {
-  const fut =
-    typeof data?.fut === 'string'
-      ? await req.payload.findByID({
-          collection: 'futs',
-          id: data.fut,
-        })
-      : data!.fut
-
-  if (!fut) {
-    return ''
-  }
-
-  const titulo = `FUT ${fut.futId} - DNI ${(fut.ciudadano as Ciudadano).dni}`
-
-  return titulo
-}
 
 function getUniqueRandomIndicesFisherYates(cantidad: number, k = 2): number[] {
   if (cantidad < k) throw new Error('La cantidad debe ser mayor o igual a k')
@@ -53,14 +34,11 @@ const beforeChange: CollectionBeforeChangeHook<Examen> = async ({ operation, dat
       consignas.push(consigna)
     }
 
-    console.log('Consignas en update:', consignas)
-
     const duplicados =
       consignas?.filter(
         (consigna, index) =>
           consignas.map((consigna) => consigna.id)?.indexOf(consigna.id) !== index,
       ) || []
-    console.log('Consignas duplicadas encontradas en update:', duplicados)
 
     if (duplicados.length > 0) {
       throw new APIError(
@@ -87,7 +65,6 @@ const beforeChange: CollectionBeforeChangeHook<Examen> = async ({ operation, dat
 
   const selectedConsignas = indices.map((index) => {
     const consigna = consignas.docs[index]
-    console.log('Consignas encontradas para el examen:', consigna)
     return {
       consigna: consigna.id,
       respuesta: null,
@@ -96,6 +73,16 @@ const beforeChange: CollectionBeforeChangeHook<Examen> = async ({ operation, dat
   })
 
   data.consignas = selectedConsignas
+
+  const fut =
+    typeof data?.fut === 'string'
+      ? await req.payload.findByID({
+          collection: 'futs',
+          id: data.fut,
+        })
+      : data.fut
+
+  data.titulo = `FUT ${fut?.futId} - DNI ${(fut?.ciudadano as Ciudadano).dni}`
 
   return data
 }
@@ -194,31 +181,6 @@ export const Examenes: CollectionConfig = {
       admin: {
         hidden: true,
       },
-      hooks: {
-        afterChange: [afterChangeTitulo],
-      },
     },
   ],
-  /* endpoints: [
-    {
-      path: '/iniciar-examen',
-      method: 'put',
-      handler: async (req) => {
-        const usuarios = await req.payload.find({
-          collection: 'usuarios',
-        })
-        console.log('users', usuarios)
-        const data = req.json && (await req.json())
-        console.log('Iniciar examen endpoint called with args:', data)
-
-        const response: Res = {
-          ok: true,
-          message: 'Examen iniciado',
-        }
-        return Response.json(response, {
-          status: 200,
-        })
-      },
-    },
-  ], */
 }
