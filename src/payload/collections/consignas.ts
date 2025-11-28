@@ -28,6 +28,7 @@ export const Consignas: CollectionConfig = {
         singular: 'Opción',
         plural: 'Opciones',
       },
+      interfaceName: 'OpcionesDeConsigna',
       fields: [
         {
           name: 'opcion',

@@ -127,6 +127,12 @@ export const Examenes: CollectionConfig = {
     {
       name: 'consignas',
       type: 'array',
+      label: 'Consignas',
+      labels: {
+        singular: 'Consigna',
+        plural: 'Consignas',
+      },
+      interfaceName: 'ConsignasDelExamen',
       fields: [
         {
           name: 'consigna',

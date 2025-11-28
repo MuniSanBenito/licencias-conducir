@@ -7,6 +7,44 @@
  */
 
 /**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "OpcionesDeConsigna".
+ */
+export type OpcionesDeConsigna =
+  | {
+      opcion?:
+        | (
+            | {
+                texto: string;
+                id?: string | null;
+                blockName?: string | null;
+                blockType: 'texto';
+              }
+            | {
+                imagen: string | Archivo;
+                id?: string | null;
+                blockName?: string | null;
+                blockType: 'imagen';
+              }
+          )[]
+        | null;
+      correcta: boolean;
+      id?: string | null;
+    }[]
+  | null;
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ConsignasDelExamen".
+ */
+export type ConsignasDelExamen =
+  | {
+      consigna: string | Consigna;
+      respuesta?: number | null;
+      correcta?: boolean | null;
+      id?: string | null;
+    }[]
+  | null;
+/**
  * Supported timezones in IANA format.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -200,28 +238,7 @@ export interface Fut {
 export interface Consigna {
   id: string;
   pregunta: string;
-  opciones?:
-    | {
-        opcion?:
-          | (
-              | {
-                  texto: string;
-                  id?: string | null;
-                  blockName?: string | null;
-                  blockType: 'texto';
-                }
-              | {
-                  imagen: string | Archivo;
-                  id?: string | null;
-                  blockName?: string | null;
-                  blockType: 'imagen';
-                }
-            )[]
-          | null;
-        correcta: boolean;
-        id?: string | null;
-      }[]
-    | null;
+  opciones?: OpcionesDeConsigna;
   /**
    * Selecciona una o más categorías para esta consigna.
    */
@@ -241,14 +258,7 @@ export interface Consigna {
 export interface Examen {
   id: string;
   fut: string | Fut;
-  consignas?:
-    | {
-        consigna: string | Consigna;
-        respuesta?: number | null;
-        correcta?: boolean | null;
-        id?: string | null;
-      }[]
-    | null;
+  consignas?: ConsignasDelExamen;
   /**
    * Selecciona una o más categorías para esta consigna.
    */
@@ -419,30 +429,7 @@ export interface FutsSelect<T extends boolean = true> {
  */
 export interface ConsignasSelect<T extends boolean = true> {
   pregunta?: T;
-  opciones?:
-    | T
-    | {
-        opcion?:
-          | T
-          | {
-              texto?:
-                | T
-                | {
-                    texto?: T;
-                    id?: T;
-                    blockName?: T;
-                  };
-              imagen?:
-                | T
-                | {
-                    imagen?: T;
-                    id?: T;
-                    blockName?: T;
-                  };
-            };
-        correcta?: T;
-        id?: T;
-      };
+  opciones?: T | OpcionesDeConsignaSelect<T>;
   categorias?: T;
   eliminatoria?: T;
   updatedAt?: T;
@@ -451,24 +438,53 @@ export interface ConsignasSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "OpcionesDeConsigna_select".
+ */
+export interface OpcionesDeConsignaSelect<T extends boolean = true> {
+  opcion?:
+    | T
+    | {
+        texto?:
+          | T
+          | {
+              texto?: T;
+              id?: T;
+              blockName?: T;
+            };
+        imagen?:
+          | T
+          | {
+              imagen?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
+  correcta?: T;
+  id?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "examenes_select".
  */
 export interface ExamenesSelect<T extends boolean = true> {
   fut?: T;
-  consignas?:
-    | T
-    | {
-        consigna?: T;
-        respuesta?: T;
-        correcta?: T;
-        id?: T;
-      };
+  consignas?: T | ConsignasDelExamenSelect<T>;
   categorias?: T;
   finalizado?: T;
   titulo?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ConsignasDelExamen_select".
+ */
+export interface ConsignasDelExamenSelect<T extends boolean = true> {
+  consigna?: T;
+  respuesta?: T;
+  correcta?: T;
+  id?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
