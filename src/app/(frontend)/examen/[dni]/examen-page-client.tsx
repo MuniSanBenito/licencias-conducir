@@ -1,5 +1,6 @@
 'use client'
 import type { Consigna, Examen } from '@/payload-types'
+import { Logo } from '@/payload/brand/logo'
 import { useState } from 'react'
 
 interface ExamenPageClientProps {
@@ -26,8 +27,30 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
   const respondidas = Object.keys(respuestas).length
   const progreso = totalConsignas > 0 ? (respondidas / totalConsignas) * 100 : 0
 
+  const fechaActual = new Date().toLocaleDateString('es-AR', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  })
+
   return (
     <div className="mx-auto min-h-dvh max-w-4xl p-6">
+      {/* Header con logo e info */}
+      <div className="mb-8 border-b pb-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <Logo height={60} />
+          <div className="text-right">
+            <div className="text-sm text-base-content/70">
+              {fechaActual.charAt(0).toUpperCase() + fechaActual.slice(1)}
+            </div>
+            <div className="mt-1 text-xs text-base-content/60">
+              Municipalidad de San Benito
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Header con stats */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold">{examen.titulo}</h1>
@@ -131,27 +154,6 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
                     )
                   })}
                 </div>
-
-                {isAnswered && (
-                  <div className="mt-2">
-                    <div className="badge badge-success gap-2">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        className="inline-block h-4 w-4 stroke-current"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                      Respondida
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           )
