@@ -2,7 +2,7 @@
 import type { Consigna, Examen } from '@/payload-types'
 import { Logo } from '@/payload/brand/logo'
 import { IconCheck, IconX } from '@tabler/icons-react'
-import { useState } from 'react'
+import { useState, type FormEvent } from 'react'
 
 interface ExamenPageClientProps {
   examen: Examen
@@ -18,7 +18,7 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
     }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     // TODO: Implementar lógica de envío
     console.log('Respuestas:', respuestas)
