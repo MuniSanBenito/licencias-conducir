@@ -26,6 +26,9 @@ importers:
       '@payloadcms/ui':
         specifier: 3.65.0
         version: 3.65.0(@types/react@19.2.7)(monaco-editor@0.55.1)(next@16.0.5(@babel/core@7.28.5)(@playwright/test@1.57.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(sass@1.77.4))(payload@3.65.0(graphql@16.12.0)(typescript@5.9.3))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
+      '@tabler/icons-react':
+        specifier: 3.35.0
+        version: 3.35.0(react@19.2.0)
       '@tailwindcss/postcss':
         specifier: 4.1.17
         version: 4.1.17
@@ -1511,6 +1514,14 @@ packages:
 
   '@swc/helpers@0.5.15':
     resolution: {integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==}
+
+  '@tabler/icons-react@3.35.0':
+    resolution: {integrity: sha512-XG7t2DYf3DyHT5jxFNp5xyLVbL4hMJYJhiSdHADzAjLRYfL7AnjlRfiHDHeXxkb2N103rEIvTsBRazxXtAUz2g==}
+    peerDependencies:
+      react: '>= 16'
+
+  '@tabler/icons@3.35.0':
+    resolution: {integrity: sha512-yYXe+gJ56xlZFiXwV9zVoe3FWCGuZ/D7/G4ZIlDtGxSx5CGQK110wrnT29gUj52kEZoxqF7oURTk97GQxELOFQ==}
 
   '@tailwindcss/node@4.1.17':
     resolution: {integrity: sha512-csIkHIgLb3JisEFQ0vxr2Y57GUNYh447C8xzwj89U/8fdW8LhProdxvnVH6U8M2Y73QKiTIH+LWbK3V2BBZsAg==}
@@ -6417,6 +6428,13 @@ snapshots:
   '@swc/helpers@0.5.15':
     dependencies:
       tslib: 2.8.1
+
+  '@tabler/icons-react@3.35.0(react@19.2.0)':
+    dependencies:
+      '@tabler/icons': 3.35.0
+      react: 19.2.0
+
+  '@tabler/icons@3.35.0': {}
 
   '@tailwindcss/node@4.1.17':
     dependencies:
