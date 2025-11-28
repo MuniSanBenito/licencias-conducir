@@ -1,6 +1,7 @@
 'use client'
 import type { Consigna, Examen } from '@/payload-types'
 import { Logo } from '@/payload/brand/logo'
+import { IconCheck, IconX } from '@tabler/icons-react'
 import { useState } from 'react'
 
 interface ExamenPageClientProps {
@@ -85,19 +86,7 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
                   </h2>
                   {consigna.eliminatoria && (
                     <div className="badge badge-error gap-2">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        className="inline-block h-4 w-4 stroke-current"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
+                      <IconX className="h-4 w-4" />
                       Eliminatoria
                     </div>
                   )}
@@ -171,19 +160,7 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
           >
             {respondidas === totalConsignas ? (
               <>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  className="inline-block h-5 w-5 stroke-current"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
+                <IconCheck className="h-5 w-5" />
                 Finalizar examen
               </>
             ) : (
