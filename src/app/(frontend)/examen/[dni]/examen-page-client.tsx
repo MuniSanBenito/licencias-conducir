@@ -2,7 +2,8 @@
 import type { Consigna, Examen } from '@/payload-types'
 import { Logo } from '@/payload/brand/logo'
 import { IconCheck, IconX } from '@tabler/icons-react'
-import { useState, type FormEvent } from 'react'
+import Image from 'next/image'
+import { useCallback, useMemo, useState, type FormEvent } from 'react'
 
 interface ExamenPageClientProps {
   examen: Examen
@@ -11,29 +12,29 @@ interface ExamenPageClientProps {
 export function ExamenPageClient({ examen }: ExamenPageClientProps) {
   const [respuestas, setRespuestas] = useState<Record<string, number>>({})
 
-  const handleRespuestaChange = (consignaId: string, opcionIndex: number) => {
-    setRespuestas((prev) => ({
-      ...prev,
-      [consignaId]: opcionIndex,
-    }))
-  }
+  const totalConsignas = useMemo(() => examen.consignas?.length || 0, [examen.consignas?.length])
+  const respondidas = useMemo(() => Object.keys(respuestas).length, [respuestas])
+  const progreso = useMemo(() => (totalConsignas > 0 ? (respondidas / totalConsignas) * 100 : 0), [respondidas, totalConsignas])
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    // TODO: Implementar lógica de envío
-    console.log('Respuestas:', respuestas)
-  }
-
-  const totalConsignas = examen.consignas?.length || 0
-  const respondidas = Object.keys(respuestas).length
-  const progreso = totalConsignas > 0 ? (respondidas / totalConsignas) * 100 : 0
-
-  const fechaActual = new Date().toLocaleDateString('es-AR', {
+  const fechaActual = useMemo(() => new Date().toLocaleDateString('es-AR', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-  })
+  }), [])
+
+  const handleRespuestaChange = useCallback((consignaId: string, opcionIndex: number) => {
+    setRespuestas((prev) => ({
+      ...prev,
+      [consignaId]: opcionIndex,
+    }))
+  }, [])
+
+  const handleSubmit = useCallback((e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    // TODO: Implementar lógica de envío
+    console.log('Respuestas:', respuestas)
+  }, [respuestas])
 
   return (
     <div className="mx-auto min-h-dvh max-w-4xl p-6">
@@ -128,10 +129,12 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
                                   : bloque.imagen?.url
                               return (
                                 <div key={bloqueIndex} className="mt-3">
-                                  <img
+                                  <Image
                                     src={imagen || ''}
                                     alt="Opción"
-                                    className="max-h-48 rounded-lg"
+                                    width={500}
+                                    height={300}
+                                    className="max-h-48 w-auto rounded-lg"
                                   />
                                 </div>
                               )
