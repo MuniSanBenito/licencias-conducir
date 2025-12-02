@@ -1,27 +1,35 @@
 'use client'
-import type { Consigna, Examen } from '@/payload-types'
+import type { Consigna, ConsignasExamen, Examen } from '@/payload-types'
 import { Logo } from '@/payload/brand/logo'
 import { IconCheck, IconX } from '@tabler/icons-react'
 import Image from 'next/image'
 import { useCallback, useMemo, useState, type FormEvent } from 'react'
 
 interface ExamenPageClientProps {
-  examen: Examen
+  examen: Omit<Examen, 'consignas'>
+  consignas: NonNullable<ConsignasExamen>
 }
 
-export function ExamenPageClient({ examen }: ExamenPageClientProps) {
+export function ExamenPageClient({ examen, consignas }: ExamenPageClientProps) {
   const [respuestas, setRespuestas] = useState<Record<string, number>>({})
 
-  const totalConsignas = useMemo(() => examen.consignas?.length || 0, [examen.consignas?.length])
+  const totalConsignas = useMemo(() => consignas.length || 0, [consignas.length])
   const respondidas = useMemo(() => Object.keys(respuestas).length, [respuestas])
-  const progreso = useMemo(() => (totalConsignas > 0 ? (respondidas / totalConsignas) * 100 : 0), [respondidas, totalConsignas])
+  const progreso = useMemo(
+    () => (totalConsignas > 0 ? (respondidas / totalConsignas) * 100 : 0),
+    [respondidas, totalConsignas],
+  )
 
-  const fechaActual = useMemo(() => new Date().toLocaleDateString('es-AR', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }), [])
+  const fechaActual = useMemo(
+    () =>
+      new Date().toLocaleDateString('es-AR', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      }),
+    [],
+  )
 
   const handleRespuestaChange = useCallback((consignaId: string, opcionIndex: number) => {
     setRespuestas((prev) => ({
@@ -30,11 +38,14 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
     }))
   }, [])
 
-  const handleSubmit = useCallback((e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    // TODO: Implementar lógica de envío
-    console.log('Respuestas:', respuestas)
-  }, [respuestas])
+  const handleSubmit = useCallback(
+    (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault()
+      // TODO: Implementar lógica de envío
+      console.log('Respuestas:', respuestas)
+    },
+    [respuestas],
+  )
 
   return (
     <div className="mx-auto min-h-dvh max-w-4xl p-6">
@@ -43,12 +54,10 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
         <div className="flex flex-wrap items-center justify-between gap-4">
           <Logo height={60} />
           <div className="text-right">
-            <div className="text-sm text-base-content/70">
+            <div className="text-base-content/70 text-sm">
               {fechaActual.charAt(0).toUpperCase() + fechaActual.slice(1)}
             </div>
-            <div className="mt-1 text-xs text-base-content/60">
-              Municipalidad de San Benito
-            </div>
+            <div className="text-base-content/60 mt-1 text-xs">Municipalidad de San Benito</div>
           </div>
         </div>
       </div>
@@ -72,13 +81,10 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {examen.consignas?.map((item, index) => {
-          const consigna = item.consigna as Consigna
-          const consignaId = typeof item.consigna === 'string' ? item.consigna : consigna.id
-          const isAnswered = consignaId in respuestas
-
+        {consignas.map((c, index) => {
+          const consigna = c.consigna as Consigna
           return (
-            <div key={item.id} className="card bg-base-100 shadow-xl">
+            <div key={consigna.id} className="card bg-base-100 shadow-xl">
               <div className="card-body">
                 <div className="flex items-start justify-between gap-4">
                   <h2 className="card-title flex-1">
@@ -95,8 +101,8 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
 
                 <div className="mt-4 space-y-2">
                   {consigna.opciones?.map((opcion, opcionIndex) => {
-                    const isSelected = respuestas[consignaId] === opcionIndex
-                    const radioId = `consigna-${consignaId}-opcion-${opcionIndex}`
+                    const isSelected = respuestas[consigna.id] === opcionIndex
+                    const radioId = `consigna-${consigna.id}-opcion-${opcionIndex}`
 
                     return (
                       <label
@@ -111,11 +117,11 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
                         <input
                           type="radio"
                           id={radioId}
-                          name={`consigna-${consignaId}`}
+                          name={`consigna-${consigna.id}`}
                           className="radio radio-primary mt-0.5"
                           value={opcionIndex}
                           checked={isSelected}
-                          onChange={() => handleRespuestaChange(consignaId, opcionIndex)}
+                          onChange={() => handleRespuestaChange(consigna.id, opcionIndex)}
                         />
                         <span className="flex-1 text-base">
                           {opcion.opcion?.map((bloque, bloqueIndex) => {
