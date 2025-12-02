@@ -1,22 +1,23 @@
 'use client'
-import type { Consigna, ConsignasExamen, Examen } from '@/payload-types'
+
+import type { Examen as ExamenMock } from '@/mocks/examenes'
 import { Logo } from '@/payload/brand/logo'
 import { IconCheck, IconX } from '@tabler/icons-react'
 import Image from 'next/image'
-import { useCallback, useMemo, useState, type FormEvent } from 'react'
+import type { FormEvent } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 interface ExamenPageClientProps {
-  examen: Omit<Examen, 'consignas'>
-  consignas: NonNullable<ConsignasExamen>
+  examen: ExamenMock
 }
 
-export function ExamenPageClient({ examen, consignas }: ExamenPageClientProps) {
+export function ExamenPageClient({ examen }: ExamenPageClientProps) {
   const [respuestas, setRespuestas] = useState<Record<string, number>>({})
 
-  const totalConsignas = useMemo(() => consignas.length || 0, [consignas.length])
+  const totalConsignas = useMemo(() => examen.consignas.length, [examen.consignas])
   const respondidas = useMemo(() => Object.keys(respuestas).length, [respuestas])
   const progreso = useMemo(
-    () => (totalConsignas > 0 ? (respondidas / totalConsignas) * 100 : 0),
+    () => (totalConsignas > 0 ? Math.round((respondidas / totalConsignas) * 100) : 0),
     [respondidas, totalConsignas],
   )
 
@@ -32,17 +33,14 @@ export function ExamenPageClient({ examen, consignas }: ExamenPageClientProps) {
   )
 
   const handleRespuestaChange = useCallback((consignaId: string, opcionIndex: number) => {
-    setRespuestas((prev) => ({
-      ...prev,
-      [consignaId]: opcionIndex,
-    }))
+    setRespuestas((prev) => ({ ...prev, [consignaId]: opcionIndex }))
   }, [])
 
   const handleSubmit = useCallback(
     (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault()
-      // TODO: Implementar lógica de envío
       console.log('Respuestas:', respuestas)
+      // Aquí se podría enviar a la API cuando exista el backend
     },
     [respuestas],
   )
@@ -76,23 +74,25 @@ export function ExamenPageClient({ examen, consignas }: ExamenPageClientProps) {
 
         {/* Progress bar */}
         <div className="mt-4">
-          <progress className="progress progress-primary w-full" value={progreso} max="100" />
+          <progress className="progress progress-primary w-full" value={progreso} max={100} />
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {consignas.map((c, index) => {
-          const consigna = c.consigna as Consigna
+        {examen.consignas.map((consigna, index) => {
+          const consignaId = consigna.id
+          const isAnswered = consignaId in respuestas
+
           return (
             <div key={consigna.id} className="card bg-base-100 shadow-xl">
               <div className="card-body">
                 <div className="flex items-start justify-between gap-4">
                   <h2 className="card-title flex-1">
-                    <span className="badge badge-neutral">{index + 1}</span>
+                    <span className="badge badge-neutral mr-2">{index + 1}</span>
                     {consigna.pregunta}
                   </h2>
                   {consigna.eliminatoria && (
-                    <div className="badge badge-error gap-2">
+                    <div className="badge badge-error flex items-center gap-2">
                       <IconX className="h-4 w-4" />
                       Eliminatoria
                     </div>
@@ -100,13 +100,13 @@ export function ExamenPageClient({ examen, consignas }: ExamenPageClientProps) {
                 </div>
 
                 <div className="mt-4 space-y-2">
-                  {consigna.opciones?.map((opcion, opcionIndex) => {
-                    const isSelected = respuestas[consigna.id] === opcionIndex
-                    const radioId = `consigna-${consigna.id}-opcion-${opcionIndex}`
+                  {consigna.opciones.map((opcion, opcionIndex) => {
+                    const isSelected = respuestas[consignaId] === opcionIndex
+                    const radioId = `consigna-${consignaId}-opcion-${opcionIndex}`
 
                     return (
                       <label
-                        key={opcionIndex}
+                        key={opcion.id}
                         htmlFor={radioId}
                         className={`flex cursor-pointer items-start gap-4 rounded-lg border-2 p-4 transition-all ${
                           isSelected
@@ -117,36 +117,27 @@ export function ExamenPageClient({ examen, consignas }: ExamenPageClientProps) {
                         <input
                           type="radio"
                           id={radioId}
-                          name={`consigna-${consigna.id}`}
+                          name={`consigna-${consignaId}`}
                           className="radio radio-primary mt-0.5"
                           value={opcionIndex}
                           checked={isSelected}
-                          onChange={() => handleRespuestaChange(consigna.id, opcionIndex)}
+                          onChange={() => handleRespuestaChange(consignaId, opcionIndex)}
                         />
                         <span className="flex-1 text-base">
-                          {opcion.opcion?.map((bloque, bloqueIndex) => {
-                            if (bloque.blockType === 'texto') {
-                              return <span key={bloqueIndex}>{bloque.texto}</span>
-                            }
-                            if (bloque.blockType === 'imagen') {
-                              const imagen =
-                                typeof bloque.imagen === 'string'
-                                  ? bloque.imagen
-                                  : bloque.imagen?.url
-                              return (
-                                <div key={bloqueIndex} className="mt-3">
-                                  <Image
-                                    src={imagen || ''}
-                                    alt="Opción"
-                                    width={500}
-                                    height={300}
-                                    className="max-h-48 w-auto rounded-lg"
-                                  />
-                                </div>
-                              )
-                            }
-                            return null
-                          })}
+                          {opcion.contenido.tipo === 'texto' ? (
+                            <span>{opcion.contenido.texto}</span>
+                          ) : (
+                            <div className="mt-2 flex justify-center">
+                              <Image
+                                src={opcion.contenido.url}
+                                alt="Opción"
+                                width={600}
+                                height={360}
+                                className="h-auto w-full max-w-lg rounded-lg"
+                                unoptimized
+                              />
+                            </div>
+                          )}
                         </span>
                       </label>
                     )
@@ -169,7 +160,7 @@ export function ExamenPageClient({ examen, consignas }: ExamenPageClientProps) {
           >
             {respondidas === totalConsignas ? (
               <>
-                <IconCheck className="h-5 w-5" />
+                <IconCheck className="mr-2 h-5 w-5" />
                 Finalizar examen
               </>
             ) : (
