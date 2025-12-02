@@ -111,23 +111,48 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
   )
 
   const handleSubmit = useCallback(
-    (e: FormEvent<HTMLFormElement>) => {
+    async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault()
-      console.log('Respuestas:', respuestas)
 
-      // Simular envío al backend
-      // TODO: Reemplazar con llamada real a la API
-      const envioExitoso = true // Simular respuesta exitosa
+      try {
+        setIsSubmitting(true)
 
-      if (envioExitoso) {
-        // Limpiar localStorage solo si el envío fue exitoso
-        clearExamenFromStorage(examenId)
-        console.log('Examen enviado exitosamente y datos limpiados de localStorage')
-        // Aquí podrías redirigir a una página de resultados
+        // Enviar respuestas al servidor para validación
+        const response = await fetch('/api/examen/validar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            dni: examenId,
+            respuestas,
+          }),
+        })
+
+        if (!response.ok) {
+          throw new Error('Error al enviar el examen')
+        }
+
+        const data = await response.json()
+
+        if (data.success) {
+          // Limpiar localStorage solo si el envío fue exitoso
+          clearExamenFromStorage(examenId)
+          console.log('Examen enviado exitosamente:', data.resultado)
+          console.log('Datos limpiados de localStorage')
+
+          // TODO: Redirigir a página de resultados
+          // router.push(`/examen/${examenId}/resultado`)
+        }
+      } catch (error) {
+        console.error('Error al enviar examen:', error)
+        // TODO: Mostrar mensaje de error al usuario
+      } finally {
+        setIsSubmitting(false)
       }
     },
     [respuestas, examenId],
   )
+
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleGuardarBorrador = useCallback(() => {
     saveRespuestasToStorage(examenId, respuestas)
@@ -308,9 +333,11 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
           <button
             type="submit"
             className="btn btn-primary btn-sm sm:btn-md"
-            disabled={respondidas !== totalConsignas}
+            disabled={respondidas !== totalConsignas || isSubmitting}
           >
-            {respondidas === totalConsignas ? (
+            {isSubmitting ? (
+              <span className="loading loading-spinner loading-sm" />
+            ) : respondidas === totalConsignas ? (
               <>
                 <IconCheck className="mr-1 h-4 w-4 sm:mr-2 sm:h-5 sm:w-5" />
                 <span className="hidden sm:inline">Finalizar examen</span>
