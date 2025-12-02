@@ -132,7 +132,7 @@ export const Examenes: CollectionConfig = {
         singular: 'Consigna',
         plural: 'Consignas',
       },
-      interfaceName: 'ConsignasDelExamen',
+      interfaceName: 'ConsignasExamen',
       fields: [
         {
           name: 'consigna',
