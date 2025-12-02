@@ -3,7 +3,7 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   // Your Next.js config here
-  /* webpack: (webpack) => {
+  webpack: (webpack) => {
     webpack.resolve.extensionAlias = {
       '.cjs': ['.cts', '.cjs'],
       '.js': ['.ts', '.tsx', '.js', '.jsx'],
@@ -11,9 +11,9 @@ const nextConfig: NextConfig = {
     }
 
     return webpack
-  }, */
-  reactCompiler: true,
-  turbopack: {},
+  },
+  reactCompiler: true, 
+  devIndicators: false
 }
 
 export default withPayload(nextConfig, { devBundleServerPackages: false })
