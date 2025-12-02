@@ -1,5 +1,5 @@
 /**
- * Tipos para el examen (independientes de cualquier backend)
+ * Tipos para el examen - Cliente
  */
 export interface OpcionTexto {
   tipo: 'texto'
@@ -13,14 +13,15 @@ export interface OpcionImagen {
 
 export type Opcion = OpcionTexto | OpcionImagen
 
-export interface ConsignaExamen {
+export interface OpcionCliente {
+  id: string
+  contenido: Opcion
+}
+
+export interface ConsignaCliente {
   id: string
   pregunta: string
-  opciones: Array<{
-    id: string
-    contenido: Opcion
-    esCorrecta: boolean
-  }>
+  opciones: OpcionCliente[]
   eliminatoria: boolean
 }
 
@@ -29,16 +30,41 @@ export interface Examen {
   dni: string
   titulo: string
   categorias: string[]
-  consignas: ConsignaExamen[]
+  consignas: ConsignaCliente[]
   finalizado: boolean
   fechaCreacion: string
 }
 
 /**
- * Exámenes mockeados para desarrollo y testing
- * Cada examen está asociado a un DNI único
+ * Tipos internos del servidor
  */
-export const EXAMENES_MOCK: Examen[] = [
+interface OpcionServidor {
+  id: string
+  contenido: Opcion
+  esCorrecta: boolean
+}
+
+interface ConsignaServidor {
+  id: string
+  pregunta: string
+  opciones: OpcionServidor[]
+  eliminatoria: boolean
+}
+
+interface ExamenServidor {
+  id: string
+  dni: string
+  titulo: string
+  categorias: string[]
+  consignas: ConsignaServidor[]
+  finalizado: boolean
+  fechaCreacion: string
+}
+
+/**
+ * Datos de exámenes para testing
+ */
+const EXAMENES_SERVIDOR: ExamenServidor[] = [
   {
     id: '1',
     dni: '12345678',
@@ -1088,8 +1114,102 @@ export const EXAMENES_MOCK: Examen[] = [
 ]
 
 /**
- * Busca un examen por DNI
+ * Convierte examen a formato público
+ */
+function examenServidorACliente(examenServidor: ExamenServidor): Examen {
+  return {
+    ...examenServidor,
+    consignas: examenServidor.consignas.map((consigna) => ({
+      id: consigna.id,
+      pregunta: consigna.pregunta,
+      eliminatoria: consigna.eliminatoria,
+      opciones: consigna.opciones.map((opcion) => ({
+        id: opcion.id,
+        contenido: opcion.contenido,
+        // NO incluir esCorrecta
+      })),
+    })),
+  }
+}
+
+/**
+ * Busca examen por DNI
  */
 export function buscarExamenPorDNI(dni: string): Examen | undefined {
-  return EXAMENES_MOCK.find((examen) => examen.dni === dni)
+  const examenServidor = EXAMENES_SERVIDOR.find((examen) => examen.dni === dni)
+  if (!examenServidor) return undefined
+  return examenServidorACliente(examenServidor)
+}
+
+/**
+ * Valida respuestas del examen
+ */
+export function validarRespuestas(
+  dni: string,
+  respuestas: Record<string, number>,
+): {
+  aprobado: boolean
+  correctas: number
+  incorrectas: number
+  total: number
+  eliminatoriasIncorrectas: string[]
+  detalles: Array<{
+    consignaId: string
+    correcta: boolean
+    respuestaCorrecta: number
+    respuestaUsuario: number
+  }>
+} {
+  const examenServidor = EXAMENES_SERVIDOR.find((examen) => examen.dni === dni)
+
+  if (!examenServidor) {
+    throw new Error(`No se encontró examen para DNI ${dni}`)
+  }
+
+  let correctas = 0
+  let incorrectas = 0
+  const eliminatoriasIncorrectas: string[] = []
+  const detalles: Array<{
+    consignaId: string
+    correcta: boolean
+    respuestaCorrecta: number
+    respuestaUsuario: number
+  }> = []
+
+  examenServidor.consignas.forEach((consigna) => {
+    const respuestaUsuario = respuestas[consigna.id]
+    const opcionCorrecta = consigna.opciones.findIndex((opt) => opt.esCorrecta)
+
+    const esCorrecta = respuestaUsuario === opcionCorrecta
+
+    if (esCorrecta) {
+      correctas++
+    } else {
+      incorrectas++
+      if (consigna.eliminatoria) {
+        eliminatoriasIncorrectas.push(consigna.id)
+      }
+    }
+
+    detalles.push({
+      consignaId: consigna.id,
+      correcta: esCorrecta,
+      respuestaCorrecta: opcionCorrecta,
+      respuestaUsuario,
+    })
+  })
+
+  const total = examenServidor.consignas.length
+  // Aprobar si: 70% correcto Y sin fallar eliminatorias
+  const porcentaje = (correctas / total) * 100
+  const aprobado = porcentaje >= 70 && eliminatoriasIncorrectas.length === 0
+
+  return {
+    aprobado,
+    correctas,
+    incorrectas,
+    total,
+    eliminatoriasIncorrectas,
+    detalles,
+  }
 }
