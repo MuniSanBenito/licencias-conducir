@@ -18,7 +18,7 @@ function getStorageKey(examenId: string): string {
   return `${STORAGE_PREFIX}${examenId}`
 }
 
-function saveRespuestasToStorage(examenId: string, respuestas: Record<string, number>): void {
+function saveRespuestasToStorage(examenId: string, respuestas: Record<string, number[]>): void {
   try {
     const data = {
       respuestas,
@@ -31,7 +31,7 @@ function saveRespuestasToStorage(examenId: string, respuestas: Record<string, nu
   }
 }
 
-function loadRespuestasFromStorage(examenId: string): Record<string, number> | null {
+function loadRespuestasFromStorage(examenId: string): Record<string, number[]> | null {
   try {
     const stored = localStorage.getItem(getStorageKey(examenId))
     if (!stored) return null
@@ -80,7 +80,7 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
   const [verificandoEstado, setVerificandoEstado] = useState(true)
 
   // Inicializar estado desde localStorage si existe
-  const [respuestas, setRespuestas] = useState<Record<string, number>>(() => {
+  const [respuestas, setRespuestas] = useState<Record<string, number[]>>(() => {
     if (typeof window === 'undefined') return {}
     return loadRespuestasFromStorage(examenId) || {}
   })
@@ -132,7 +132,17 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
   const handleRespuestaChange = useCallback(
     (consignaId: string, opcionIndex: number) => {
       setRespuestas((prev) => {
-        const newRespuestas = { ...prev, [consignaId]: opcionIndex }
+        const respuestasActuales = prev[consignaId] || []
+        let newRespuestasConsigna: number[]
+
+        // Toggle: si ya está seleccionada, la quitamos; sino, la agregamos
+        if (respuestasActuales.includes(opcionIndex)) {
+          newRespuestasConsigna = respuestasActuales.filter((idx) => idx !== opcionIndex)
+        } else {
+          newRespuestasConsigna = [...respuestasActuales, opcionIndex]
+        }
+
+        const newRespuestas = { ...prev, [consignaId]: newRespuestasConsigna }
         // Guardar en localStorage cada vez que cambia una respuesta
         saveRespuestasToStorage(examenId, newRespuestas)
         return newRespuestas
@@ -269,13 +279,14 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
                 {consigna.opciones.every((op) => op.contenido.tipo === 'texto') ? (
                   <div className="mt-3 space-y-2 sm:mt-4">
                     {consigna.opciones.map((opcion, opcionIndex) => {
-                      const isSelected = respuestas[consignaId] === opcionIndex
-                      const radioId = `consigna-${consignaId}-opcion-${opcionIndex}`
+                      const respuestasConsigna = respuestas[consignaId] || []
+                      const isSelected = respuestasConsigna.includes(opcionIndex)
+                      const checkboxId = `consigna-${consignaId}-opcion-${opcionIndex}`
 
                       return (
                         <label
                           key={opcion.id}
-                          htmlFor={radioId}
+                          htmlFor={checkboxId}
                           className={`flex cursor-pointer items-start gap-3 rounded-lg border-2 p-3 transition-all sm:gap-4 sm:p-4 ${
                             isSelected
                               ? 'border-primary bg-primary/10'
@@ -283,11 +294,9 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
                           }`}
                         >
                           <input
-                            type="radio"
-                            id={radioId}
-                            name={`consigna-${consignaId}`}
-                            className="radio radio-primary mt-0.5"
-                            value={opcionIndex}
+                            type="checkbox"
+                            id={checkboxId}
+                            className="checkbox checkbox-primary mt-0.5"
                             checked={isSelected}
                             onChange={() => handleRespuestaChange(consignaId, opcionIndex)}
                           />
@@ -301,13 +310,14 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
                 ) : (
                   <div className="mt-3 grid grid-cols-1 gap-2 sm:mt-4 sm:grid-cols-[repeat(auto-fit,minmax(300px,1fr))] sm:gap-3">
                     {consigna.opciones.map((opcion, opcionIndex) => {
-                      const isSelected = respuestas[consignaId] === opcionIndex
-                      const radioId = `consigna-${consignaId}-opcion-${opcionIndex}`
+                      const respuestasConsigna = respuestas[consignaId] || []
+                      const isSelected = respuestasConsigna.includes(opcionIndex)
+                      const checkboxId = `consigna-${consignaId}-opcion-${opcionIndex}`
 
                       return (
                         <label
                           key={opcion.id}
-                          htmlFor={radioId}
+                          htmlFor={checkboxId}
                           className={`flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 p-2 transition-all sm:gap-3 sm:p-3 ${
                             isSelected
                               ? 'border-primary bg-primary/10'
@@ -315,11 +325,9 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
                           }`}
                         >
                           <input
-                            type="radio"
-                            id={radioId}
-                            name={`consigna-${consignaId}`}
-                            className="radio radio-primary"
-                            value={opcionIndex}
+                            type="checkbox"
+                            id={checkboxId}
+                            className="checkbox checkbox-primary"
                             checked={isSelected}
                             onChange={() => handleRespuestaChange(consignaId, opcionIndex)}
                           />
