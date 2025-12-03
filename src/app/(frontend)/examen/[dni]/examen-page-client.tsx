@@ -4,6 +4,7 @@ import type { Examen as ExamenMock } from '@/mocks/examenes'
 import { Logo } from '@/payload/brand/logo'
 import { IconCheck, IconX } from '@tabler/icons-react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
@@ -55,8 +56,28 @@ function clearExamenFromStorage(examenId: string): void {
   }
 }
 
+function marcarExamenFinalizado(examenId: string): void {
+  try {
+    const key = `${STORAGE_PREFIX}finalizado_${examenId}`
+    localStorage.setItem(key, JSON.stringify({ timestamp: Date.now() }))
+  } catch (error) {
+    console.error('Error marcando examen como finalizado:', error)
+  }
+}
+
+function isExamenFinalizado(examenId: string): boolean {
+  try {
+    const key = `${STORAGE_PREFIX}finalizado_${examenId}`
+    return localStorage.getItem(key) !== null
+  } catch (error) {
+    return false
+  }
+}
+
 export function ExamenPageClient({ examen }: ExamenPageClientProps) {
+  const router = useRouter()
   const examenId = useMemo(() => examen.dni, [examen.dni])
+  const [verificandoEstado, setVerificandoEstado] = useState(true)
 
   // Inicializar estado desde localStorage si existe
   const [respuestas, setRespuestas] = useState<Record<string, number>>(() => {
@@ -73,19 +94,12 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
 
   const [guardadoReciente, setGuardadoReciente] = useState(false)
   const [mostrarAlertaRecuperado, setMostrarAlertaRecuperado] = useState(() => {
-    // Verificar si hay datos recuperados al inicializar
     if (typeof window === 'undefined') return false
     const stored = loadRespuestasFromStorage(examenId)
     return stored !== null && Object.keys(stored).length > 0
   })
 
-  // Auto-ocultar alerta después de 5 segundos
-  useEffect(() => {
-    if (mostrarAlertaRecuperado) {
-      const timer = setTimeout(() => setMostrarAlertaRecuperado(false), 5000)
-      return () => clearTimeout(timer)
-    }
-  }, [mostrarAlertaRecuperado])
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const fechaActual = useMemo(
     () =>
@@ -97,6 +111,23 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
       }),
     [],
   )
+
+  // Verificar si el examen ya fue finalizado
+  useEffect(() => {
+    if (typeof window !== 'undefined' && isExamenFinalizado(examenId)) {
+      router.replace(`/examen/${examenId}/finalizado`)
+    } else {
+      setVerificandoEstado(false)
+    }
+  }, [examenId, router])
+
+  // Auto-ocultar alerta después de 5 segundos
+  useEffect(() => {
+    if (mostrarAlertaRecuperado) {
+      const timer = setTimeout(() => setMostrarAlertaRecuperado(false), 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [mostrarAlertaRecuperado])
 
   const handleRespuestaChange = useCallback(
     (consignaId: string, opcionIndex: number) => {
@@ -134,13 +165,12 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
         const data = await response.json()
 
         if (data.success) {
-          // Limpiar localStorage solo si el envío fue exitoso
+          // Marcar examen como finalizado
+          marcarExamenFinalizado(examenId)
+          // Limpiar respuestas del localStorage
           clearExamenFromStorage(examenId)
-          console.log('Examen enviado exitosamente:', data.resultado)
-          console.log('Datos limpiados de localStorage')
-
-          // TODO: Redirigir a página de resultados
-          // router.push(`/examen/${examenId}/resultado`)
+          // Redirigir a página de confirmación
+          router.push(`/examen/${examenId}/finalizado`)
         }
       } catch (error) {
         console.error('Error al enviar examen:', error)
@@ -149,16 +179,23 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
         setIsSubmitting(false)
       }
     },
-    [respuestas, examenId],
+    [respuestas, examenId, router],
   )
-
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleGuardarBorrador = useCallback(() => {
     saveRespuestasToStorage(examenId, respuestas)
     setGuardadoReciente(true)
     setTimeout(() => setGuardadoReciente(false), 2000)
   }, [examenId, respuestas])
+
+  // Si está verificando, mostrar loading
+  if (verificandoEstado) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center">
+        <span className="loading loading-spinner loading-lg" />
+      </div>
+    )
+  }
 
   return (
     <div className="mx-auto min-h-dvh max-w-4xl p-3 sm:p-6">
