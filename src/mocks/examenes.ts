@@ -41,13 +41,13 @@ export interface Examen {
 interface OpcionServidor {
   id: string
   contenido: Opcion
-  esCorrecta: boolean
 }
 
 interface ConsignaServidor {
   id: string
   pregunta: string
   opciones: OpcionServidor[]
+  respuestasCorrectas: number[] // Array de índices de opciones correctas
   eliminatoria: boolean
 }
 
@@ -77,21 +77,19 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
         id: 'c1-1',
         pregunta: '¿Cuál es la velocidad máxima permitida en zona urbana?',
         eliminatoria: false,
+        respuestasCorrectas: [0],
         opciones: [
           {
             id: 'opt-1-1',
             contenido: { tipo: 'texto', texto: '40 km/h' },
-            esCorrecta: false,
           },
           {
             id: 'opt-1-2',
             contenido: { tipo: 'texto', texto: '60 km/h' },
-            esCorrecta: true,
           },
           {
             id: 'opt-1-3',
             contenido: { tipo: 'texto', texto: '80 km/h' },
-            esCorrecta: false,
           },
         ],
       },
@@ -99,6 +97,7 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
         id: 'c1-2',
         pregunta: '¿Qué significa esta señal de tránsito?',
         eliminatoria: true,
+        respuestasCorrectas: [0],
         opciones: [
           {
             id: 'opt-2-1',
@@ -106,7 +105,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/e74c3c/ffffff/png?text=PARE',
             },
-            esCorrecta: true,
           },
           {
             id: 'opt-2-2',
@@ -114,7 +112,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/3498db/ffffff/png?text=CEDA+EL+PASO',
             },
-            esCorrecta: false,
           },
           {
             id: 'opt-2-3',
@@ -122,29 +119,26 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/2ecc71/ffffff/png?text=VIA+LIBRE',
             },
-            esCorrecta: false,
           },
         ],
       },
       {
         id: 'c1-3',
-        pregunta: '¿Cuándo debe usar las luces bajas?',
+        pregunta: '¿Cuándo debe usar las luces del vehículo? (Seleccione todas las correctas)',
         eliminatoria: false,
+        respuestasCorrectas: [0, 1], // Múltiples respuestas correctas
         opciones: [
           {
             id: 'opt-3-1',
-            contenido: { tipo: 'texto', texto: 'Solo de noche' },
-            esCorrecta: false,
+            contenido: { tipo: 'texto', texto: 'Durante todo el día y la noche' },
           },
           {
             id: 'opt-3-2',
-            contenido: { tipo: 'texto', texto: 'Durante todo el día y la noche' },
-            esCorrecta: true,
+            contenido: { tipo: 'texto', texto: 'Cuando hay mal clima' },
           },
           {
             id: 'opt-3-3',
-            contenido: { tipo: 'texto', texto: 'Solo cuando hay mal clima' },
-            esCorrecta: false,
+            contenido: { tipo: 'texto', texto: 'Solo de noche' },
           },
         ],
       },
@@ -152,6 +146,7 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
         id: 'c1-4',
         pregunta: 'Identifique la señal de "Prohibido estacionar"',
         eliminatoria: false,
+        respuestasCorrectas: [0],
         opciones: [
           {
             id: 'opt-4-1',
@@ -159,7 +154,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/9b59b6/ffffff/png?text=E',
             },
-            esCorrecta: false,
           },
           {
             id: 'opt-4-2',
@@ -167,7 +161,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/e74c3c/ffffff/png?text=P+con+linea',
             },
-            esCorrecta: true,
           },
           {
             id: 'opt-4-3',
@@ -175,7 +168,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/3498db/ffffff/png?text=H',
             },
-            esCorrecta: false,
           },
         ],
       },
@@ -183,21 +175,19 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
         id: 'c1-5',
         pregunta: '¿Qué debe hacer ante un semáforo en amarillo?',
         eliminatoria: true,
+        respuestasCorrectas: [0],
         opciones: [
           {
             id: 'opt-5-1',
             contenido: { tipo: 'texto', texto: 'Acelerar para pasar rápido' },
-            esCorrecta: false,
           },
           {
             id: 'opt-5-2',
             contenido: { tipo: 'texto', texto: 'Detenerse si es posible hacerlo con seguridad' },
-            esCorrecta: true,
           },
           {
             id: 'opt-5-3',
             contenido: { tipo: 'texto', texto: 'Mantener la velocidad' },
-            esCorrecta: false,
           },
         ],
       },
@@ -205,21 +195,19 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
         id: 'c1-6',
         pregunta: '¿Cuál es la distancia mínima de seguimiento en moto?',
         eliminatoria: false,
+        respuestasCorrectas: [0],
         opciones: [
           {
             id: 'opt-6-1',
             contenido: { tipo: 'texto', texto: '1 segundo' },
-            esCorrecta: false,
           },
           {
             id: 'opt-6-2',
             contenido: { tipo: 'texto', texto: '2 segundos' },
-            esCorrecta: true,
           },
           {
             id: 'opt-6-3',
             contenido: { tipo: 'texto', texto: '5 segundos' },
-            esCorrecta: false,
           },
         ],
       },
@@ -227,6 +215,7 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
         id: 'c1-7',
         pregunta: 'Identifique la señal de "Curva peligrosa"',
         eliminatoria: false,
+        respuestasCorrectas: [0],
         opciones: [
           {
             id: 'opt-7-1',
@@ -234,7 +223,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/f39c12/000000/png?text=Flecha+curva',
             },
-            esCorrecta: true,
           },
           {
             id: 'opt-7-2',
@@ -242,7 +230,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/f39c12/000000/png?text=Flecha+recta',
             },
-            esCorrecta: false,
           },
           {
             id: 'opt-7-3',
@@ -250,29 +237,26 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/e74c3c/ffffff/png?text=STOP',
             },
-            esCorrecta: false,
           },
         ],
       },
       {
         id: 'c1-8',
-        pregunta: '¿Es obligatorio el uso de casco en motocicleta?',
+        pregunta: '¿Qué elementos de seguridad son obligatorios en motocicleta? (Seleccione todas)',
         eliminatoria: true,
+        respuestasCorrectas: [0, 1], // Múltiples respuestas correctas eliminatoria
         opciones: [
           {
             id: 'opt-8-1',
-            contenido: { tipo: 'texto', texto: 'Sí, siempre' },
-            esCorrecta: true,
+            contenido: { tipo: 'texto', texto: 'Casco homologado' },
           },
           {
             id: 'opt-8-2',
-            contenido: { tipo: 'texto', texto: 'Solo en ruta' },
-            esCorrecta: false,
+            contenido: { tipo: 'texto', texto: 'Chaleco reflectivo' },
           },
           {
             id: 'opt-8-3',
-            contenido: { tipo: 'texto', texto: 'No es obligatorio' },
-            esCorrecta: false,
+            contenido: { tipo: 'texto', texto: 'Guantes de cuero' },
           },
         ],
       },
@@ -280,6 +264,7 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
         id: 'c1-9',
         pregunta: '¿Qué indica esta señal?',
         eliminatoria: false,
+        respuestasCorrectas: [0],
         opciones: [
           {
             id: 'opt-9-1',
@@ -287,7 +272,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/27ae60/ffffff/png?text=Hospital',
             },
-            esCorrecta: false,
           },
           {
             id: 'opt-9-2',
@@ -295,7 +279,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/3498db/ffffff/png?text=Escuela',
             },
-            esCorrecta: true,
           },
           {
             id: 'opt-9-3',
@@ -303,7 +286,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/9b59b6/ffffff/png?text=Estacion',
             },
-            esCorrecta: false,
           },
         ],
       },
@@ -311,21 +293,19 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
         id: 'c1-10',
         pregunta: '¿Cuál es la tasa máxima de alcohol en sangre permitida?',
         eliminatoria: true,
+        respuestasCorrectas: [0],
         opciones: [
           {
             id: 'opt-10-1',
             contenido: { tipo: 'texto', texto: '0 g/l (cero alcohol)' },
-            esCorrecta: true,
           },
           {
             id: 'opt-10-2',
             contenido: { tipo: 'texto', texto: '0.5 g/l' },
-            esCorrecta: false,
           },
           {
             id: 'opt-10-3',
             contenido: { tipo: 'texto', texto: '1.0 g/l' },
-            esCorrecta: false,
           },
         ],
       },
@@ -343,21 +323,19 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
         id: 'c2-1',
         pregunta: '¿A qué distancia debe colocar la baliza en caso de detención?',
         eliminatoria: false,
+        respuestasCorrectas: [0],
         opciones: [
           {
             id: 'opt-11-1',
             contenido: { tipo: 'texto', texto: '10 metros' },
-            esCorrecta: false,
           },
           {
             id: 'opt-11-2',
             contenido: { tipo: 'texto', texto: '30 metros' },
-            esCorrecta: true,
           },
           {
             id: 'opt-11-3',
             contenido: { tipo: 'texto', texto: '50 metros' },
-            esCorrecta: false,
           },
         ],
       },
@@ -365,6 +343,7 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
         id: 'c2-2',
         pregunta: 'Identifique la señal de "Rotonda"',
         eliminatoria: false,
+        respuestasCorrectas: [0],
         opciones: [
           {
             id: 'opt-12-1',
@@ -372,7 +351,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/3498db/ffffff/png?text=Circulos',
             },
-            esCorrecta: true,
           },
           {
             id: 'opt-12-2',
@@ -380,7 +358,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/e74c3c/ffffff/png?text=Cuadrado',
             },
-            esCorrecta: false,
           },
           {
             id: 'opt-12-3',
@@ -388,29 +365,27 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/f39c12/000000/png?text=Triangulo',
             },
-            esCorrecta: false,
           },
         ],
       },
       {
         id: 'c2-3',
-        pregunta: '¿Está permitido usar el celular mientras conduce?',
+        pregunta:
+          '¿Qué situaciones prohíben el uso del celular al conducir? (Seleccione todas las correctas)',
         eliminatoria: true,
+        respuestasCorrectas: [0],
         opciones: [
           {
             id: 'opt-13-1',
-            contenido: { tipo: 'texto', texto: 'Sí, con manos libres' },
-            esCorrecta: false,
+            contenido: { tipo: 'texto', texto: 'Conduciendo en ciudad' },
           },
           {
             id: 'opt-13-2',
-            contenido: { tipo: 'texto', texto: 'Sí, en emergencias' },
-            esCorrecta: false,
+            contenido: { tipo: 'texto', texto: 'Conduciendo en ruta' },
           },
           {
             id: 'opt-13-3',
-            contenido: { tipo: 'texto', texto: 'No, nunca' },
-            esCorrecta: true,
+            contenido: { tipo: 'texto', texto: 'Con el vehículo detenido y motor apagado' },
           },
         ],
       },
@@ -418,6 +393,7 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
         id: 'c2-4',
         pregunta: '¿Qué significa esta señal?',
         eliminatoria: false,
+        respuestasCorrectas: [1],
         opciones: [
           {
             id: 'opt-14-1',
@@ -425,7 +401,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/27ae60/ffffff/png?text=Avanzar',
             },
-            esCorrecta: false,
           },
           {
             id: 'opt-14-2',
@@ -433,7 +408,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/e74c3c/ffffff/png?text=Detenerse',
             },
-            esCorrecta: true,
           },
           {
             id: 'opt-14-3',
@@ -441,29 +415,27 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/f39c12/000000/png?text=Precaucion',
             },
-            esCorrecta: false,
           },
         ],
       },
       {
         id: 'c2-5',
-        pregunta: '¿Cuál es la velocidad máxima en autopista?',
+        pregunta:
+          '¿Cuáles son elementos obligatorios en el vehículo? (Seleccione todas las correctas)',
         eliminatoria: false,
+        respuestasCorrectas: [0, 1],
         opciones: [
           {
             id: 'opt-15-1',
-            contenido: { tipo: 'texto', texto: '100 km/h' },
-            esCorrecta: false,
+            contenido: { tipo: 'texto', texto: 'Matafuegos' },
           },
           {
             id: 'opt-15-2',
-            contenido: { tipo: 'texto', texto: '130 km/h' },
-            esCorrecta: true,
+            contenido: { tipo: 'texto', texto: 'Balizas' },
           },
           {
             id: 'opt-15-3',
-            contenido: { tipo: 'texto', texto: '150 km/h' },
-            esCorrecta: false,
+            contenido: { tipo: 'texto', texto: 'GPS' },
           },
         ],
       },
@@ -471,21 +443,19 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
         id: 'c2-6',
         pregunta: '¿Es obligatorio el uso del cinturón de seguridad?',
         eliminatoria: true,
+        respuestasCorrectas: [0],
         opciones: [
           {
             id: 'opt-16-1',
             contenido: { tipo: 'texto', texto: 'Sí, siempre' },
-            esCorrecta: true,
           },
           {
             id: 'opt-16-2',
             contenido: { tipo: 'texto', texto: 'Solo en ruta' },
-            esCorrecta: false,
           },
           {
             id: 'opt-16-3',
             contenido: { tipo: 'texto', texto: 'Solo en ciudad' },
-            esCorrecta: false,
           },
         ],
       },
@@ -493,6 +463,7 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
         id: 'c2-7',
         pregunta: 'Identifique la señal de "Ceda el paso"',
         eliminatoria: true,
+        respuestasCorrectas: [1],
         opciones: [
           {
             id: 'opt-17-1',
@@ -500,7 +471,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/e74c3c/ffffff/png?text=Octogono',
             },
-            esCorrecta: false,
           },
           {
             id: 'opt-17-2',
@@ -508,7 +478,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/e74c3c/ffffff/png?text=Triangulo+invertido',
             },
-            esCorrecta: true,
           },
           {
             id: 'opt-17-3',
@@ -516,7 +485,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/3498db/ffffff/png?text=Circulo',
             },
-            esCorrecta: false,
           },
         ],
       },
@@ -524,21 +492,19 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
         id: 'c2-8',
         pregunta: '¿Qué debe hacer ante un paso peatonal?',
         eliminatoria: true,
+        respuestasCorrectas: [1],
         opciones: [
           {
             id: 'opt-18-1',
             contenido: { tipo: 'texto', texto: 'Acelerar para pasar antes' },
-            esCorrecta: false,
           },
           {
             id: 'opt-18-2',
             contenido: { tipo: 'texto', texto: 'Reducir velocidad y ceder el paso' },
-            esCorrecta: true,
           },
           {
             id: 'opt-18-3',
             contenido: { tipo: 'texto', texto: 'Tocar bocina' },
-            esCorrecta: false,
           },
         ],
       },
@@ -546,6 +512,7 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
         id: 'c2-9',
         pregunta: '¿Cuál es la señal de "Doble circulación"?',
         eliminatoria: false,
+        respuestasCorrectas: [0],
         opciones: [
           {
             id: 'opt-19-1',
@@ -553,7 +520,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/f39c12/000000/png?text=Flechas+opuestas',
             },
-            esCorrecta: true,
           },
           {
             id: 'opt-19-2',
@@ -561,7 +527,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/27ae60/ffffff/png?text=Flecha+simple',
             },
-            esCorrecta: false,
           },
           {
             id: 'opt-19-3',
@@ -569,7 +534,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/e74c3c/ffffff/png?text=Sin+flechas',
             },
-            esCorrecta: false,
           },
         ],
       },
@@ -577,21 +541,19 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
         id: 'c2-10',
         pregunta: '¿Puede adelantar en una curva?',
         eliminatoria: true,
+        respuestasCorrectas: [2],
         opciones: [
           {
             id: 'opt-20-1',
             contenido: { tipo: 'texto', texto: 'Sí, con precaución' },
-            esCorrecta: false,
           },
           {
             id: 'opt-20-2',
             contenido: { tipo: 'texto', texto: 'Sí, si no viene nadie' },
-            esCorrecta: false,
           },
           {
             id: 'opt-20-3',
             contenido: { tipo: 'texto', texto: 'No, nunca' },
-            esCorrecta: true,
           },
         ],
       },
@@ -609,21 +571,19 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
         id: 'c3-1',
         pregunta: '¿Qué indica la luz amarilla intermitente en un semáforo?',
         eliminatoria: false,
+        respuestasCorrectas: [0],
         opciones: [
           {
             id: 'opt-21-1',
             contenido: { tipo: 'texto', texto: 'Precaución, cruce con cuidado' },
-            esCorrecta: true,
           },
           {
             id: 'opt-21-2',
             contenido: { tipo: 'texto', texto: 'Detenerse obligatoriamente' },
-            esCorrecta: false,
           },
           {
             id: 'opt-21-3',
             contenido: { tipo: 'texto', texto: 'Acelerar para pasar' },
-            esCorrecta: false,
           },
         ],
       },
@@ -631,6 +591,7 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
         id: 'c3-2',
         pregunta: '¿Cuál es la señal de "Zona escolar"?',
         eliminatoria: false,
+        respuestasCorrectas: [1],
         opciones: [
           {
             id: 'opt-22-1',
@@ -638,7 +599,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/e74c3c/ffffff/png?text=Hospital',
             },
-            esCorrecta: false,
           },
           {
             id: 'opt-22-2',
@@ -646,7 +606,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/f39c12/000000/png?text=Ninos+cruzando',
             },
-            esCorrecta: true,
           },
           {
             id: 'opt-22-3',
@@ -654,7 +613,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/27ae60/ffffff/png?text=Parque',
             },
-            esCorrecta: false,
           },
         ],
       },
@@ -662,21 +620,19 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
         id: 'c3-3',
         pregunta: '¿Puede estacionar en doble fila?',
         eliminatoria: false,
+        respuestasCorrectas: [2],
         opciones: [
           {
             id: 'opt-23-1',
             contenido: { tipo: 'texto', texto: 'Sí, por 5 minutos' },
-            esCorrecta: false,
           },
           {
             id: 'opt-23-2',
             contenido: { tipo: 'texto', texto: 'Sí, con balizas' },
-            esCorrecta: false,
           },
           {
             id: 'opt-23-3',
             contenido: { tipo: 'texto', texto: 'No, está prohibido' },
-            esCorrecta: true,
           },
         ],
       },
@@ -684,6 +640,7 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
         id: 'c3-4',
         pregunta: 'Identifique la señal de "Puente angosto"',
         eliminatoria: false,
+        respuestasCorrectas: [0],
         opciones: [
           {
             id: 'opt-24-1',
@@ -691,7 +648,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/f39c12/000000/png?text=Puente+estrecho',
             },
-            esCorrecta: true,
           },
           {
             id: 'opt-24-2',
@@ -699,7 +655,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/3498db/ffffff/png?text=Puente+ancho',
             },
-            esCorrecta: false,
           },
           {
             id: 'opt-24-3',
@@ -707,7 +662,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/27ae60/ffffff/png?text=Tunel',
             },
-            esCorrecta: false,
           },
         ],
       },
@@ -715,43 +669,40 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
         id: 'c3-5',
         pregunta: '¿Qué debe hacer si lo encandila un vehículo que viene de frente?',
         eliminatoria: false,
+        respuestasCorrectas: [1],
         opciones: [
           {
             id: 'opt-25-1',
             contenido: { tipo: 'texto', texto: 'Encender las luces altas' },
-            esCorrecta: false,
           },
           {
             id: 'opt-25-2',
             contenido: { tipo: 'texto', texto: 'Mirar al borde derecho y reducir velocidad' },
-            esCorrecta: true,
           },
           {
             id: 'opt-25-3',
             contenido: { tipo: 'texto', texto: 'Cerrar los ojos brevemente' },
-            esCorrecta: false,
           },
         ],
       },
       {
         id: 'c3-6',
-        pregunta: '¿Cuál es la distancia mínima para adelantar?',
+        pregunta:
+          '¿Qué acciones son correctas antes de adelantar? (Seleccione todas las correctas)',
         eliminatoria: false,
+        respuestasCorrectas: [0, 1],
         opciones: [
           {
             id: 'opt-26-1',
-            contenido: { tipo: 'texto', texto: '50 metros' },
-            esCorrecta: false,
+            contenido: { tipo: 'texto', texto: 'Verificar que haya visibilidad suficiente' },
           },
           {
             id: 'opt-26-2',
-            contenido: { tipo: 'texto', texto: '150 metros de visibilidad' },
-            esCorrecta: true,
+            contenido: { tipo: 'texto', texto: 'Señalizar la maniobra' },
           },
           {
             id: 'opt-26-3',
-            contenido: { tipo: 'texto', texto: '200 metros' },
-            esCorrecta: false,
+            contenido: { tipo: 'texto', texto: 'Tocar bocina continuamente' },
           },
         ],
       },
@@ -759,6 +710,7 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
         id: 'c3-7',
         pregunta: '¿Qué indica esta señal?',
         eliminatoria: false,
+        respuestasCorrectas: [2],
         opciones: [
           {
             id: 'opt-27-1',
@@ -766,7 +718,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/27ae60/ffffff/png?text=Via+libre',
             },
-            esCorrecta: false,
           },
           {
             id: 'opt-27-2',
@@ -774,7 +725,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/e74c3c/ffffff/png?text=Peligro',
             },
-            esCorrecta: false,
           },
           {
             id: 'opt-27-3',
@@ -782,7 +732,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/3498db/ffffff/png?text=Informativa',
             },
-            esCorrecta: true,
           },
         ],
       },
@@ -790,21 +739,19 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
         id: 'c3-8',
         pregunta: '¿Está permitido circular en moto por la banquina?',
         eliminatoria: true,
+        respuestasCorrectas: [2],
         opciones: [
           {
             id: 'opt-28-1',
             contenido: { tipo: 'texto', texto: 'Sí, en caso de emergencia' },
-            esCorrecta: false,
           },
           {
             id: 'opt-28-2',
             contenido: { tipo: 'texto', texto: 'Sí, si hay tráfico' },
-            esCorrecta: false,
           },
           {
             id: 'opt-28-3',
             contenido: { tipo: 'texto', texto: 'No, está prohibido' },
-            esCorrecta: true,
           },
         ],
       },
@@ -812,6 +759,7 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
         id: 'c3-9',
         pregunta: 'Identifique la señal de "Curva y contracurva"',
         eliminatoria: false,
+        respuestasCorrectas: [0],
         opciones: [
           {
             id: 'opt-29-1',
@@ -819,7 +767,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/f39c12/000000/png?text=S+curvas',
             },
-            esCorrecta: true,
           },
           {
             id: 'opt-29-2',
@@ -827,7 +774,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/f39c12/000000/png?text=U+curva',
             },
-            esCorrecta: false,
           },
           {
             id: 'opt-29-3',
@@ -835,7 +781,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
               tipo: 'imagen',
               url: 'https://placehold.co/400x300/f39c12/000000/png?text=Recta',
             },
-            esCorrecta: false,
           },
         ],
       },
@@ -843,21 +788,19 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
         id: 'c3-10',
         pregunta: '¿Debe respetar los límites de velocidad en moto?',
         eliminatoria: true,
+        respuestasCorrectas: [0],
         opciones: [
           {
             id: 'opt-30-1',
             contenido: { tipo: 'texto', texto: 'Sí, siempre' },
-            esCorrecta: true,
           },
           {
             id: 'opt-30-2',
             contenido: { tipo: 'texto', texto: 'Solo en ciudad' },
-            esCorrecta: false,
           },
           {
             id: 'opt-30-3',
             contenido: { tipo: 'texto', texto: 'No es obligatorio' },
-            esCorrecta: false,
           },
         ],
       },
@@ -875,21 +818,19 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
       id: `c4-${i + 1}`,
       pregunta: `Pregunta ${i + 1} del examen B3`,
       eliminatoria: i % 3 === 0,
+      respuestasCorrectas: [1],
       opciones: [
         {
           id: `opt-4${i}-1`,
           contenido: { tipo: 'texto' as const, texto: 'Opción A' },
-          esCorrecta: false,
         },
         {
           id: `opt-4${i}-2`,
           contenido: { tipo: 'texto' as const, texto: 'Opción B (correcta)' },
-          esCorrecta: true,
         },
         {
           id: `opt-4${i}-3`,
           contenido: { tipo: 'texto' as const, texto: 'Opción C' },
-          esCorrecta: false,
         },
       ],
     })),
@@ -905,21 +846,19 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
       id: `c5-${i + 1}`,
       pregunta: `Pregunta ${i + 1} del examen A3`,
       eliminatoria: i % 4 === 0,
+      respuestasCorrectas: [0],
       opciones: [
         {
           id: `opt-5${i}-1`,
           contenido: { tipo: 'texto' as const, texto: 'Opción correcta' },
-          esCorrecta: true,
         },
         {
           id: `opt-5${i}-2`,
           contenido: { tipo: 'texto' as const, texto: 'Opción incorrecta' },
-          esCorrecta: false,
         },
         {
           id: `opt-5${i}-3`,
           contenido: { tipo: 'texto' as const, texto: 'Otra opción incorrecta' },
-          esCorrecta: false,
         },
       ],
     })),
@@ -935,21 +874,19 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
       id: `c6-${i + 1}`,
       pregunta: `Pregunta ${i + 1} del examen B4`,
       eliminatoria: i % 2 === 0,
+      respuestasCorrectas: [2],
       opciones: [
         {
           id: `opt-6${i}-1`,
           contenido: { tipo: 'texto' as const, texto: 'Primera opción' },
-          esCorrecta: false,
         },
         {
           id: `opt-6${i}-2`,
           contenido: { tipo: 'texto' as const, texto: 'Segunda opción' },
-          esCorrecta: false,
         },
         {
           id: `opt-6${i}-3`,
           contenido: { tipo: 'texto' as const, texto: 'Tercera opción (correcta)' },
-          esCorrecta: true,
         },
       ],
     })),
@@ -965,21 +902,19 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
       id: `c7-${i + 1}`,
       pregunta: `Pregunta ${i + 1} del examen A1/B1`,
       eliminatoria: i === 0 || i === 5,
+      respuestasCorrectas: [i % 3],
       opciones: [
         {
           id: `opt-7${i}-1`,
           contenido: { tipo: 'texto' as const, texto: 'Opción A' },
-          esCorrecta: i % 3 === 0,
         },
         {
           id: `opt-7${i}-2`,
           contenido: { tipo: 'texto' as const, texto: 'Opción B' },
-          esCorrecta: i % 3 === 1,
         },
         {
           id: `opt-7${i}-3`,
           contenido: { tipo: 'texto' as const, texto: 'Opción C' },
-          esCorrecta: i % 3 === 2,
         },
       ],
     })),
@@ -995,6 +930,7 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
       id: `c8-${i + 1}`,
       pregunta: `Pregunta ${i + 1} del examen B2 (con señales visuales)`,
       eliminatoria: i % 5 === 0,
+      respuestasCorrectas: [0],
       opciones: [
         {
           id: `opt-8${i}-1`,
@@ -1002,7 +938,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
             tipo: 'imagen' as const,
             url: `https://placehold.co/400x300/3498db/ffffff/png?text=Imagen+${i + 1}A`,
           },
-          esCorrecta: true,
         },
         {
           id: `opt-8${i}-2`,
@@ -1010,7 +945,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
             tipo: 'imagen' as const,
             url: `https://placehold.co/400x300/e74c3c/ffffff/png?text=Imagen+${i + 1}B`,
           },
-          esCorrecta: false,
         },
         {
           id: `opt-8${i}-3`,
@@ -1018,7 +952,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
             tipo: 'imagen' as const,
             url: `https://placehold.co/400x300/27ae60/ffffff/png?text=Imagen+${i + 1}C`,
           },
-          esCorrecta: false,
         },
       ],
     })),
@@ -1034,21 +967,19 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
       id: `c9-${i + 1}`,
       pregunta: `Pregunta ${i + 1} del examen A2`,
       eliminatoria: i < 3,
+      respuestasCorrectas: [1],
       opciones: [
         {
           id: `opt-9${i}-1`,
           contenido: { tipo: 'texto' as const, texto: 'Respuesta incorrecta' },
-          esCorrecta: false,
         },
         {
           id: `opt-9${i}-2`,
           contenido: { tipo: 'texto' as const, texto: 'Respuesta correcta' },
-          esCorrecta: true,
         },
         {
           id: `opt-9${i}-3`,
           contenido: { tipo: 'texto' as const, texto: 'Otra respuesta incorrecta' },
-          esCorrecta: false,
         },
       ],
     })),
@@ -1064,23 +995,21 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
       id: `c10-${i + 1}`,
       pregunta: `Pregunta general ${i + 1}`,
       eliminatoria: i === 0 || i === 9,
+      respuestasCorrectas: i % 2 === 0 ? [0] : [1],
       opciones:
         i % 2 === 0
           ? [
               {
                 id: `opt-10${i}-1`,
                 contenido: { tipo: 'texto' as const, texto: 'Opción correcta A' },
-                esCorrecta: true,
               },
               {
                 id: `opt-10${i}-2`,
                 contenido: { tipo: 'texto' as const, texto: 'Opción incorrecta B' },
-                esCorrecta: false,
               },
               {
                 id: `opt-10${i}-3`,
                 contenido: { tipo: 'texto' as const, texto: 'Opción incorrecta C' },
-                esCorrecta: false,
               },
             ]
           : [
@@ -1090,7 +1019,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
                   tipo: 'imagen' as const,
                   url: `https://placehold.co/400x300/9b59b6/ffffff/png?text=Opcion+${i + 1}A`,
                 },
-                esCorrecta: false,
               },
               {
                 id: `opt-10${i}-2`,
@@ -1098,7 +1026,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
                   tipo: 'imagen' as const,
                   url: `https://placehold.co/400x300/1abc9c/ffffff/png?text=Opcion+${i + 1}B`,
                 },
-                esCorrecta: true,
               },
               {
                 id: `opt-10${i}-3`,
@@ -1106,7 +1033,6 @@ const EXAMENES_SERVIDOR: ExamenServidor[] = [
                   tipo: 'imagen' as const,
                   url: `https://placehold.co/400x300/34495e/ffffff/png?text=Opcion+${i + 1}C`,
                 },
-                esCorrecta: false,
               },
             ],
     })),
@@ -1146,7 +1072,7 @@ export function buscarExamenPorDNI(dni: string): Examen | undefined {
  */
 export function validarRespuestas(
   dni: string,
-  respuestas: Record<string, number>,
+  respuestas: Record<string, number[]>,
 ): {
   aprobado: boolean
   correctas: number
@@ -1156,8 +1082,8 @@ export function validarRespuestas(
   detalles: Array<{
     consignaId: string
     correcta: boolean
-    respuestaCorrecta: number
-    respuestaUsuario: number
+    respuestaCorrecta: number[]
+    respuestaUsuario: number[]
   }>
 } {
   const examenServidor = EXAMENES_SERVIDOR.find((examen) => examen.dni === dni)
@@ -1172,15 +1098,21 @@ export function validarRespuestas(
   const detalles: Array<{
     consignaId: string
     correcta: boolean
-    respuestaCorrecta: number
-    respuestaUsuario: number
+    respuestaCorrecta: number[]
+    respuestaUsuario: number[]
   }> = []
 
   examenServidor.consignas.forEach((consigna) => {
-    const respuestaUsuario = respuestas[consigna.id]
-    const opcionCorrecta = consigna.opciones.findIndex((opt) => opt.esCorrecta)
+    const respuestaUsuario = respuestas[consigna.id] || []
+    const respuestasCorrectas = consigna.respuestasCorrectas
 
-    const esCorrecta = respuestaUsuario === opcionCorrecta
+    // Comparar arrays (mismos elementos, sin importar orden)
+    const respuestaUsuarioSorted = [...respuestaUsuario].sort((a, b) => a - b)
+    const respuestasCorrectasSorted = [...respuestasCorrectas].sort((a, b) => a - b)
+
+    const esCorrecta =
+      respuestaUsuarioSorted.length === respuestasCorrectasSorted.length &&
+      respuestaUsuarioSorted.every((val, idx) => val === respuestasCorrectasSorted[idx])
 
     if (esCorrecta) {
       correctas++
@@ -1194,15 +1126,15 @@ export function validarRespuestas(
     detalles.push({
       consignaId: consigna.id,
       correcta: esCorrecta,
-      respuestaCorrecta: opcionCorrecta,
-      respuestaUsuario,
+      respuestaCorrecta: respuestasCorrectas,
+      respuestaUsuario: respuestaUsuario,
     })
   })
 
   const total = examenServidor.consignas.length
-  // Aprobar si: 70% correcto Y sin fallar eliminatorias
+  // Aprobar si: 90% correcto Y sin fallar eliminatorias
   const porcentaje = (correctas / total) * 100
-  const aprobado = porcentaje >= 70 && eliminatoriasIncorrectas.length === 0
+  const aprobado = porcentaje >= 90 && eliminatoriasIncorrectas.length === 0
 
   return {
     aprobado,
