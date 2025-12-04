@@ -8,7 +8,9 @@ import {
   type FilterOptions,
 } from 'payload'
 
-function getUniqueRandomIndicesFisherYates(cantidad: number, k = 2): number[] {
+const CONSIGNAS_CANTIDAD = 3
+
+function getUniqueRandomIndicesFisherYates(cantidad = 0, k = 2): number[] {
   if (cantidad < k) throw new Error('La cantidad debe ser mayor o igual a k')
   const arr = Array.from({ length: cantidad }, (_, i) => i)
   for (let i = cantidad - 1; i > cantidad - 1 - k; i--) {
@@ -22,14 +24,14 @@ const beforeChange: CollectionBeforeChangeHook<Examen> = async ({ operation, dat
   if (operation === 'update') {
     // Verificar duplicados en update
     const consignas: Consigna[] = []
-    for (const item of data?.consignas || []) {
+    for (const c of data?.consignas || []) {
       const consigna =
-        typeof item.consigna === 'string'
+        typeof c === 'string'
           ? await req.payload.findByID({
               collection: 'consignas',
-              id: item.consigna,
+              id: c,
             })
-          : item.consigna
+          : c
 
       consignas.push(consigna)
     }
@@ -54,25 +56,31 @@ const beforeChange: CollectionBeforeChangeHook<Examen> = async ({ operation, dat
 
   const consignas = await req.payload.find({
     collection: 'consignas',
+    pagination: false,
     where: {
       categorias: {
-        in: data.categorias || [],
+        in: data?.categorias || [],
       },
     },
   })
 
-  const indices = getUniqueRandomIndicesFisherYates(consignas.totalDocs, 3)
+  if (!consignas?.docs || consignas.docs.length === 0) {
+    throw new APIError(
+      `No hay consignas disponibles para las categorías seleccionadas.`,
+      400,
+      null,
+      true,
+    )
+  }
 
-  const selectedConsignas = indices.map((index) => {
-    const consigna = consignas.docs[index]
-    return {
-      consigna: consigna.id,
-      respuesta: null,
-      correcta: null,
-    }
-  })
+  const cantidad =
+    consignas.docs.length < CONSIGNAS_CANTIDAD ? consignas.docs.length : CONSIGNAS_CANTIDAD
 
-  data.consignas = selectedConsignas
+  // Usar consignas.docs.length en lugar de totalDocs para evitar índices fuera de rango
+  const indices = getUniqueRandomIndicesFisherYates(consignas.docs.length, cantidad)
+
+  // Asignar solo los IDs de las consignas, no los objetos completos
+  data.consignas = indices.map((index) => consignas.docs[index].id)
 
   const fut =
     typeof data?.fut === 'string'
@@ -84,6 +92,13 @@ const beforeChange: CollectionBeforeChangeHook<Examen> = async ({ operation, dat
 
   data.titulo = `FUT ${fut?.futId} - DNI ${(fut?.ciudadano as Ciudadano).dni}`
 
+  const ahora = new Date()
+  data.horarioInicio = ahora.toISOString()
+
+  // horarioCierre debe ser 1 hora despues de la horarioInicio
+  const unaHoraDespues = new Date(ahora.getTime() + 60 * 60 * 1000)
+  data.horarioCierre = unaHoraDespues.toISOString()
+
   return data
 }
 
@@ -92,6 +107,7 @@ const consignaFilter: FilterOptions<Examen> = ({ data }) => {
     return false
   }
 
+  // solo devuelve consignas que coincidan con las categorías del examen
   return {
     categorias: {
       in: data.categorias,
@@ -126,35 +142,51 @@ export const Examenes: CollectionConfig = {
     },
     {
       name: 'consignas',
-      type: 'array',
+      type: 'relationship',
       label: 'Consignas',
-      labels: {
-        singular: 'Consigna',
-        plural: 'Consignas',
-      },
-      interfaceName: 'ConsignasExamen',
+      relationTo: 'consignas',
+      hasMany: true,
+      filterOptions: consignaFilter,
+    },
+    {
+      name: 'respuestas',
+      type: 'array',
+      label: 'Respuestas',
       fields: [
         {
           name: 'consigna',
           type: 'relationship',
-          label: 'Consigna',
           relationTo: 'consignas',
           required: true,
-          filterOptions: consignaFilter,
+          hasMany: false,
+          access: {
+            create: () => false,
+            update: () => false,
+          },
         },
         {
-          name: 'respuesta',
-          type: 'number',
-          label: 'Respuesta',
-          required: false,
-        },
-        {
-          name: 'correcta',
-          type: 'checkbox',
-          label: 'Correcta',
-          defaultValue: false,
+          name: 'respuestas',
+          type: 'array',
+          label: 'Respuestas',
+          labels: {
+            singular: 'Respuesta',
+            plural: 'Respuestas',
+          },
+          required: true,
+          fields: [
+            {
+              name: 'respuesta',
+              type: 'number',
+              label: 'Respuesta',
+              required: true,
+              min: 0,
+            },
+          ],
         },
       ],
+      access: {
+        create: () => false,
+      },
     },
     // aside fields
     {
@@ -177,6 +209,51 @@ export const Examenes: CollectionConfig = {
       defaultValue: false,
       admin: {
         position: 'sidebar',
+      },
+    },
+    {
+      name: 'horarioInicio',
+      type: 'date',
+      label: 'Horario de Inicio',
+      admin: {
+        position: 'sidebar',
+        date: {
+          pickerAppearance: 'dayAndTime',
+        },
+      },
+      access: {
+        create: () => false,
+        update: () => false,
+      },
+    },
+    {
+      name: 'horarioCierre',
+      type: 'date',
+      label: 'Horario de Cierre',
+      admin: {
+        position: 'sidebar',
+        date: {
+          pickerAppearance: 'dayAndTime',
+        },
+      },
+      access: {
+        create: () => false,
+        update: () => false,
+      },
+    },
+    {
+      name: 'horarioFin',
+      type: 'date',
+      label: 'Horario de Fin',
+      admin: {
+        position: 'sidebar',
+        date: {
+          pickerAppearance: 'dayAndTime',
+        },
+      },
+      access: {
+        create: () => false,
+        update: () => false,
       },
     },
     // hidden fields

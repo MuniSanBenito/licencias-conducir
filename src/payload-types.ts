@@ -33,18 +33,6 @@ export type OpcionesConsigna =
     }[]
   | null;
 /**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ConsignasExamen".
- */
-export type ConsignasExamen =
-  | {
-      consigna: string | Consigna;
-      respuesta?: number | null;
-      correcta?: boolean | null;
-      id?: string | null;
-    }[]
-  | null;
-/**
  * Supported timezones in IANA format.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -258,12 +246,25 @@ export interface Consigna {
 export interface Examen {
   id: string;
   fut: string | Fut;
-  consignas?: ConsignasExamen;
+  consignas?: (string | Consigna)[] | null;
+  respuestas?:
+    | {
+        consigna: string | Consigna;
+        respuestas: {
+          respuesta: number;
+          id?: string | null;
+        }[];
+        id?: string | null;
+      }[]
+    | null;
   /**
    * Selecciona una o más categorías para esta consigna.
    */
   categorias: ('A1' | 'A2' | 'A3' | 'B1' | 'B2' | 'B3' | 'B4')[];
   finalizado?: boolean | null;
+  horarioInicio?: string | null;
+  horarioCierre?: string | null;
+  horarioFin?: string | null;
   titulo?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -468,23 +469,28 @@ export interface OpcionesConsignaSelect<T extends boolean = true> {
  */
 export interface ExamenesSelect<T extends boolean = true> {
   fut?: T;
-  consignas?: T | ConsignasExamenSelect<T>;
+  consignas?: T;
+  respuestas?:
+    | T
+    | {
+        consigna?: T;
+        respuestas?:
+          | T
+          | {
+              respuesta?: T;
+              id?: T;
+            };
+        id?: T;
+      };
   categorias?: T;
   finalizado?: T;
+  horarioInicio?: T;
+  horarioCierre?: T;
+  horarioFin?: T;
   titulo?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ConsignasExamen_select".
- */
-export interface ConsignasExamenSelect<T extends boolean = true> {
-  consigna?: T;
-  respuesta?: T;
-  correcta?: T;
-  id?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
