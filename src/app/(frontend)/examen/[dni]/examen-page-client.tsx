@@ -1,7 +1,7 @@
 'use client'
 
-import type { Examen as ExamenMock } from '@/mocks/examenes'
 import { Logo } from '@/payload/brand/logo'
+import type { ExamenCliente } from '@/web/libs/examen-adapter'
 import { IconCheck, IconX } from '@tabler/icons-react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -9,7 +9,7 @@ import type { FormEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 interface ExamenPageClientProps {
-  examen: ExamenMock
+  examen: ExamenCliente
 }
 
 const STORAGE_PREFIX = 'examen_'
@@ -56,20 +56,14 @@ function clearExamenFromStorage(examenId: string): void {
   }
 }
 
-function marcarExamenFinalizado(examenId: string): void {
+async function verificarEstadoExamen(dni: string): Promise<boolean> {
   try {
-    const key = `${STORAGE_PREFIX}finalizado_${examenId}`
-    localStorage.setItem(key, JSON.stringify({ timestamp: Date.now() }))
+    const response = await fetch(`/api/examen/estado/${dni}`)
+    if (!response.ok) return false
+    const data = await response.json()
+    return data.finalizado === true
   } catch (error) {
-    console.error('Error marcando examen como finalizado:', error)
-  }
-}
-
-function isExamenFinalizado(examenId: string): boolean {
-  try {
-    const key = `${STORAGE_PREFIX}finalizado_${examenId}`
-    return localStorage.getItem(key) !== null
-  } catch (error) {
+    console.error('Error verificando estado del examen:', error)
     return false
   }
 }
@@ -112,13 +106,17 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
     [],
   )
 
-  // Verificar si el examen ya fue finalizado
+  // Verificar si el examen ya fue finalizado en la base de datos
   useEffect(() => {
-    if (typeof window !== 'undefined' && isExamenFinalizado(examenId)) {
-      router.replace(`/examen/${examenId}/finalizado`)
-    } else {
-      setVerificandoEstado(false)
+    async function verificar() {
+      const finalizado = await verificarEstadoExamen(examenId)
+      if (finalizado) {
+        router.replace(`/examen/${examenId}/finalizado`)
+      } else {
+        setVerificandoEstado(false)
+      }
     }
+    verificar()
   }, [examenId, router])
 
   // Auto-ocultar alerta después de 5 segundos
@@ -175,8 +173,6 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
         const data = await response.json()
 
         if (data.success) {
-          // Marcar examen como finalizado
-          marcarExamenFinalizado(examenId)
           // Limpiar respuestas del localStorage
           clearExamenFromStorage(examenId)
           // Redirigir a página de confirmación
