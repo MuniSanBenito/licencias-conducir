@@ -262,6 +262,13 @@ export interface Examen {
    */
   categorias: ('A1' | 'A2' | 'A3' | 'B1' | 'B2' | 'B3' | 'B4')[];
   finalizado?: boolean | null;
+  aprobado?: boolean | null;
+  correctas?: number | null;
+  incorrectas?: number | null;
+  /**
+   * Porcentaje de respuestas correctas
+   */
+  porcentaje?: number | null;
   horarioInicio?: string | null;
   horarioCierre?: string | null;
   horarioFin?: string | null;
@@ -484,6 +491,10 @@ export interface ExamenesSelect<T extends boolean = true> {
       };
   categorias?: T;
   finalizado?: T;
+  aprobado?: T;
+  correctas?: T;
+  incorrectas?: T;
+  porcentaje?: T;
   horarioInicio?: T;
   horarioCierre?: T;
   horarioFin?: T;

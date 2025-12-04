@@ -90,7 +90,7 @@ const beforeChange: CollectionBeforeChangeHook<Examen> = async ({ operation, dat
         })
       : data.fut
 
-  data.titulo = `FUT ${fut?.futId} - DNI ${(fut?.ciudadano as Ciudadano).dni}`
+  data.titulo = `${fut?.futId} - DNI ${(fut?.ciudadano as Ciudadano).dni}`
 
   const ahora = new Date()
   data.horarioInicio = ahora.toISOString()
@@ -209,6 +209,59 @@ export const Examenes: CollectionConfig = {
       defaultValue: false,
       admin: {
         position: 'sidebar',
+      },
+    },
+    {
+      name: 'aprobado',
+      type: 'checkbox',
+      label: 'Aprobado',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+      },
+      access: {
+        create: () => false,
+        update: () => false,
+      },
+    },
+    {
+      name: 'correctas',
+      type: 'number',
+      label: 'Respuestas Correctas',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+      },
+      access: {
+        create: () => false,
+        update: () => false,
+      },
+    },
+    {
+      name: 'incorrectas',
+      type: 'number',
+      label: 'Respuestas Incorrectas',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+      },
+      access: {
+        create: () => false,
+        update: () => false,
+      },
+    },
+    {
+      name: 'porcentaje',
+      type: 'number',
+      label: 'Porcentaje',
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Porcentaje de respuestas correctas',
+      },
+      access: {
+        create: () => false,
+        update: () => false,
       },
     },
     {
