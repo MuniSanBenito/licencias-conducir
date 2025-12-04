@@ -210,6 +210,9 @@ export const Examenes: CollectionConfig = {
       admin: {
         position: 'sidebar',
       },
+      access: {
+        create: () => false,
+      },
     },
     {
       name: 'aprobado',
@@ -217,11 +220,9 @@ export const Examenes: CollectionConfig = {
       label: 'Aprobado',
       admin: {
         position: 'sidebar',
-        readOnly: true,
       },
       access: {
         create: () => false,
-        update: () => false,
       },
     },
     {
@@ -230,11 +231,9 @@ export const Examenes: CollectionConfig = {
       label: 'Respuestas Correctas',
       admin: {
         position: 'sidebar',
-        readOnly: true,
       },
       access: {
         create: () => false,
-        update: () => false,
       },
     },
     {
@@ -243,11 +242,9 @@ export const Examenes: CollectionConfig = {
       label: 'Respuestas Incorrectas',
       admin: {
         position: 'sidebar',
-        readOnly: true,
       },
       access: {
         create: () => false,
-        update: () => false,
       },
     },
     {
@@ -256,12 +253,10 @@ export const Examenes: CollectionConfig = {
       label: 'Porcentaje',
       admin: {
         position: 'sidebar',
-        readOnly: true,
         description: 'Porcentaje de respuestas correctas',
       },
       access: {
         create: () => false,
-        update: () => false,
       },
     },
     {
@@ -276,7 +271,6 @@ export const Examenes: CollectionConfig = {
       },
       access: {
         create: () => false,
-        update: () => false,
       },
     },
     {
@@ -291,7 +285,6 @@ export const Examenes: CollectionConfig = {
       },
       access: {
         create: () => false,
-        update: () => false,
       },
     },
     {
@@ -306,7 +299,6 @@ export const Examenes: CollectionConfig = {
       },
       access: {
         create: () => false,
-        update: () => false,
       },
     },
     // hidden fields
