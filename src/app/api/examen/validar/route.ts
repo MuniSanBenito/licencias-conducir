@@ -1,10 +1,6 @@
-import { validarRespuestas } from '@/mocks/examenes'
+import { validarRespuestasPayload } from '@/web/libs/validar-examen'
 import { NextResponse } from 'next/server'
 
-/**
- * POST /api/examen/validar
- * Valida respuestas del examen
- */
 export async function POST(request: Request) {
   try {
     const body = await request.json()
@@ -19,7 +15,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Respuestas inválidas' }, { status: 400 })
     }
 
-    const resultado = validarRespuestas(dni, respuestas)
+    const resultado = await validarRespuestasPayload(dni, respuestas)
 
     return NextResponse.json({
       success: true,
