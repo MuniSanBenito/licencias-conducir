@@ -156,7 +156,6 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
       try {
         setIsSubmitting(true)
 
-        // Enviar respuestas al servidor para validación
         const response = await fetch('/api/examen/validar', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -167,20 +166,21 @@ export function ExamenPageClient({ examen }: ExamenPageClientProps) {
         })
 
         if (!response.ok) {
+          if (response.status === 403) {
+            router.push(`/examen/${examenId}/expirado`)
+            return
+          }
           throw new Error('Error al enviar el examen')
         }
 
         const data = await response.json()
 
         if (data.success) {
-          // Limpiar respuestas del localStorage
           clearExamenFromStorage(examenId)
-          // Redirigir a página de confirmación
           router.push(`/examen/${examenId}/finalizado`)
         }
       } catch (error) {
         console.error('Error al enviar examen:', error)
-        // TODO: Mostrar mensaje de error al usuario
       } finally {
         setIsSubmitting(false)
       }
