@@ -1,4 +1,5 @@
 import { validarRespuestasPayload } from '@/web/libs/validar-examen'
+import { validarSesionExamen } from '@/web/libs/validar-sesion-examen'
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
@@ -6,13 +7,17 @@ export async function POST(request: Request) {
     const body = await request.json()
     const { dni, respuestas } = body
 
-    // Validaciones básicas
     if (!dni || typeof dni !== 'string') {
       return NextResponse.json({ error: 'DNI inválido' }, { status: 400 })
     }
 
     if (!respuestas || typeof respuestas !== 'object') {
       return NextResponse.json({ error: 'Respuestas inválidas' }, { status: 400 })
+    }
+
+    const sesion = await validarSesionExamen(dni)
+    if (!sesion.valido) {
+      return NextResponse.json({ error: sesion.mensaje }, { status: 403 })
     }
 
     const resultado = await validarRespuestasPayload(dni, respuestas)
