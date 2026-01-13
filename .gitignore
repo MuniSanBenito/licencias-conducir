@@ -49,8 +49,5 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 
-TODO.md
-
 /seed
-AGENTS.md
 /.github/prompts
