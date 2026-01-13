@@ -1,6 +1,6 @@
 import { R2_ACCESS_KEY_ID, R2_BUCKET, R2_ENDPOINT, R2_SECRET_ACCESS_KEY } from '@/config'
 import { s3Storage } from '@payloadcms/storage-s3'
-import { File } from '../collections/file'
+import { Archivo } from '../collections/archivo'
 
 const endpoint = R2_ENDPOINT
 const accessKeyId = R2_ACCESS_KEY_ID
@@ -9,7 +9,7 @@ const bucket = R2_BUCKET
 
 export const storagePlugin = s3Storage({
   collections: {
-    [File.slug]: {
+    [Archivo.slug]: {
       prefix: 'archivos',
     },
   },

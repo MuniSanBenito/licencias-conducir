@@ -64,14 +64,14 @@ export type SupportedTimezones =
 export interface Config {
   auth: {
     dev: DevAuthOperations;
-    user: UserAuthOperations;
+    usuario: UsuarioAuthOperations;
   };
   blocks: {};
   collections: {
     dev: Dev;
-    file: File;
-    user: User;
-    citizen: Citizen;
+    archivo: Archivo;
+    usuario: Usuario;
+    ciudadano: Ciudadano;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -80,9 +80,9 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     dev: DevSelect<false> | DevSelect<true>;
-    file: FileSelect<false> | FileSelect<true>;
-    user: UserSelect<false> | UserSelect<true>;
-    citizen: CitizenSelect<false> | CitizenSelect<true>;
+    archivo: ArchivoSelect<false> | ArchivoSelect<true>;
+    usuario: UsuarioSelect<false> | UsuarioSelect<true>;
+    ciudadano: CiudadanoSelect<false> | CiudadanoSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -99,8 +99,8 @@ export interface Config {
     | (Dev & {
         collection: 'dev';
       })
-    | (User & {
-        collection: 'user';
+    | (Usuario & {
+        collection: 'usuario';
       });
   jobs: {
     tasks: unknown;
@@ -125,7 +125,7 @@ export interface DevAuthOperations {
     password: string;
   };
 }
-export interface UserAuthOperations {
+export interface UsuarioAuthOperations {
   forgotPassword: {
     email: string;
     password: string;
@@ -170,9 +170,9 @@ export interface Dev {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "file".
+ * via the `definition` "archivo".
  */
-export interface File {
+export interface Archivo {
   id: string;
   prefix?: string | null;
   updatedAt: string;
@@ -190,9 +190,9 @@ export interface File {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "user".
+ * via the `definition` "usuario".
  */
-export interface User {
+export interface Usuario {
   id: string;
   updatedAt: string;
   createdAt: string;
@@ -215,11 +215,15 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "citizen".
+ * via the `definition` "ciudadano".
  */
-export interface Citizen {
+export interface Ciudadano {
   id: string;
   dni: string;
+  nombre: string;
+  apellido: string;
+  email: string;
+  fecha_nacimiento: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -253,16 +257,16 @@ export interface PayloadLockedDocument {
         value: string | Dev;
       } | null)
     | ({
-        relationTo: 'file';
-        value: string | File;
+        relationTo: 'archivo';
+        value: string | Archivo;
       } | null)
     | ({
-        relationTo: 'user';
-        value: string | User;
+        relationTo: 'usuario';
+        value: string | Usuario;
       } | null)
     | ({
-        relationTo: 'citizen';
-        value: string | Citizen;
+        relationTo: 'ciudadano';
+        value: string | Ciudadano;
       } | null);
   globalSlug?: string | null;
   user:
@@ -271,8 +275,8 @@ export interface PayloadLockedDocument {
         value: string | Dev;
       }
     | {
-        relationTo: 'user';
-        value: string | User;
+        relationTo: 'usuario';
+        value: string | Usuario;
       };
   updatedAt: string;
   createdAt: string;
@@ -289,8 +293,8 @@ export interface PayloadPreference {
         value: string | Dev;
       }
     | {
-        relationTo: 'user';
-        value: string | User;
+        relationTo: 'usuario';
+        value: string | Usuario;
       };
   key?: string | null;
   value?:
@@ -341,9 +345,9 @@ export interface DevSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "file_select".
+ * via the `definition` "archivo_select".
  */
-export interface FileSelect<T extends boolean = true> {
+export interface ArchivoSelect<T extends boolean = true> {
   prefix?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -360,9 +364,9 @@ export interface FileSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "user_select".
+ * via the `definition` "usuario_select".
  */
-export interface UserSelect<T extends boolean = true> {
+export interface UsuarioSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -383,10 +387,14 @@ export interface UserSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "citizen_select".
+ * via the `definition` "ciudadano_select".
  */
-export interface CitizenSelect<T extends boolean = true> {
+export interface CiudadanoSelect<T extends boolean = true> {
   dni?: T;
+  nombre?: T;
+  apellido?: T;
+  email?: T;
+  fecha_nacimiento?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

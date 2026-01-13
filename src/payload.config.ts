@@ -7,10 +7,10 @@ import { es } from 'payload/i18n/es'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 import { DATABASE_URI, PAYLOAD_SECRET } from './config'
-import { Citizen } from './payload/collections/ciudadanos'
+import { Archivo } from './payload/collections/archivo'
+import { Ciudadano } from './payload/collections/ciudadano'
 import { Dev } from './payload/collections/dev'
-import { File } from './payload/collections/file'
-import { User } from './payload/collections/user'
+import { Usuario } from './payload/collections/usuario'
 import { storagePlugin } from './payload/plugins/storage'
 
 const filename = fileURLToPath(import.meta.url)
@@ -35,7 +35,7 @@ export default buildConfig({
       },
     },
   },
-  collections: [Dev, File, User, Citizen],
+  collections: [Dev, Archivo, Usuario, Ciudadano],
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,
   typescript: {
