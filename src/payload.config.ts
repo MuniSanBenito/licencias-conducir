@@ -17,6 +17,8 @@ import { Examen } from './payload/collections/examen'
 import { ExamenPregunta } from './payload/collections/examen-pregunta'
 import { Opcion } from './payload/collections/opcion'
 import { Pregunta } from './payload/collections/pregunta'
+import { ProcesoPaso } from './payload/collections/proceso-paso'
+import { ProcesoPlantilla } from './payload/collections/proceso-plantilla'
 import { TipoTramite } from './payload/collections/tipo-tramite'
 import { Usuario } from './payload/collections/usuario'
 import { storagePlugin } from './payload/plugins/storage'
@@ -56,6 +58,8 @@ export default buildConfig({
     Opcion,
     ExamenPregunta,
     AgendaRecurso,
+    ProcesoPlantilla,
+    ProcesoPaso,
   ],
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,

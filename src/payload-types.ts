@@ -78,7 +78,10 @@ export interface Config {
     examen: Examan;
     pregunta: Pregunta;
     opcion: Opcion;
+    'examen-pregunta': ExamenPregunta;
     'agenda-recurso': AgendaRecurso;
+    'proceso-plantilla': ProcesoPlantilla;
+    'proceso-paso': ProcesoPaso;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -96,7 +99,10 @@ export interface Config {
     examen: ExamenSelect<false> | ExamenSelect<true>;
     pregunta: PreguntaSelect<false> | PreguntaSelect<true>;
     opcion: OpcionSelect<false> | OpcionSelect<true>;
+    'examen-pregunta': ExamenPreguntaSelect<false> | ExamenPreguntaSelect<true>;
     'agenda-recurso': AgendaRecursoSelect<false> | AgendaRecursoSelect<true>;
+    'proceso-plantilla': ProcesoPlantillaSelect<false> | ProcesoPlantillaSelect<true>;
+    'proceso-paso': ProcesoPasoSelect<false> | ProcesoPasoSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -343,6 +349,20 @@ export interface Opcion {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "examen-pregunta".
+ */
+export interface ExamenPregunta {
+  id: string;
+  examen?: (string | null) | Examan;
+  pregunta?: (string | null) | Pregunta;
+  orden?: number | null;
+  puntaje?: number | null;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "agenda-recurso".
  */
 export interface AgendaRecurso {
@@ -352,6 +372,37 @@ export interface AgendaRecurso {
    */
   nombre: string;
   capacidad?: number | null;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "proceso-plantilla".
+ */
+export interface ProcesoPlantilla {
+  id: string;
+  /**
+   * Ej: Workflow Licencia Original
+   */
+  nombre: string;
+  clase_licencia?: (string | null) | ClaseLicencia;
+  tipo_tramite?: (string | null) | TipoTramite;
+  activo?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "proceso-paso".
+ */
+export interface ProcesoPaso {
+  id: string;
+  plantilla?: (string | null) | ProcesoPlantilla;
+  etapa?: (string | null) | CatalogoEtapa;
+  orden?: number | null;
+  es_bloqueante?: boolean | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -421,8 +472,20 @@ export interface PayloadLockedDocument {
         value: string | Opcion;
       } | null)
     | ({
+        relationTo: 'examen-pregunta';
+        value: string | ExamenPregunta;
+      } | null)
+    | ({
         relationTo: 'agenda-recurso';
         value: string | AgendaRecurso;
+      } | null)
+    | ({
+        relationTo: 'proceso-plantilla';
+        value: string | ProcesoPlantilla;
+      } | null)
+    | ({
+        relationTo: 'proceso-paso';
+        value: string | ProcesoPaso;
       } | null);
   globalSlug?: string | null;
   user:
@@ -629,11 +692,50 @@ export interface OpcionSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "examen-pregunta_select".
+ */
+export interface ExamenPreguntaSelect<T extends boolean = true> {
+  examen?: T;
+  pregunta?: T;
+  orden?: T;
+  puntaje?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "agenda-recurso_select".
  */
 export interface AgendaRecursoSelect<T extends boolean = true> {
   nombre?: T;
   capacidad?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "proceso-plantilla_select".
+ */
+export interface ProcesoPlantillaSelect<T extends boolean = true> {
+  nombre?: T;
+  clase_licencia?: T;
+  tipo_tramite?: T;
+  activo?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "proceso-paso_select".
+ */
+export interface ProcesoPasoSelect<T extends boolean = true> {
+  plantilla?: T;
+  etapa?: T;
+  orden?: T;
+  es_bloqueante?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

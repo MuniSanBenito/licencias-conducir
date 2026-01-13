@@ -18,12 +18,9 @@ export const ExamenPregunta: CollectionConfig = {
     singular: 'Examen Pregunta',
     plural: 'Examenes Preguntas',
   },
-  admin: {
-    useAsTitle: 'examen_id',
-  },
   indexes: [
     {
-      fields: ['examen_id', 'pregunta_id'],
+      fields: ['examen', 'pregunta'],
       unique: true,
     },
   ],
