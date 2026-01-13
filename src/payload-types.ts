@@ -7,32 +7,6 @@
  */
 
 /**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "OpcionesConsigna".
- */
-export type OpcionesConsigna =
-  | {
-      opcion?:
-        | (
-            | {
-                texto: string;
-                id?: string | null;
-                blockName?: string | null;
-                blockType: 'texto';
-              }
-            | {
-                imagen: string | Archivo;
-                id?: string | null;
-                blockName?: string | null;
-                blockType: 'imagen';
-              }
-          )[]
-        | null;
-      correcta: boolean;
-      id?: string | null;
-    }[]
-  | null;
-/**
  * Supported timezones in IANA format.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -89,16 +63,15 @@ export type SupportedTimezones =
 
 export interface Config {
   auth: {
-    usuarios: UsuarioAuthOperations;
+    dev: DevAuthOperations;
+    user: UserAuthOperations;
   };
   blocks: {};
   collections: {
-    usuarios: Usuario;
-    ciudadanos: Ciudadano;
-    archivos: Archivo;
-    futs: Fut;
-    consignas: Consigna;
-    examenes: Examen;
+    dev: Dev;
+    file: File;
+    user: User;
+    citizen: Citizen;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -106,12 +79,10 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
-    usuarios: UsuariosSelect<false> | UsuariosSelect<true>;
-    ciudadanos: CiudadanosSelect<false> | CiudadanosSelect<true>;
-    archivos: ArchivosSelect<false> | ArchivosSelect<true>;
-    futs: FutsSelect<false> | FutsSelect<true>;
-    consignas: ConsignasSelect<false> | ConsignasSelect<true>;
-    examenes: ExamenesSelect<false> | ExamenesSelect<true>;
+    dev: DevSelect<false> | DevSelect<true>;
+    file: FileSelect<false> | FileSelect<true>;
+    user: UserSelect<false> | UserSelect<true>;
+    citizen: CitizenSelect<false> | CitizenSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -124,15 +95,37 @@ export interface Config {
   globals: {};
   globalsSelect: {};
   locale: null;
-  user: Usuario & {
-    collection: 'usuarios';
-  };
+  user:
+    | (Dev & {
+        collection: 'dev';
+      })
+    | (User & {
+        collection: 'user';
+      });
   jobs: {
     tasks: unknown;
     workflows: unknown;
   };
 }
-export interface UsuarioAuthOperations {
+export interface DevAuthOperations {
+  forgotPassword: {
+    email: string;
+    password: string;
+  };
+  login: {
+    email: string;
+    password: string;
+  };
+  registerFirstUser: {
+    email: string;
+    password: string;
+  };
+  unlock: {
+    email: string;
+    password: string;
+  };
+}
+export interface UserAuthOperations {
   forgotPassword: {
     email: string;
     password: string;
@@ -152,11 +145,10 @@ export interface UsuarioAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "usuarios".
+ * via the `definition` "dev".
  */
-export interface Usuario {
+export interface Dev {
   id: string;
-  dev?: boolean | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -178,20 +170,9 @@ export interface Usuario {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ciudadanos".
+ * via the `definition` "file".
  */
-export interface Ciudadano {
-  id: string;
-  dni: string;
-  updatedAt: string;
-  createdAt: string;
-  deletedAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "archivos".
- */
-export interface Archivo {
+export interface File {
   id: string;
   prefix?: string | null;
   updatedAt: string;
@@ -209,70 +190,36 @@ export interface Archivo {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "futs".
+ * via the `definition` "user".
  */
-export interface Fut {
+export interface User {
   id: string;
-  futId: string;
-  ciudadano: string | Ciudadano;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "consignas".
- */
-export interface Consigna {
-  id: string;
-  pregunta: string;
-  opciones?: OpcionesConsigna;
-  /**
-   * Selecciona una o más categorías para esta consigna.
-   */
-  categorias: ('A1' | 'A2' | 'A3' | 'B1' | 'B2' | 'B3' | 'B4')[];
-  /**
-   * Si está marcada, la consigna es eliminatoria.
-   */
-  eliminatoria: boolean;
-  updatedAt: string;
-  createdAt: string;
-  deletedAt?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "examenes".
- */
-export interface Examen {
-  id: string;
-  fut: string | Fut;
-  consignas?: (string | Consigna)[] | null;
-  respuestas?:
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
     | {
-        consigna: string | Consigna;
-        respuestas: {
-          respuesta: number;
-          id?: string | null;
-        }[];
-        id?: string | null;
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
       }[]
     | null;
-  /**
-   * Selecciona una o más categorías para esta consigna.
-   */
-  categorias: ('A1' | 'A2' | 'A3' | 'B1' | 'B2' | 'B3' | 'B4')[];
-  finalizado?: boolean | null;
-  aprobado?: boolean | null;
-  correctas?: number | null;
-  incorrectas?: number | null;
-  /**
-   * Porcentaje de respuestas correctas
-   */
-  porcentaje?: number | null;
-  horarioInicio?: string | null;
-  horarioCierre?: string | null;
-  horarioFin?: string | null;
-  titulo?: string | null;
+  password?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "citizen".
+ */
+export interface Citizen {
+  id: string;
+  dni: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -302,34 +249,31 @@ export interface PayloadLockedDocument {
   id: string;
   document?:
     | ({
-        relationTo: 'usuarios';
-        value: string | Usuario;
+        relationTo: 'dev';
+        value: string | Dev;
       } | null)
     | ({
-        relationTo: 'ciudadanos';
-        value: string | Ciudadano;
+        relationTo: 'file';
+        value: string | File;
       } | null)
     | ({
-        relationTo: 'archivos';
-        value: string | Archivo;
+        relationTo: 'user';
+        value: string | User;
       } | null)
     | ({
-        relationTo: 'futs';
-        value: string | Fut;
-      } | null)
-    | ({
-        relationTo: 'consignas';
-        value: string | Consigna;
-      } | null)
-    | ({
-        relationTo: 'examenes';
-        value: string | Examen;
+        relationTo: 'citizen';
+        value: string | Citizen;
       } | null);
   globalSlug?: string | null;
-  user: {
-    relationTo: 'usuarios';
-    value: string | Usuario;
-  };
+  user:
+    | {
+        relationTo: 'dev';
+        value: string | Dev;
+      }
+    | {
+        relationTo: 'user';
+        value: string | User;
+      };
   updatedAt: string;
   createdAt: string;
 }
@@ -339,10 +283,15 @@ export interface PayloadLockedDocument {
  */
 export interface PayloadPreference {
   id: string;
-  user: {
-    relationTo: 'usuarios';
-    value: string | Usuario;
-  };
+  user:
+    | {
+        relationTo: 'dev';
+        value: string | Dev;
+      }
+    | {
+        relationTo: 'user';
+        value: string | User;
+      };
   key?: string | null;
   value?:
     | {
@@ -369,10 +318,9 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "usuarios_select".
+ * via the `definition` "dev_select".
  */
-export interface UsuariosSelect<T extends boolean = true> {
-  dev?: T;
+export interface DevSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -393,19 +341,9 @@ export interface UsuariosSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ciudadanos_select".
+ * via the `definition` "file_select".
  */
-export interface CiudadanosSelect<T extends boolean = true> {
-  dni?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  deletedAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "archivos_select".
- */
-export interface ArchivosSelect<T extends boolean = true> {
+export interface FileSelect<T extends boolean = true> {
   prefix?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -422,83 +360,33 @@ export interface ArchivosSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "futs_select".
+ * via the `definition` "user_select".
  */
-export interface FutsSelect<T extends boolean = true> {
-  futId?: T;
-  ciudadano?: T;
+export interface UserSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "consignas_select".
- */
-export interface ConsignasSelect<T extends boolean = true> {
-  pregunta?: T;
-  opciones?: T | OpcionesConsignaSelect<T>;
-  categorias?: T;
-  eliminatoria?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  deletedAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "OpcionesConsigna_select".
- */
-export interface OpcionesConsignaSelect<T extends boolean = true> {
-  opcion?:
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
     | T
     | {
-        texto?:
-          | T
-          | {
-              texto?: T;
-              id?: T;
-              blockName?: T;
-            };
-        imagen?:
-          | T
-          | {
-              imagen?: T;
-              id?: T;
-              blockName?: T;
-            };
-      };
-  correcta?: T;
-  id?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "examenes_select".
- */
-export interface ExamenesSelect<T extends boolean = true> {
-  fut?: T;
-  consignas?: T;
-  respuestas?:
-    | T
-    | {
-        consigna?: T;
-        respuestas?:
-          | T
-          | {
-              respuesta?: T;
-              id?: T;
-            };
         id?: T;
+        createdAt?: T;
+        expiresAt?: T;
       };
-  categorias?: T;
-  finalizado?: T;
-  aprobado?: T;
-  correctas?: T;
-  incorrectas?: T;
-  porcentaje?: T;
-  horarioInicio?: T;
-  horarioCierre?: T;
-  horarioFin?: T;
-  titulo?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "citizen_select".
+ */
+export interface CitizenSelect<T extends boolean = true> {
+  dni?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

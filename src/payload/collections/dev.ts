@@ -6,7 +6,7 @@ export const Dev: CollectionConfig = {
     singular: 'Dev',
     plural: 'Devs',
   },
-  upload: true,
+  auth: true,
   trash: true,
   fields: [],
 }
