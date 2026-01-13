@@ -72,6 +72,7 @@ export interface Config {
     archivo: Archivo;
     usuario: Usuario;
     ciudadano: Ciudadano;
+    'catalogo-etapa': CatalogoEtapa;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -83,6 +84,7 @@ export interface Config {
     archivo: ArchivoSelect<false> | ArchivoSelect<true>;
     usuario: UsuarioSelect<false> | UsuarioSelect<true>;
     ciudadano: CiudadanoSelect<false> | CiudadanoSelect<true>;
+    'catalogo-etapa': CatalogoEtapaSelect<false> | CatalogoEtapaSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -230,6 +232,36 @@ export interface Ciudadano {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "catalogo-etapa".
+ */
+export interface CatalogoEtapa {
+  id: string;
+  /**
+   * Ej: Papeles, Curso, Teorico, Practico, Medico
+   */
+  nombre: string;
+  /**
+   * Si es TRUE (Practico), se genera una fila por cada categoria solicitada
+   */
+  requiere_turno?: boolean | null;
+  /**
+   * Habilita examen en PC
+   */
+  es_digital?: boolean | null;
+  /**
+   * Pide cargar ID Nacional
+   */
+  es_carga_fut?: boolean | null;
+  /**
+   * Si es TRUE (Practico), se genera una fila por cada categoria solicitada
+   */
+  es_multiplicable_por_clase?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -267,6 +299,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'ciudadano';
         value: string | Ciudadano;
+      } | null)
+    | ({
+        relationTo: 'catalogo-etapa';
+        value: string | CatalogoEtapa;
       } | null);
   globalSlug?: string | null;
   user:
@@ -395,6 +431,20 @@ export interface CiudadanoSelect<T extends boolean = true> {
   apellido?: T;
   email?: T;
   fecha_nacimiento?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "catalogo-etapa_select".
+ */
+export interface CatalogoEtapaSelect<T extends boolean = true> {
+  nombre?: T;
+  requiere_turno?: T;
+  es_digital?: T;
+  es_carga_fut?: T;
+  es_multiplicable_por_clase?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

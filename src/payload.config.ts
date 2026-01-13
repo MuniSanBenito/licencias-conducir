@@ -8,6 +8,7 @@ import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 import { DATABASE_URI, PAYLOAD_SECRET } from './config'
 import { Archivo } from './payload/collections/archivo'
+import { CatalogoEtapa } from './payload/collections/catalogo-etapa'
 import { Ciudadano } from './payload/collections/ciudadano'
 import { Dev } from './payload/collections/dev'
 import { Usuario } from './payload/collections/usuario'
@@ -35,7 +36,7 @@ export default buildConfig({
       },
     },
   },
-  collections: [Dev, Archivo, Usuario, Ciudadano],
+  collections: [Dev, Archivo, Usuario, Ciudadano, CatalogoEtapa],
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,
   typescript: {
