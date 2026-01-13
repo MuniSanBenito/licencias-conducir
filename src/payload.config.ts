@@ -12,6 +12,7 @@ import { CatalogoEtapa } from './payload/collections/catalogo-etapa'
 import { Ciudadano } from './payload/collections/ciudadano'
 import { ClaseLicencia } from './payload/collections/clase_licencia'
 import { Dev } from './payload/collections/dev'
+import { Examen } from './payload/collections/examen'
 import { TipoTramite } from './payload/collections/tipo_tramite'
 import { Usuario } from './payload/collections/usuario'
 import { storagePlugin } from './payload/plugins/storage'
@@ -38,7 +39,16 @@ export default buildConfig({
       },
     },
   },
-  collections: [Dev, Archivo, Usuario, Ciudadano, CatalogoEtapa, TipoTramite, ClaseLicencia],
+  collections: [
+    Dev,
+    Archivo,
+    Usuario,
+    Ciudadano,
+    CatalogoEtapa,
+    TipoTramite,
+    ClaseLicencia,
+    Examen,
+  ],
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,
   typescript: {

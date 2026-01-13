@@ -75,6 +75,7 @@ export interface Config {
     'catalogo-etapa': CatalogoEtapa;
     tipo_tramite: TipoTramite;
     clase_licencia: ClaseLicencia;
+    examen: Examan;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -89,6 +90,7 @@ export interface Config {
     'catalogo-etapa': CatalogoEtapaSelect<false> | CatalogoEtapaSelect<true>;
     tipo_tramite: TipoTramiteSelect<false> | TipoTramiteSelect<true>;
     clase_licencia: ClaseLicenciaSelect<false> | ClaseLicenciaSelect<true>;
+    examen: ExamenSelect<false> | ExamenSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -296,6 +298,19 @@ export interface ClaseLicencia {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "examen".
+ */
+export interface Examan {
+  id: string;
+  titulo: string;
+  descripcion?: string | null;
+  activo?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -345,6 +360,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'clase_licencia';
         value: string | ClaseLicencia;
+      } | null)
+    | ({
+        relationTo: 'examen';
+        value: string | Examan;
       } | null);
   globalSlug?: string | null;
   user:
@@ -509,6 +528,18 @@ export interface ClaseLicenciaSelect<T extends boolean = true> {
   codigo?: T;
   nombre?: T;
   descripcion?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "examen_select".
+ */
+export interface ExamenSelect<T extends boolean = true> {
+  titulo?: T;
+  descripcion?: T;
+  activo?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
