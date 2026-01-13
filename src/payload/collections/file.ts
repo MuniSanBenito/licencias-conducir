@@ -1,14 +1,10 @@
-import { HIDE_API_URL } from '@/config'
 import type { CollectionConfig } from 'payload'
 
-export const Archivos: CollectionConfig = {
-  slug: 'archivos',
+export const File: CollectionConfig = {
+  slug: 'file',
   labels: {
     singular: 'Archivo',
     plural: 'Archivos',
-  },
-  admin: {
-    hideAPIURL: HIDE_API_URL,
   },
   upload: true,
   trash: true,

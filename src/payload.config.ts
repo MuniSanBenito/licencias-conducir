@@ -7,12 +7,10 @@ import { es } from 'payload/i18n/es'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 import { DATABASE_URI, PAYLOAD_SECRET } from './config'
-import { Archivos } from './payload/collections/archivos'
-import { Ciudadanos } from './payload/collections/ciudadanos'
-import { Consignas } from './payload/collections/consignas'
-import { Examenes } from './payload/collections/examenes'
-import { Futs } from './payload/collections/fut'
-import { Usuarios } from './payload/collections/usuarios'
+import { Citizen } from './payload/collections/ciudadanos'
+import { Dev } from './payload/collections/dev'
+import { File } from './payload/collections/file'
+import { User } from './payload/collections/user'
 import { storagePlugin } from './payload/plugins/storage'
 
 const filename = fileURLToPath(import.meta.url)
@@ -20,7 +18,7 @@ const dirname = path.dirname(filename)
 
 export default buildConfig({
   admin: {
-    user: Usuarios.slug,
+    user: Dev.slug,
     importMap: {
       baseDir: path.resolve(dirname),
     },
@@ -37,7 +35,7 @@ export default buildConfig({
       },
     },
   },
-  collections: [Usuarios, Ciudadanos, Archivos, Futs, Consignas, Examenes],
+  collections: [Dev, File, User, Citizen],
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,
   typescript: {

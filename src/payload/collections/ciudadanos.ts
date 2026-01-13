@@ -1,15 +1,10 @@
-import { HIDE_API_URL } from '@/config'
 import type { CollectionConfig } from 'payload'
 
-export const Ciudadanos: CollectionConfig = {
-  slug: 'ciudadanos',
+export const Citizen: CollectionConfig = {
+  slug: 'citizen',
   labels: {
     singular: 'Ciudadano',
     plural: 'Ciudadanos',
-  },
-  admin: {
-    useAsTitle: 'dni',
-    hideAPIURL: HIDE_API_URL,
   },
   trash: true,
   fields: [

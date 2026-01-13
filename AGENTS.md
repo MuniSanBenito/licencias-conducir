@@ -132,6 +132,14 @@ Este documento contiene información importante para agentes de IA que trabajan 
   })
   ```
 
+## Los 3 Mandamientos
+
+Se deben cumplir absolutamente siempre:
+
+1. **Siempre respetar principios SOLID**
+2. **DRY** (Don't Repeat Yourself)
+3. **KISS** (Keep It Simple, Stupid)
+
 ## Notas para Agentes
 
 1. **No crear archivos innecesarios**: Solo crear lo estrictamente necesario
