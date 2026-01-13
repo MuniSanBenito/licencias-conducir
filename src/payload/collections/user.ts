@@ -6,9 +6,9 @@ export const User: CollectionConfig = {
     singular: 'Usuario',
     plural: 'Usuarios',
   },
-  /* admin: {
+  admin: {
     useAsTitle: 'email',
-  }, */
+  },
   auth: true,
   trash: true,
   fields: [
