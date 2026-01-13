@@ -78,6 +78,7 @@ export interface Config {
     examen: Examan;
     pregunta: Pregunta;
     opcion: Opcion;
+    'agenda-recurso': AgendaRecurso;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -95,6 +96,7 @@ export interface Config {
     examen: ExamenSelect<false> | ExamenSelect<true>;
     pregunta: PreguntaSelect<false> | PreguntaSelect<true>;
     opcion: OpcionSelect<false> | OpcionSelect<true>;
+    'agenda-recurso': AgendaRecursoSelect<false> | AgendaRecursoSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -341,6 +343,21 @@ export interface Opcion {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "agenda-recurso".
+ */
+export interface AgendaRecurso {
+  id: string;
+  /**
+   * Ej: Pista de Motos, Box Medico
+   */
+  nombre: string;
+  capacidad?: number | null;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -402,6 +419,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'opcion';
         value: string | Opcion;
+      } | null)
+    | ({
+        relationTo: 'agenda-recurso';
+        value: string | AgendaRecurso;
       } | null);
   globalSlug?: string | null;
   user:
@@ -602,6 +623,17 @@ export interface OpcionSelect<T extends boolean = true> {
   texto_opcion?: T;
   imagen_opcion?: T;
   es_correcta?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "agenda-recurso_select".
+ */
+export interface AgendaRecursoSelect<T extends boolean = true> {
+  nombre?: T;
+  capacidad?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

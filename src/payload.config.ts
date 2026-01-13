@@ -7,15 +7,17 @@ import { es } from 'payload/i18n/es'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 import { DATABASE_URI, PAYLOAD_SECRET } from './config'
+import { AgendaRecurso } from './payload/collections/agenda-recurso'
 import { Archivo } from './payload/collections/archivo'
 import { CatalogoEtapa } from './payload/collections/catalogo-etapa'
 import { Ciudadano } from './payload/collections/ciudadano'
-import { ClaseLicencia } from './payload/collections/clase_licencia'
+import { ClaseLicencia } from './payload/collections/clase-licencia'
 import { Dev } from './payload/collections/dev'
 import { Examen } from './payload/collections/examen'
+import { ExamenPregunta } from './payload/collections/examen-pregunta'
 import { Opcion } from './payload/collections/opcion'
 import { Pregunta } from './payload/collections/pregunta'
-import { TipoTramite } from './payload/collections/tipo_tramite'
+import { TipoTramite } from './payload/collections/tipo-tramite'
 import { Usuario } from './payload/collections/usuario'
 import { storagePlugin } from './payload/plugins/storage'
 
@@ -52,6 +54,8 @@ export default buildConfig({
     Examen,
     Pregunta,
     Opcion,
+    ExamenPregunta,
+    AgendaRecurso,
   ],
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,
