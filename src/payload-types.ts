@@ -76,6 +76,7 @@ export interface Config {
     tipo_tramite: TipoTramite;
     clase_licencia: ClaseLicencia;
     examen: Examan;
+    pregunta: Pregunta;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -91,6 +92,7 @@ export interface Config {
     tipo_tramite: TipoTramiteSelect<false> | TipoTramiteSelect<true>;
     clase_licencia: ClaseLicenciaSelect<false> | ClaseLicenciaSelect<true>;
     examen: ExamenSelect<false> | ExamenSelect<true>;
+    pregunta: PreguntaSelect<false> | PreguntaSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -311,6 +313,18 @@ export interface Examan {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pregunta".
+ */
+export interface Pregunta {
+  id: string;
+  enunciado: string;
+  archivo?: (string | null) | Archivo;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -364,6 +378,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'examen';
         value: string | Examan;
+      } | null)
+    | ({
+        relationTo: 'pregunta';
+        value: string | Pregunta;
       } | null);
   globalSlug?: string | null;
   user:
@@ -540,6 +558,17 @@ export interface ExamenSelect<T extends boolean = true> {
   titulo?: T;
   descripcion?: T;
   activo?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pregunta_select".
+ */
+export interface PreguntaSelect<T extends boolean = true> {
+  enunciado?: T;
+  archivo?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
