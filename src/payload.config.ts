@@ -13,6 +13,7 @@ import { Ciudadano } from './payload/collections/ciudadano'
 import { ClaseLicencia } from './payload/collections/clase_licencia'
 import { Dev } from './payload/collections/dev'
 import { Examen } from './payload/collections/examen'
+import { Opcion } from './payload/collections/opcion'
 import { Pregunta } from './payload/collections/pregunta'
 import { TipoTramite } from './payload/collections/tipo_tramite'
 import { Usuario } from './payload/collections/usuario'
@@ -50,6 +51,7 @@ export default buildConfig({
     ClaseLicencia,
     Examen,
     Pregunta,
+    Opcion,
   ],
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,

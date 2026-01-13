@@ -77,6 +77,7 @@ export interface Config {
     clase_licencia: ClaseLicencia;
     examen: Examan;
     pregunta: Pregunta;
+    opcion: Opcion;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -93,6 +94,7 @@ export interface Config {
     clase_licencia: ClaseLicenciaSelect<false> | ClaseLicenciaSelect<true>;
     examen: ExamenSelect<false> | ExamenSelect<true>;
     pregunta: PreguntaSelect<false> | PreguntaSelect<true>;
+    opcion: OpcionSelect<false> | OpcionSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -325,6 +327,20 @@ export interface Pregunta {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "opcion".
+ */
+export interface Opcion {
+  id: string;
+  pregunta?: (string | null) | Pregunta;
+  texto_opcion?: string | null;
+  imagen_opcion?: (string | null) | Archivo;
+  es_correcta?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -382,6 +398,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'pregunta';
         value: string | Pregunta;
+      } | null)
+    | ({
+        relationTo: 'opcion';
+        value: string | Opcion;
       } | null);
   globalSlug?: string | null;
   user:
@@ -569,6 +589,19 @@ export interface ExamenSelect<T extends boolean = true> {
 export interface PreguntaSelect<T extends boolean = true> {
   enunciado?: T;
   archivo?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "opcion_select".
+ */
+export interface OpcionSelect<T extends boolean = true> {
+  pregunta?: T;
+  texto_opcion?: T;
+  imagen_opcion?: T;
+  es_correcta?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
