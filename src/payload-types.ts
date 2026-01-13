@@ -73,6 +73,7 @@ export interface Config {
     usuario: Usuario;
     ciudadano: Ciudadano;
     'catalogo-etapa': CatalogoEtapa;
+    tipo_tramite: TipoTramite;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -85,6 +86,7 @@ export interface Config {
     usuario: UsuarioSelect<false> | UsuarioSelect<true>;
     ciudadano: CiudadanoSelect<false> | CiudadanoSelect<true>;
     'catalogo-etapa': CatalogoEtapaSelect<false> | CatalogoEtapaSelect<true>;
+    tipo_tramite: TipoTramiteSelect<false> | TipoTramiteSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -262,6 +264,20 @@ export interface CatalogoEtapa {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tipo_tramite".
+ */
+export interface TipoTramite {
+  id: string;
+  /**
+   * Ej: Original, Renovacion, Ampliacion
+   */
+  nombre: string;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -303,6 +319,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'catalogo-etapa';
         value: string | CatalogoEtapa;
+      } | null)
+    | ({
+        relationTo: 'tipo_tramite';
+        value: string | TipoTramite;
       } | null);
   globalSlug?: string | null;
   user:
@@ -445,6 +465,16 @@ export interface CatalogoEtapaSelect<T extends boolean = true> {
   es_digital?: T;
   es_carga_fut?: T;
   es_multiplicable_por_clase?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tipo_tramite_select".
+ */
+export interface TipoTramiteSelect<T extends boolean = true> {
+  nombre?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
