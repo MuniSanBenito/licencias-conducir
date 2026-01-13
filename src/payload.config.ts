@@ -10,6 +10,7 @@ import { DATABASE_URI, PAYLOAD_SECRET } from './config'
 import { Archivo } from './payload/collections/archivo'
 import { CatalogoEtapa } from './payload/collections/catalogo-etapa'
 import { Ciudadano } from './payload/collections/ciudadano'
+import { ClaseLicencia } from './payload/collections/clase_licencia'
 import { Dev } from './payload/collections/dev'
 import { TipoTramite } from './payload/collections/tipo_tramite'
 import { Usuario } from './payload/collections/usuario'
@@ -37,7 +38,7 @@ export default buildConfig({
       },
     },
   },
-  collections: [Dev, Archivo, Usuario, Ciudadano, CatalogoEtapa, TipoTramite],
+  collections: [Dev, Archivo, Usuario, Ciudadano, CatalogoEtapa, TipoTramite, ClaseLicencia],
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,
   typescript: {

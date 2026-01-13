@@ -74,6 +74,7 @@ export interface Config {
     ciudadano: Ciudadano;
     'catalogo-etapa': CatalogoEtapa;
     tipo_tramite: TipoTramite;
+    clase_licencia: ClaseLicencia;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -87,6 +88,7 @@ export interface Config {
     ciudadano: CiudadanoSelect<false> | CiudadanoSelect<true>;
     'catalogo-etapa': CatalogoEtapaSelect<false> | CatalogoEtapaSelect<true>;
     tipo_tramite: TipoTramiteSelect<false> | TipoTramiteSelect<true>;
+    clase_licencia: ClaseLicenciaSelect<false> | ClaseLicenciaSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -278,6 +280,22 @@ export interface TipoTramite {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "clase_licencia".
+ */
+export interface ClaseLicencia {
+  id: string;
+  /**
+   * Ej: A, B, C, D4
+   */
+  codigo: string;
+  nombre?: string | null;
+  descripcion?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -323,6 +341,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'tipo_tramite';
         value: string | TipoTramite;
+      } | null)
+    | ({
+        relationTo: 'clase_licencia';
+        value: string | ClaseLicencia;
       } | null);
   globalSlug?: string | null;
   user:
@@ -475,6 +497,18 @@ export interface CatalogoEtapaSelect<T extends boolean = true> {
  */
 export interface TipoTramiteSelect<T extends boolean = true> {
   nombre?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "clase_licencia_select".
+ */
+export interface ClaseLicenciaSelect<T extends boolean = true> {
+  codigo?: T;
+  nombre?: T;
+  descripcion?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
