@@ -82,6 +82,7 @@ export interface Config {
     'agenda-recurso': AgendaRecurso;
     'proceso-plantilla': ProcesoPlantilla;
     'proceso-paso': ProcesoPaso;
+    tramite: Tramite;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -103,6 +104,7 @@ export interface Config {
     'agenda-recurso': AgendaRecursoSelect<false> | AgendaRecursoSelect<true>;
     'proceso-plantilla': ProcesoPlantillaSelect<false> | ProcesoPlantillaSelect<true>;
     'proceso-paso': ProcesoPasoSelect<false> | ProcesoPasoSelect<true>;
+    tramite: TramiteSelect<false> | TramiteSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -409,6 +411,22 @@ export interface ProcesoPaso {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tramite".
+ */
+export interface Tramite {
+  id: string;
+  ciudadano: string | Ciudadano;
+  plantilla: string | ProcesoPlantilla;
+  codigo_interno: string;
+  fut: string;
+  estado_global: string;
+  fecha_inicio: string;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -486,6 +504,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'proceso-paso';
         value: string | ProcesoPaso;
+      } | null)
+    | ({
+        relationTo: 'tramite';
+        value: string | Tramite;
       } | null);
   globalSlug?: string | null;
   user:
@@ -736,6 +758,21 @@ export interface ProcesoPasoSelect<T extends boolean = true> {
   etapa?: T;
   orden?: T;
   es_bloqueante?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tramite_select".
+ */
+export interface TramiteSelect<T extends boolean = true> {
+  ciudadano?: T;
+  plantilla?: T;
+  codigo_interno?: T;
+  fut?: T;
+  estado_global?: T;
+  fecha_inicio?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

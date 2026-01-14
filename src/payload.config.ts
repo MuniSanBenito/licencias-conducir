@@ -20,6 +20,7 @@ import { Pregunta } from './payload/collections/pregunta'
 import { ProcesoPaso } from './payload/collections/proceso-paso'
 import { ProcesoPlantilla } from './payload/collections/proceso-plantilla'
 import { TipoTramite } from './payload/collections/tipo-tramite'
+import { Tramite } from './payload/collections/tramite'
 import { Usuario } from './payload/collections/usuario'
 import { storagePlugin } from './payload/plugins/storage'
 
@@ -60,6 +61,7 @@ export default buildConfig({
     AgendaRecurso,
     ProcesoPlantilla,
     ProcesoPaso,
+    Tramite,
   ],
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,
