@@ -85,6 +85,7 @@ export interface Config {
     tramite: Tramite;
     'emision-licencia': EmisionLicencia;
     'tramite-categoria-seleccionada': TramiteCategoriaSeleccionada;
+    'tramite-progreso': TramiteProgreso;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -109,6 +110,7 @@ export interface Config {
     tramite: TramiteSelect<false> | TramiteSelect<true>;
     'emision-licencia': EmisionLicenciaSelect<false> | EmisionLicenciaSelect<true>;
     'tramite-categoria-seleccionada': TramiteCategoriaSeleccionadaSelect<false> | TramiteCategoriaSeleccionadaSelect<true>;
+    'tramite-progreso': TramiteProgresoSelect<false> | TramiteProgresoSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -456,6 +458,24 @@ export interface TramiteCategoriaSeleccionada {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tramite-progreso".
+ */
+export interface TramiteProgreso {
+  id: string;
+  tramite: string | Tramite;
+  etapa: string | CatalogoEtapa;
+  orden: number;
+  clase_referencia: string | ClaseLicencia;
+  estado: string;
+  aprobado_por_usuario: string | Usuario;
+  fecha_aprobacion: string;
+  observaciones: string;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -545,6 +565,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'tramite-categoria-seleccionada';
         value: string | TramiteCategoriaSeleccionada;
+      } | null)
+    | ({
+        relationTo: 'tramite-progreso';
+        value: string | TramiteProgreso;
       } | null);
   globalSlug?: string | null;
   user:
@@ -833,6 +857,23 @@ export interface EmisionLicenciaSelect<T extends boolean = true> {
 export interface TramiteCategoriaSeleccionadaSelect<T extends boolean = true> {
   tramite?: T;
   clase_licencia?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tramite-progreso_select".
+ */
+export interface TramiteProgresoSelect<T extends boolean = true> {
+  tramite?: T;
+  etapa?: T;
+  orden?: T;
+  clase_referencia?: T;
+  estado?: T;
+  aprobado_por_usuario?: T;
+  fecha_aprobacion?: T;
+  observaciones?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
