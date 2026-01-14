@@ -178,6 +178,8 @@ export interface UsuarioAuthOperations {
   };
 }
 /**
+ * Colección de desarrollo para testing y pruebas
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "dev".
  */
@@ -203,6 +205,8 @@ export interface Dev {
   password?: string | null;
 }
 /**
+ * Gestión de archivos y documentos del sistema (imágenes de preguntas, documentos adjuntos, etc.)
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "archivo".
  */
@@ -223,6 +227,8 @@ export interface Archivo {
   focalY?: number | null;
 }
 /**
+ * Usuarios del sistema con autenticación. Gestiona acceso al panel administrativo
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "usuario".
  */
@@ -462,6 +468,8 @@ export interface Tramite {
   deletedAt?: string | null;
 }
 /**
+ * Registro de emisión final de licencias. Almacena fecha de emisión, usuario emisor y número de control del plástico
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "emision-licencia".
  */
@@ -544,6 +552,8 @@ export interface IntentoExaman {
   deletedAt?: string | null;
 }
 /**
+ * Respuestas marcadas por ciudadanos durante exámenes. Guarda cada opción seleccionada para auditoría detallada
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "respuesta-seleccionada".
  */
