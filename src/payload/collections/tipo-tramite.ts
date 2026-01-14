@@ -13,6 +13,7 @@ export const TipoTramite: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'nombre',
+    description: 'Tipos de trámite disponibles (Original, Renovación, Ampliación)',
   },
   trash: true,
   fields: [

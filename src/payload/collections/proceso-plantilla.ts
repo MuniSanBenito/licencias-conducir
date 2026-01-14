@@ -16,6 +16,8 @@ export const ProcesoPlantilla: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'nombre',
+    description:
+      'Plantillas de flujo de trámites. Define la "receta" de qué pasos componen cada tipo de trámite (ej: Renovación B requiere Papeles, Médico)',
   },
   trash: true,
   fields: [

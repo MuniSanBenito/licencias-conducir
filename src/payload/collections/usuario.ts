@@ -8,6 +8,7 @@ export const Usuario: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'email',
+    description: 'Usuarios del sistema con autenticación. Gestiona acceso al panel administrativo',
   },
   auth: true,
   trash: true,

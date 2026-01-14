@@ -14,6 +14,7 @@ export const Examen: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'titulo',
+    description: 'Banco de exámenes teóricos para licencias de conducir',
   },
   trash: true,
   fields: [

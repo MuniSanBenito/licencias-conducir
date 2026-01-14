@@ -14,6 +14,10 @@ export const EmisionLicencia: CollectionConfig = {
     singular: 'Emision Licencia',
     plural: 'Emisiones Licencias',
   },
+  admin: {
+    description:
+      'Registro de emisión final de licencias. Almacena fecha de emisión, usuario emisor y número de control del plástico',
+  },
   trash: true,
   fields: [
     {

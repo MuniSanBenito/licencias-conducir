@@ -14,6 +14,8 @@ export const AgendaRecurso: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'nombre',
+    description:
+      'Recursos disponibles para asignar turnos (aulas, boxes médicos, pistas de manejo)',
   },
   trash: true,
   fields: [

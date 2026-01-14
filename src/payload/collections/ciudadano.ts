@@ -6,6 +6,9 @@ export const Ciudadano: CollectionConfig = {
     singular: 'Ciudadano',
     plural: 'Ciudadanos',
   },
+  admin: {
+    description: 'Registro de ciudadanos que solicitan licencias de conducir',
+  },
   trash: true,
   fields: [
     {

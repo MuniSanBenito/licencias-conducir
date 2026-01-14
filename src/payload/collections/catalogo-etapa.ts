@@ -17,6 +17,8 @@ export const CatalogoEtapa: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'nombre',
+    description:
+      'Catálogo de etapas posibles en un trámite (Papeles, Curso, Teórico, Práctico, Médico). Define características como si requiere turno, es digital, etc.',
   },
   trash: true,
   fields: [

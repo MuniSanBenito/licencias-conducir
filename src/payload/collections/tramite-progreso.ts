@@ -18,6 +18,10 @@ export const TramiteProgreso: CollectionConfig = {
     singular: 'Tramite Progreso',
     plural: 'Tramites Progreso',
   },
+  admin: {
+    description:
+      'Checklist vivo de progreso de cada trámite. Controla el estado (PENDIENTE, APROBADO) de cada paso del proceso',
+  },
   trash: true,
   fields: [
     {

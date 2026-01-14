@@ -15,6 +15,7 @@ export const ClaseLicencia: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'nombre',
+    description: 'Catálogo de categorías de licencia de conducir (A, B, C, D4, etc.)',
   },
   trash: true,
   fields: [

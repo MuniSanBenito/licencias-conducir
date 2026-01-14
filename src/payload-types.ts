@@ -248,6 +248,8 @@ export interface Usuario {
   password?: string | null;
 }
 /**
+ * Registro de ciudadanos que solicitan licencias de conducir
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ciudadano".
  */
@@ -263,6 +265,8 @@ export interface Ciudadano {
   deletedAt?: string | null;
 }
 /**
+ * Catálogo de etapas posibles en un trámite (Papeles, Curso, Teórico, Práctico, Médico). Define características como si requiere turno, es digital, etc.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "catalogo-etapa".
  */
@@ -293,6 +297,8 @@ export interface CatalogoEtapa {
   deletedAt?: string | null;
 }
 /**
+ * Tipos de trámite disponibles (Original, Renovación, Ampliación)
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tipo_tramite".
  */
@@ -307,6 +313,8 @@ export interface TipoTramite {
   deletedAt?: string | null;
 }
 /**
+ * Catálogo de categorías de licencia de conducir (A, B, C, D4, etc.)
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "clase_licencia".
  */
@@ -323,6 +331,8 @@ export interface ClaseLicencia {
   deletedAt?: string | null;
 }
 /**
+ * Banco de exámenes teóricos para licencias de conducir
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "examen".
  */
@@ -336,6 +346,8 @@ export interface Examan {
   deletedAt?: string | null;
 }
 /**
+ * Banco de preguntas para exámenes teóricos. Cada pregunta puede incluir imagen
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pregunta".
  */
@@ -348,6 +360,8 @@ export interface Pregunta {
   deletedAt?: string | null;
 }
 /**
+ * Opciones de respuesta para preguntas. Soporta múltiples respuestas correctas (checkboxes)
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "opcion".
  */
@@ -362,6 +376,8 @@ export interface Opcion {
   deletedAt?: string | null;
 }
 /**
+ * Relación entre exámenes y preguntas. Define qué preguntas componen cada examen, su orden y puntaje
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "examen-pregunta".
  */
@@ -376,6 +392,8 @@ export interface ExamenPregunta {
   deletedAt?: string | null;
 }
 /**
+ * Recursos disponibles para asignar turnos (aulas, boxes médicos, pistas de manejo)
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "agenda-recurso".
  */
@@ -391,6 +409,8 @@ export interface AgendaRecurso {
   deletedAt?: string | null;
 }
 /**
+ * Plantillas de flujo de trámites. Define la "receta" de qué pasos componen cada tipo de trámite (ej: Renovación B requiere Papeles, Médico)
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "proceso-plantilla".
  */
@@ -408,6 +428,8 @@ export interface ProcesoPlantilla {
   deletedAt?: string | null;
 }
 /**
+ * Pasos ordenados que componen cada plantilla de proceso. Define la secuencia de etapas para cada tipo de trámite
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "proceso-paso".
  */
@@ -422,6 +444,8 @@ export interface ProcesoPaso {
   deletedAt?: string | null;
 }
 /**
+ * Expedientes de trámites de licencias. Cabecera que contiene el código interno, FUT nacional y estado global del proceso
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tramite".
  */
@@ -451,6 +475,8 @@ export interface EmisionLicencia {
   deletedAt?: string | null;
 }
 /**
+ * Categorías de licencia solicitadas en cada trámite. Permite gestionar trámites multi-categoría (ej: solicitar A + B simultáneamente)
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tramite-categoria-seleccionada".
  */
@@ -463,6 +489,8 @@ export interface TramiteCategoriaSeleccionada {
   deletedAt?: string | null;
 }
 /**
+ * Checklist vivo de progreso de cada trámite. Controla el estado (PENDIENTE, APROBADO) de cada paso del proceso
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tramite-progreso".
  */
@@ -481,6 +509,8 @@ export interface TramiteProgreso {
   deletedAt?: string | null;
 }
 /**
+ * Asignación de turnos. Vincula un paso específico del progreso con un recurso y fecha/hora
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "turno".
  */
@@ -496,6 +526,8 @@ export interface Turno {
   deletedAt?: string | null;
 }
 /**
+ * Registro de sesiones de examen de ciudadanos. Almacena fecha inicio/fin, nota final y resultado (aprobado/desaprobado)
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "intento-examen".
  */

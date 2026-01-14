@@ -15,6 +15,8 @@ export const Opcion: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'texto_opcion',
+    description:
+      'Opciones de respuesta para preguntas. Soporta múltiples respuestas correctas (checkboxes)',
   },
   trash: true,
   fields: [

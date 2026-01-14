@@ -17,6 +17,10 @@ export const RespuestaSeleccionada: CollectionConfig = {
     plural: 'Respuestas Seleccionadas',
   },
   trash: true,
+  admin: {
+    description:
+      'Respuestas marcadas por ciudadanos durante exámenes. Guarda cada opción seleccionada para auditoría detallada',
+  },
   indexes: [
     {
       fields: ['intento', 'opcion'],

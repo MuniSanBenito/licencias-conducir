@@ -21,6 +21,10 @@ export const TramiteCategoriaSeleccionada: CollectionConfig = {
       unique: true,
     },
   ],
+  admin: {
+    description:
+      'Categorías de licencia solicitadas en cada trámite. Permite gestionar trámites multi-categoría (ej: solicitar A + B simultáneamente)',
+  },
   trash: true,
   fields: [
     {

@@ -16,6 +16,10 @@ export const IntentoExamen: CollectionConfig = {
     singular: 'Intento Examen',
     plural: 'Intentos Examenes',
   },
+  admin: {
+    description:
+      'Registro de sesiones de examen de ciudadanos. Almacena fecha inicio/fin, nota final y resultado (aprobado/desaprobado)',
+  },
   trash: true,
   fields: [
     {

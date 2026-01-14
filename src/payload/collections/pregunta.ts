@@ -14,6 +14,7 @@ export const Pregunta: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'enunciado',
+    description: 'Banco de preguntas para exámenes teóricos. Cada pregunta puede incluir imagen',
   },
   trash: true,
   fields: [

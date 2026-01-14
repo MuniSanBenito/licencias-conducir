@@ -8,6 +8,7 @@ export const Dev: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'email',
+    description: 'Colección de desarrollo para testing y pruebas',
   },
   auth: true,
   trash: true,

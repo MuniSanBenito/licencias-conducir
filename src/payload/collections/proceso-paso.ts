@@ -20,6 +20,10 @@ export const ProcesoPaso: CollectionConfig = {
       unique: true,
     },
   ],
+  admin: {
+    description:
+      'Pasos ordenados que componen cada plantilla de proceso. Define la secuencia de etapas para cada tipo de trámite',
+  },
   trash: true,
   fields: [
     {

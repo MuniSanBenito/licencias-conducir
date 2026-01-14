@@ -24,6 +24,10 @@ export const ExamenPregunta: CollectionConfig = {
       unique: true,
     },
   ],
+  admin: {
+    description:
+      'Relación entre exámenes y preguntas. Define qué preguntas componen cada examen, su orden y puntaje',
+  },
   trash: true,
   fields: [
     {

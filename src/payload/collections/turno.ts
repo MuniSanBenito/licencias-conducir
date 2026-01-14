@@ -15,6 +15,10 @@ export const Turno: CollectionConfig = {
     singular: 'Turno',
     plural: 'Turnos',
   },
+  admin: {
+    description:
+      'Asignación de turnos. Vincula un paso específico del progreso con un recurso y fecha/hora',
+  },
   trash: true,
   fields: [
     {

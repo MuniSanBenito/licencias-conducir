@@ -16,6 +16,10 @@ export const Tramite: CollectionConfig = {
     singular: 'Tramite',
     plural: 'Tramites',
   },
+  admin: {
+    description:
+      'Expedientes de trámites de licencias. Cabecera que contiene el código interno, FUT nacional y estado global del proceso',
+  },
   trash: true,
   fields: [
     {
