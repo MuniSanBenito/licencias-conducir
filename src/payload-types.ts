@@ -84,6 +84,7 @@ export interface Config {
     'proceso-paso': ProcesoPaso;
     tramite: Tramite;
     'emision-licencia': EmisionLicencia;
+    'tramite-categoria-seleccionada': TramiteCategoriaSeleccionada;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -107,6 +108,7 @@ export interface Config {
     'proceso-paso': ProcesoPasoSelect<false> | ProcesoPasoSelect<true>;
     tramite: TramiteSelect<false> | TramiteSelect<true>;
     'emision-licencia': EmisionLicenciaSelect<false> | EmisionLicenciaSelect<true>;
+    'tramite-categoria-seleccionada': TramiteCategoriaSeleccionadaSelect<false> | TramiteCategoriaSeleccionadaSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -442,6 +444,18 @@ export interface EmisionLicencia {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tramite-categoria-seleccionada".
+ */
+export interface TramiteCategoriaSeleccionada {
+  id: string;
+  tramite: string | Tramite;
+  clase_licencia: string | ClaseLicencia;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -527,6 +541,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'emision-licencia';
         value: string | EmisionLicencia;
+      } | null)
+    | ({
+        relationTo: 'tramite-categoria-seleccionada';
+        value: string | TramiteCategoriaSeleccionada;
       } | null);
   globalSlug?: string | null;
   user:
@@ -804,6 +822,17 @@ export interface EmisionLicenciaSelect<T extends boolean = true> {
   tramite?: T;
   fecha_emision?: T;
   numero_control_plastico?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tramite-categoria-seleccionada_select".
+ */
+export interface TramiteCategoriaSeleccionadaSelect<T extends boolean = true> {
+  tramite?: T;
+  clase_licencia?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

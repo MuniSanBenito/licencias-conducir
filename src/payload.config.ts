@@ -22,6 +22,7 @@ import { ProcesoPaso } from './payload/collections/proceso-paso'
 import { ProcesoPlantilla } from './payload/collections/proceso-plantilla'
 import { TipoTramite } from './payload/collections/tipo-tramite'
 import { Tramite } from './payload/collections/tramite'
+import { TramiteCategoriaSeleccionada } from './payload/collections/tramite-categoria-seleccionada'
 import { Usuario } from './payload/collections/usuario'
 import { storagePlugin } from './payload/plugins/storage'
 
@@ -64,6 +65,7 @@ export default buildConfig({
     ProcesoPaso,
     Tramite,
     EmisionLicencia,
+    TramiteCategoriaSeleccionada,
   ],
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,
