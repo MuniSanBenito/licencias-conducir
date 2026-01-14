@@ -86,6 +86,7 @@ export interface Config {
     'emision-licencia': EmisionLicencia;
     'tramite-categoria-seleccionada': TramiteCategoriaSeleccionada;
     'tramite-progreso': TramiteProgreso;
+    turno: Turno;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -111,6 +112,7 @@ export interface Config {
     'emision-licencia': EmisionLicenciaSelect<false> | EmisionLicenciaSelect<true>;
     'tramite-categoria-seleccionada': TramiteCategoriaSeleccionadaSelect<false> | TramiteCategoriaSeleccionadaSelect<true>;
     'tramite-progreso': TramiteProgresoSelect<false> | TramiteProgresoSelect<true>;
+    turno: TurnoSelect<false> | TurnoSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -476,6 +478,21 @@ export interface TramiteProgreso {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "turno".
+ */
+export interface Turno {
+  id: string;
+  tramite_progreso: string | TramiteProgreso;
+  agenda_recurso: string | AgendaRecurso;
+  fecha_hora_inicio: string;
+  fecha_hora_fin: string;
+  estado: string;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -569,6 +586,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'tramite-progreso';
         value: string | TramiteProgreso;
+      } | null)
+    | ({
+        relationTo: 'turno';
+        value: string | Turno;
       } | null);
   globalSlug?: string | null;
   user:
@@ -874,6 +895,20 @@ export interface TramiteProgresoSelect<T extends boolean = true> {
   aprobado_por_usuario?: T;
   fecha_aprobacion?: T;
   observaciones?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "turno_select".
+ */
+export interface TurnoSelect<T extends boolean = true> {
+  tramite_progreso?: T;
+  agenda_recurso?: T;
+  fecha_hora_inicio?: T;
+  fecha_hora_fin?: T;
+  estado?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
