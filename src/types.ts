@@ -1,11 +1,17 @@
-export interface ResOK {
+interface R {
+  ok: boolean
+  message: string
+  data: unknown
+}
+
+interface ResOK<T> extends R {
   ok: true
-  message: string
+  data: T
 }
 
-export interface ResNOK {
+interface ResNOK extends R {
   ok: false
-  message: string
+  data: null
 }
 
-export type Res = ResOK | ResNOK
+export type Res<T> = ResOK<T> | ResNOK

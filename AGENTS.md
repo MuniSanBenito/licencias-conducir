@@ -10,8 +10,8 @@ Este documento contiene información importante para agentes de IA que trabajan 
 
 ## Stack Tecnológico
 
-- **Framework**: Next.js 15 (App Router)
-- **CMS**: Payload CMS 3.x
+- **Framework**: Next.js
+- **CMS**: Payload CMS
 - **Base de datos**: MongoDB
 - **Estilos**: Tailwind CSS + DaisyUI
 - **Lenguaje**: TypeScript
