@@ -21,6 +21,7 @@ import { Opcion } from './payload/collections/opcion'
 import { Pregunta } from './payload/collections/pregunta'
 import { ProcesoPaso } from './payload/collections/proceso-paso'
 import { ProcesoPlantilla } from './payload/collections/proceso-plantilla'
+import { RespuestaSeleccionada } from './payload/collections/respuesta-seleccionada'
 import { TipoTramite } from './payload/collections/tipo-tramite'
 import { Tramite } from './payload/collections/tramite'
 import { TramiteCategoriaSeleccionada } from './payload/collections/tramite-categoria-seleccionada'
@@ -72,6 +73,7 @@ export default buildConfig({
     TramiteProgreso,
     Turno,
     IntentoExamen,
+    RespuestaSeleccionada,
   ],
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,

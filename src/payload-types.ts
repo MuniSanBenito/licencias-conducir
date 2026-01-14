@@ -88,6 +88,7 @@ export interface Config {
     'tramite-progreso': TramiteProgreso;
     turno: Turno;
     'intento-examen': IntentoExaman;
+    'respuesta-seleccionada': RespuestaSeleccionada;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -115,6 +116,7 @@ export interface Config {
     'tramite-progreso': TramiteProgresoSelect<false> | TramiteProgresoSelect<true>;
     turno: TurnoSelect<false> | TurnoSelect<true>;
     'intento-examen': IntentoExamenSelect<false> | IntentoExamenSelect<true>;
+    'respuesta-seleccionada': RespuestaSeleccionadaSelect<false> | RespuestaSeleccionadaSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -511,6 +513,19 @@ export interface IntentoExaman {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "respuesta-seleccionada".
+ */
+export interface RespuestaSeleccionada {
+  id: string;
+  intento: string | IntentoExaman;
+  pregunta: string | Pregunta;
+  opcion: string | Opcion;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -612,6 +627,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'intento-examen';
         value: string | IntentoExaman;
+      } | null)
+    | ({
+        relationTo: 'respuesta-seleccionada';
+        value: string | RespuestaSeleccionada;
       } | null);
   globalSlug?: string | null;
   user:
@@ -946,6 +965,18 @@ export interface IntentoExamenSelect<T extends boolean = true> {
   fecha_fin?: T;
   nota_final?: T;
   aprobado?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "respuesta-seleccionada_select".
+ */
+export interface RespuestaSeleccionadaSelect<T extends boolean = true> {
+  intento?: T;
+  pregunta?: T;
+  opcion?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
