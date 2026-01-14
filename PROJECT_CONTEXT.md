@@ -189,9 +189,77 @@ Este sistema permite a la Municipalidad de San Benito gestionar exámenes teóri
 
 ### Arquitectura
 
-11. **Server vs Client**: Server components por defecto, `'use client'` solo cuando sea necesario
-12. **Named exports**: Usar named exports excepto en archivos de Next.js
-13. **Organización**: Seguir la estructura de carpetas establecida (`components/`, `hooks/`, `lib/`, etc.)
+#### 🎯 Regla de Oro: Client Components por Defecto
+
+**MUY IMPORTANTE**: A diferencia de la convención estándar de Next.js, en este proyecto se debe priorizar el uso de **Client Components** (`'use client'`) por defecto.
+
+- **✅ Client Components**: Usar por defecto para toda la UI interactiva
+- **⚠️ Server Components**: SOLO usar en estos casos específicos:
+  - Cuando se necesite acceder a `basePayload` de `@/web/libs/payload.ts`
+  - Para consultas directas a la base de datos MongoDB vía Payload CMS
+  - Para operaciones de lectura que no requieran interactividad
+
+#### 🔄 Server Actions para Mutaciones
+
+**Cuando se necesite modificar datos de Payload** (crear, actualizar o borrar), se DEBE usar Server Actions que:
+
+1. **Retornen obligatoriamente** el tipo `Res<T>` definido en `@/types`:
+
+   ```tsx
+   export type Res<T> = ResOK<T> | ResNOK
+   ```
+
+2. **Ejemplo de Server Action**:
+
+   ```tsx
+   'use server'
+   import { basePayload } from '@/web/libs/payload'
+   import type { Res } from '@/types'
+
+   export async function createPlayer(data: PlayerData): Promise<Res<Player>> {
+     try {
+       const player = await basePayload.create({
+         collection: 'players',
+         data,
+       })
+       return {
+         ok: true,
+         message: 'Jugador creado exitosamente',
+         data: player,
+       }
+     } catch (error) {
+       return {
+         ok: false,
+         message: error.message || 'Error al crear jugador',
+         data: null,
+       }
+     }
+   }
+   ```
+
+3. **Llamar desde Client Components**:
+
+   ```tsx
+   'use client'
+   import { createPlayer } from './actions'
+
+   export function PlayerForm() {
+     const handleSubmit = async (data: PlayerData) => {
+       const result = await createPlayer(data)
+       if (result.ok) {
+         // Éxito: result.data contiene el jugador
+       } else {
+         // Error: result.message contiene el error
+       }
+     }
+     // ...
+   }
+   ```
+
+#### Otras Convenciones
+
+11. **Named exports**: Usar named exports excepto en archivos de Next.js
+12. **Organización**: Seguir la estructura de carpetas establecida (`components/`, `hooks/`, `lib/`, etc.)
 
 # DBML
 
@@ -469,10 +537,11 @@ erDiagram
 ## 🛠️ Stack Tecnológico & Integración
 
 - **CMS/Backend:** Payload CMS (Node.js).
-- **Base de Datos:** PostgreSQL (Recomendado para integridad relacional).
+- **Base de Datos:** MongoDB (Base de datos NoSQL utilizada por Payload CMS).
 - **Frontend:** Next.js (Consumo de APIs de examen y gestión de turnos).
 
 ### Notas para Desarrolladores
 
 1. **Validación de Pasos:** Antes de permitir interactuar con un paso (ej: rendir examen), verificar siempre que el paso anterior con `orden - 1` esté `APROBADO`.
-2. **Unique Constraints:** El campo `nro_fut_nacional` es `UNIQUE` pero admite múltiples `NULL` en PostgreSQL. Tener cuidado si se migra a motores SQL antiguos.
+2. **Client Components:** Recordar usar `'use client'` por defecto. Solo usar Server Components para acceder a `basePayload`.
+3. **Server Actions:** Todas las mutaciones de Payload deben usar Server Actions que retornen `Res<T>`.
