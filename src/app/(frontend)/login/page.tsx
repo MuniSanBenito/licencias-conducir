@@ -9,8 +9,6 @@ export default async function Page() {
     headers: headersStore,
   })
 
-  console.log(auth)
-
   if (auth.user) {
     redirect('/', RedirectType.replace)
   }

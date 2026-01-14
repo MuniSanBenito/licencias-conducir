@@ -74,19 +74,21 @@ Este documento contiene información importante para agentes de IA que trabajan 
 
 ### Optimización de React
 
-- **useMemo para datos**: Usar `useMemo` para definir datos computados
-- **useCallback para funciones**: Usar `useCallback` para definir funciones
-- **Dependencias vacías**: Mantener siempre el arreglo de dependencias vacío `[]` inicialmente, para verificar en pruebas qué dependencias son realmente necesarias
+- **NO usar useMemo ni useCallback**: El compilador de React se encarga automáticamente de las optimizaciones de memoización
+- **Código directo**: Escribir funciones y cálculos de forma directa sin wrappers de optimización
+- **Confiar en el compilador**: React Compiler optimiza automáticamente el código para evitar re-renders innecesarios
 
   ```tsx
-  // ✅ Preferido
-  const datoComputado = useMemo(() => {
-    return calcularDato()
-  }, [])
+  // ✅ Preferido - El compilador optimiza automáticamente
+  const datoComputado = calcularDato()
 
-  const handleClick = useCallback(() => {
+  const handleClick = () => {
     // lógica
-  }, [])
+  }
+
+  // ❌ Evitar - Ya no es necesario
+  const datoComputado = useMemo(() => calcularDato(), [])
+  const handleClick = useCallback(() => {}, [])
   ```
 
 ### Internacionalización (i18n)

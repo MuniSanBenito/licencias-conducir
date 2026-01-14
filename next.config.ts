@@ -12,8 +12,9 @@ const nextConfig: NextConfig = {
 
     return webpack
   },
-  reactCompiler: true, 
-  devIndicators: false
+  reactCompiler: true,
+  devIndicators: false,
+  output: 'standalone',
 }
 
 export default withPayload(nextConfig, { devBundleServerPackages: false })
