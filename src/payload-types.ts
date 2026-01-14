@@ -83,6 +83,7 @@ export interface Config {
     'proceso-plantilla': ProcesoPlantilla;
     'proceso-paso': ProcesoPaso;
     tramite: Tramite;
+    'emision-licencia': EmisionLicencia;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -105,6 +106,7 @@ export interface Config {
     'proceso-plantilla': ProcesoPlantillaSelect<false> | ProcesoPlantillaSelect<true>;
     'proceso-paso': ProcesoPasoSelect<false> | ProcesoPasoSelect<true>;
     tramite: TramiteSelect<false> | TramiteSelect<true>;
+    'emision-licencia': EmisionLicenciaSelect<false> | EmisionLicenciaSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -427,6 +429,19 @@ export interface Tramite {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "emision-licencia".
+ */
+export interface EmisionLicencia {
+  id: string;
+  tramite: string | Tramite;
+  fecha_emision: string;
+  numero_control_plastico: string;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -508,6 +523,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'tramite';
         value: string | Tramite;
+      } | null)
+    | ({
+        relationTo: 'emision-licencia';
+        value: string | EmisionLicencia;
       } | null);
   globalSlug?: string | null;
   user:
@@ -773,6 +792,18 @@ export interface TramiteSelect<T extends boolean = true> {
   fut?: T;
   estado_global?: T;
   fecha_inicio?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "emision-licencia_select".
+ */
+export interface EmisionLicenciaSelect<T extends boolean = true> {
+  tramite?: T;
+  fecha_emision?: T;
+  numero_control_plastico?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

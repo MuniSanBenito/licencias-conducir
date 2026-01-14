@@ -13,6 +13,7 @@ import { CatalogoEtapa } from './payload/collections/catalogo-etapa'
 import { Ciudadano } from './payload/collections/ciudadano'
 import { ClaseLicencia } from './payload/collections/clase-licencia'
 import { Dev } from './payload/collections/dev'
+import { EmisionLicencia } from './payload/collections/emision-licencia'
 import { Examen } from './payload/collections/examen'
 import { ExamenPregunta } from './payload/collections/examen-pregunta'
 import { Opcion } from './payload/collections/opcion'
@@ -62,6 +63,7 @@ export default buildConfig({
     ProcesoPlantilla,
     ProcesoPaso,
     Tramite,
+    EmisionLicencia,
   ],
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,
