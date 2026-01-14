@@ -87,6 +87,7 @@ export interface Config {
     'tramite-categoria-seleccionada': TramiteCategoriaSeleccionada;
     'tramite-progreso': TramiteProgreso;
     turno: Turno;
+    'intento-examen': IntentoExaman;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -113,6 +114,7 @@ export interface Config {
     'tramite-categoria-seleccionada': TramiteCategoriaSeleccionadaSelect<false> | TramiteCategoriaSeleccionadaSelect<true>;
     'tramite-progreso': TramiteProgresoSelect<false> | TramiteProgresoSelect<true>;
     turno: TurnoSelect<false> | TurnoSelect<true>;
+    'intento-examen': IntentoExamenSelect<false> | IntentoExamenSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -493,6 +495,22 @@ export interface Turno {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "intento-examen".
+ */
+export interface IntentoExaman {
+  id: string;
+  tramite_progreso: string | TramiteProgreso;
+  examen: string | Examan;
+  fecha_inicio: string;
+  fecha_fin: string;
+  nota_final: number;
+  aprobado: boolean;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -590,6 +608,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'turno';
         value: string | Turno;
+      } | null)
+    | ({
+        relationTo: 'intento-examen';
+        value: string | IntentoExaman;
       } | null);
   globalSlug?: string | null;
   user:
@@ -909,6 +931,21 @@ export interface TurnoSelect<T extends boolean = true> {
   fecha_hora_inicio?: T;
   fecha_hora_fin?: T;
   estado?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "intento-examen_select".
+ */
+export interface IntentoExamenSelect<T extends boolean = true> {
+  tramite_progreso?: T;
+  examen?: T;
+  fecha_inicio?: T;
+  fecha_fin?: T;
+  nota_final?: T;
+  aprobado?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

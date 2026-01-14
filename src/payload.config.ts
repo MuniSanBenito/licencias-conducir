@@ -16,6 +16,7 @@ import { Dev } from './payload/collections/dev'
 import { EmisionLicencia } from './payload/collections/emision-licencia'
 import { Examen } from './payload/collections/examen'
 import { ExamenPregunta } from './payload/collections/examen-pregunta'
+import { IntentoExamen } from './payload/collections/intento-examen'
 import { Opcion } from './payload/collections/opcion'
 import { Pregunta } from './payload/collections/pregunta'
 import { ProcesoPaso } from './payload/collections/proceso-paso'
@@ -70,6 +71,7 @@ export default buildConfig({
     TramiteCategoriaSeleccionada,
     TramiteProgreso,
     Turno,
+    IntentoExamen,
   ],
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,
