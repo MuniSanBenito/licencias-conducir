@@ -1,4 +1,5 @@
 import type { PropsWithChildren } from 'react'
+import { Toaster } from 'sonner'
 import './styles.css'
 
 export const metadata = {
@@ -9,7 +10,10 @@ export const metadata = {
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="es" data-theme="light">
-      <body>{children}</body>
+      <body>
+        {children}
+        <Toaster richColors closeButton />
+      </body>
     </html>
   )
 }

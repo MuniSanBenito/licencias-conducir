@@ -1,0 +1,82 @@
+'use client'
+import { signIn } from '@/app/actions/auth'
+import { useRouter } from 'next/navigation'
+import { type FormEvent, useState } from 'react'
+import { toast } from 'sonner'
+
+export function LoginPage() {
+  const router = useRouter()
+
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setLoading(true)
+    const email: string = e.currentTarget.email.value
+    const password: string = e.currentTarget.password.value
+
+    if (!email || !password) {
+      setLoading(false)
+      toast.error('Por favor, completa todos los campos')
+      return
+    }
+
+    const response = await signIn({ email, password })
+    if (response.ok) {
+      toast.success('Inicio de sesión exitoso')
+      router.replace('/')
+    } else {
+      toast.error(response.message)
+    }
+    setLoading(false)
+  }
+
+  return (
+    <div className="bg-base-200 flex min-h-screen items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-bold">Iniciar Sesión</h2>
+          <p className="mt-2 text-center text-sm opacity-70">Ingresa a tu cuenta para continuar</p>
+        </div>
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="space-y-4">
+            <div className="form-control w-full">
+              <label className="label" htmlFor="email-address">
+                <span className="label-text">Correo electrónico</span>
+              </label>
+              <input
+                id="email-address"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                className="input input-bordered w-full"
+                placeholder="Correo electrónico"
+              />
+            </div>
+            <div className="form-control w-full">
+              <label className="label" htmlFor="password">
+                <span className="label-text">Contraseña</span>
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                className="input input-bordered w-full"
+                placeholder="Contraseña"
+              />
+            </div>
+          </div>
+
+          <div>
+            <button type="submit" className="btn btn-primary w-full">
+              Ingresar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
