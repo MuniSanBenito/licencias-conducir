@@ -1,3 +1,4 @@
+import { EstadosTramiteEnum } from '@/constants/estados-tramite'
 import type { CollectionConfig } from 'payload'
 
 /* Table "tramites_progreso" {
@@ -19,62 +20,62 @@ export const TramiteProgreso: CollectionConfig = {
     plural: 'Tramites Progreso',
   },
   admin: {
-    description:
-      'Checklist vivo de progreso de cada trámite. Controla el estado (PENDIENTE, APROBADO) de cada paso del proceso',
+    useAsTitle: 'estado',
   },
   trash: true,
   fields: [
     {
-      name: 'tramite',
+      name: 'tramite_proceso',
       type: 'relationship',
-      relationTo: 'tramite',
+      relationTo: 'tramite-proceso',
       required: true,
-      label: 'Tramite',
+      label: 'Tramite Proceso',
     },
     {
       name: 'etapa',
-      type: 'relationship',
-      relationTo: 'catalogo-etapa',
+      type: 'number',
+      min: 0,
+      defaultValue: 0,
+      admin: {
+        step: 1,
+      },
       required: true,
       label: 'Etapa',
     },
     {
-      name: 'orden',
-      type: 'number',
-      required: true,
-      label: 'Orden',
-    },
-    {
-      name: 'clase_referencia',
-      type: 'relationship',
-      relationTo: 'clase_licencia',
-      required: true,
-      label: 'Clase Referencia',
-    },
-    {
       name: 'estado',
-      type: 'text',
+      type: 'select',
+      options: [
+        ...Object.values(EstadosTramiteEnum).map((estado) => ({
+          label: estado,
+          value: estado,
+        })),
+      ],
       required: true,
-      defaultValue: 'PENDIENTE',
+      defaultValue: EstadosTramiteEnum.EN_CURSO,
       label: 'Estado',
+    },
+    {
+      type: 'join',
+      name: 'turnos',
+      collection: 'turno',
+      on: 'tramite',
+      label: 'Turnos',
     },
     {
       name: 'aprobado_por_usuario',
       type: 'relationship',
       relationTo: 'usuario',
-      required: true,
       label: 'Aprobado Por Usuario',
     },
     {
       name: 'fecha_aprobacion',
       type: 'date',
-      required: true,
       label: 'Fecha Aprobacion',
     },
     {
       name: 'observaciones',
       type: 'text',
-      required: true,
       label: 'Observaciones',
     },
   ],

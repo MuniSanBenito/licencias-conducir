@@ -1,3 +1,4 @@
+import { AreasEnum } from '@/constants/areas'
 import type { CollectionConfig } from 'payload'
 
 /* Table "turnos" {
@@ -22,18 +23,19 @@ export const Turno: CollectionConfig = {
   trash: true,
   fields: [
     {
-      name: 'tramite_progreso',
+      name: 'tramite',
       type: 'relationship',
       relationTo: 'tramite-progreso',
       required: true,
       label: 'Tramite Progreso',
     },
     {
-      name: 'agenda_recurso',
-      type: 'relationship',
-      relationTo: 'agenda-recurso',
+      name: 'area',
+      type: 'select',
+      options: Object.values(AreasEnum),
+      defaultValue: AreasEnum.TEORICO,
       required: true,
-      label: 'Agenda Recurso',
+      label: 'Area',
     },
     {
       name: 'fecha_hora_inicio',
@@ -49,8 +51,14 @@ export const Turno: CollectionConfig = {
     },
     {
       name: 'estado',
-      type: 'text',
+      type: 'select',
       required: true,
+      options: [
+        { label: 'RESERVADO', value: 'RESERVADO' },
+        { label: 'AUSENTE', value: 'AUSENTE' },
+        { label: 'FINALIZADO', value: 'FINALIZADO' },
+        { label: 'CANCELADO', value: 'CANCELADO' },
+      ],
       defaultValue: 'RESERVADO',
       label: 'Estado',
     },

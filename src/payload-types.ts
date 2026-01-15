@@ -72,51 +72,49 @@ export interface Config {
     archivo: Archivo;
     usuario: Usuario;
     ciudadano: Ciudadano;
-    'catalogo-etapa': CatalogoEtapa;
-    tipo_tramite: TipoTramite;
-    clase_licencia: ClaseLicencia;
-    examen: Examan;
-    pregunta: Pregunta;
-    opcion: Opcion;
-    'examen-pregunta': ExamenPregunta;
-    'agenda-recurso': AgendaRecurso;
-    'proceso-plantilla': ProcesoPlantilla;
-    'proceso-paso': ProcesoPaso;
     tramite: Tramite;
-    'emision-licencia': EmisionLicencia;
-    'tramite-categoria-seleccionada': TramiteCategoriaSeleccionada;
+    'tramite-proceso': TramiteProceso;
     'tramite-progreso': TramiteProgreso;
     turno: Turno;
+    pregunta: Pregunta;
+    opcion: Opcion;
+    examen: Examan;
+    'examen-pregunta': ExamenPregunta;
     'intento-examen': IntentoExaman;
     'respuesta-seleccionada': RespuestaSeleccionada;
+    'emision-licencia': EmisionLicencia;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    tramite: {
+      procesos: 'tramite-proceso';
+    };
+    'tramite-proceso': {
+      progresos: 'tramite-progreso';
+    };
+    'tramite-progreso': {
+      turnos: 'turno';
+    };
+  };
   collectionsSelect: {
     dev: DevSelect<false> | DevSelect<true>;
     archivo: ArchivoSelect<false> | ArchivoSelect<true>;
     usuario: UsuarioSelect<false> | UsuarioSelect<true>;
     ciudadano: CiudadanoSelect<false> | CiudadanoSelect<true>;
-    'catalogo-etapa': CatalogoEtapaSelect<false> | CatalogoEtapaSelect<true>;
-    tipo_tramite: TipoTramiteSelect<false> | TipoTramiteSelect<true>;
-    clase_licencia: ClaseLicenciaSelect<false> | ClaseLicenciaSelect<true>;
-    examen: ExamenSelect<false> | ExamenSelect<true>;
-    pregunta: PreguntaSelect<false> | PreguntaSelect<true>;
-    opcion: OpcionSelect<false> | OpcionSelect<true>;
-    'examen-pregunta': ExamenPreguntaSelect<false> | ExamenPreguntaSelect<true>;
-    'agenda-recurso': AgendaRecursoSelect<false> | AgendaRecursoSelect<true>;
-    'proceso-plantilla': ProcesoPlantillaSelect<false> | ProcesoPlantillaSelect<true>;
-    'proceso-paso': ProcesoPasoSelect<false> | ProcesoPasoSelect<true>;
     tramite: TramiteSelect<false> | TramiteSelect<true>;
-    'emision-licencia': EmisionLicenciaSelect<false> | EmisionLicenciaSelect<true>;
-    'tramite-categoria-seleccionada': TramiteCategoriaSeleccionadaSelect<false> | TramiteCategoriaSeleccionadaSelect<true>;
+    'tramite-proceso': TramiteProcesoSelect<false> | TramiteProcesoSelect<true>;
     'tramite-progreso': TramiteProgresoSelect<false> | TramiteProgresoSelect<true>;
     turno: TurnoSelect<false> | TurnoSelect<true>;
+    pregunta: PreguntaSelect<false> | PreguntaSelect<true>;
+    opcion: OpcionSelect<false> | OpcionSelect<true>;
+    examen: ExamenSelect<false> | ExamenSelect<true>;
+    'examen-pregunta': ExamenPreguntaSelect<false> | ExamenPreguntaSelect<true>;
     'intento-examen': IntentoExamenSelect<false> | IntentoExamenSelect<true>;
     'respuesta-seleccionada': RespuestaSeleccionadaSelect<false> | RespuestaSeleccionadaSelect<true>;
+    'emision-licencia': EmisionLicenciaSelect<false> | EmisionLicenciaSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -254,8 +252,6 @@ export interface Usuario {
   password?: string | null;
 }
 /**
- * Registro de ciudadanos que solicitan licencias de conducir
- *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ciudadano".
  */
@@ -271,82 +267,73 @@ export interface Ciudadano {
   deletedAt?: string | null;
 }
 /**
- * Catálogo de etapas posibles en un trámite (Papeles, Curso, Teórico, Práctico, Médico). Define características como si requiere turno, es digital, etc.
- *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "catalogo-etapa".
+ * via the `definition` "tramite".
  */
-export interface CatalogoEtapa {
+export interface Tramite {
   id: string;
-  /**
-   * Ej: Papeles, Curso, Teorico, Practico, Medico
-   */
-  nombre: string;
-  /**
-   * Si es TRUE (Practico), se genera una fila por cada categoria solicitada
-   */
-  requiere_turno?: boolean | null;
-  /**
-   * Habilita examen en PC
-   */
-  es_digital?: boolean | null;
-  /**
-   * Pide cargar ID Nacional
-   */
-  es_carga_fut?: boolean | null;
-  /**
-   * Si es TRUE (Practico), se genera una fila por cada categoria solicitada
-   */
-  es_multiplicable_por_clase?: boolean | null;
+  ciudadano: string | Ciudadano;
+  procesos?: {
+    docs?: (string | TramiteProceso)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  fut?: string | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
 }
 /**
- * Tipos de trámite disponibles (Original, Renovación, Ampliación)
- *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tipo_tramite".
+ * via the `definition` "tramite-proceso".
  */
-export interface TipoTramite {
+export interface TramiteProceso {
   id: string;
-  /**
-   * Ej: Original, Renovacion, Ampliacion
-   */
-  nombre: string;
+  tramite: string | Tramite;
+  proceso: 'Licencia Original A1.1' | 'Licencia Original A1.2';
+  progresos?: {
+    docs?: (string | TramiteProgreso)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
 }
 /**
- * Catálogo de categorías de licencia de conducir (A, B, C, D4, etc.)
- *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "clase_licencia".
+ * via the `definition` "tramite-progreso".
  */
-export interface ClaseLicencia {
+export interface TramiteProgreso {
   id: string;
-  /**
-   * Ej: A, B, C, D4
-   */
-  codigo: string;
-  nombre?: string | null;
-  descripcion?: string | null;
+  tramite_proceso: string | TramiteProceso;
+  etapa: number;
+  estado: 'EN CURSO' | 'CANCELADO' | 'FINALIZADO' | 'SUSPENDIDO';
+  turnos?: {
+    docs?: (string | Turno)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  aprobado_por_usuario?: (string | null) | Usuario;
+  fecha_aprobacion?: string | null;
+  observaciones?: string | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
 }
 /**
- * Banco de exámenes teóricos para licencias de conducir
+ * Asignación de turnos. Vincula un paso específico del progreso con un recurso y fecha/hora
  *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "examen".
+ * via the `definition` "turno".
  */
-export interface Examan {
+export interface Turno {
   id: string;
-  titulo: string;
-  descripcion?: string | null;
-  activo?: boolean | null;
+  tramite: string | TramiteProgreso;
+  area: 'Teórico' | 'Práctico' | 'Psicofísico' | 'Curso' | 'Licencias' | 'Otro';
+  fecha_hora_inicio: string;
+  fecha_hora_fin: string;
+  estado: 'RESERVADO' | 'AUSENTE' | 'FINALIZADO' | 'CANCELADO';
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -382,6 +369,21 @@ export interface Opcion {
   deletedAt?: string | null;
 }
 /**
+ * Banco de exámenes teóricos para licencias de conducir
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "examen".
+ */
+export interface Examan {
+  id: string;
+  titulo: string;
+  descripcion?: string | null;
+  activo?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
  * Relación entre exámenes y preguntas. Define qué preguntas componen cada examen, su orden y puntaje
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -393,142 +395,6 @@ export interface ExamenPregunta {
   pregunta?: (string | null) | Pregunta;
   orden?: number | null;
   puntaje?: number | null;
-  updatedAt: string;
-  createdAt: string;
-  deletedAt?: string | null;
-}
-/**
- * Recursos disponibles para asignar turnos (aulas, boxes médicos, pistas de manejo)
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "agenda-recurso".
- */
-export interface AgendaRecurso {
-  id: string;
-  /**
-   * Ej: Pista de Motos, Box Medico
-   */
-  nombre: string;
-  capacidad?: number | null;
-  updatedAt: string;
-  createdAt: string;
-  deletedAt?: string | null;
-}
-/**
- * Plantillas de flujo de trámites. Define la "receta" de qué pasos componen cada tipo de trámite (ej: Renovación B requiere Papeles, Médico)
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "proceso-plantilla".
- */
-export interface ProcesoPlantilla {
-  id: string;
-  /**
-   * Ej: Workflow Licencia Original
-   */
-  nombre: string;
-  clase_licencia?: (string | null) | ClaseLicencia;
-  tipo_tramite?: (string | null) | TipoTramite;
-  activo?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-  deletedAt?: string | null;
-}
-/**
- * Pasos ordenados que componen cada plantilla de proceso. Define la secuencia de etapas para cada tipo de trámite
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "proceso-paso".
- */
-export interface ProcesoPaso {
-  id: string;
-  plantilla?: (string | null) | ProcesoPlantilla;
-  etapa?: (string | null) | CatalogoEtapa;
-  orden?: number | null;
-  es_bloqueante?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-  deletedAt?: string | null;
-}
-/**
- * Expedientes de trámites de licencias. Cabecera que contiene el código interno, FUT nacional y estado global del proceso
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tramite".
- */
-export interface Tramite {
-  id: string;
-  ciudadano: string | Ciudadano;
-  plantilla: string | ProcesoPlantilla;
-  codigo_interno: string;
-  fut: string;
-  estado_global: string;
-  fecha_inicio: string;
-  updatedAt: string;
-  createdAt: string;
-  deletedAt?: string | null;
-}
-/**
- * Registro de emisión final de licencias. Almacena fecha de emisión, usuario emisor y número de control del plástico
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "emision-licencia".
- */
-export interface EmisionLicencia {
-  id: string;
-  tramite: string | Tramite;
-  fecha_emision: string;
-  numero_control_plastico: string;
-  updatedAt: string;
-  createdAt: string;
-  deletedAt?: string | null;
-}
-/**
- * Categorías de licencia solicitadas en cada trámite. Permite gestionar trámites multi-categoría (ej: solicitar A + B simultáneamente)
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tramite-categoria-seleccionada".
- */
-export interface TramiteCategoriaSeleccionada {
-  id: string;
-  tramite: string | Tramite;
-  clase_licencia: string | ClaseLicencia;
-  updatedAt: string;
-  createdAt: string;
-  deletedAt?: string | null;
-}
-/**
- * Checklist vivo de progreso de cada trámite. Controla el estado (PENDIENTE, APROBADO) de cada paso del proceso
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tramite-progreso".
- */
-export interface TramiteProgreso {
-  id: string;
-  tramite: string | Tramite;
-  etapa: string | CatalogoEtapa;
-  orden: number;
-  clase_referencia: string | ClaseLicencia;
-  estado: string;
-  aprobado_por_usuario: string | Usuario;
-  fecha_aprobacion: string;
-  observaciones: string;
-  updatedAt: string;
-  createdAt: string;
-  deletedAt?: string | null;
-}
-/**
- * Asignación de turnos. Vincula un paso específico del progreso con un recurso y fecha/hora
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "turno".
- */
-export interface Turno {
-  id: string;
-  tramite_progreso: string | TramiteProgreso;
-  agenda_recurso: string | AgendaRecurso;
-  fecha_hora_inicio: string;
-  fecha_hora_fin: string;
-  estado: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -562,6 +428,21 @@ export interface RespuestaSeleccionada {
   intento: string | IntentoExaman;
   pregunta: string | Pregunta;
   opcion: string | Opcion;
+  updatedAt: string;
+  createdAt: string;
+  deletedAt?: string | null;
+}
+/**
+ * Registro de emisión final de licencias. Almacena fecha de emisión, usuario emisor y número de control del plástico
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "emision-licencia".
+ */
+export interface EmisionLicencia {
+  id: string;
+  tramite: string | Tramite;
+  fecha_emision: string;
+  numero_control_plastico: string;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -607,56 +488,12 @@ export interface PayloadLockedDocument {
         value: string | Ciudadano;
       } | null)
     | ({
-        relationTo: 'catalogo-etapa';
-        value: string | CatalogoEtapa;
-      } | null)
-    | ({
-        relationTo: 'tipo_tramite';
-        value: string | TipoTramite;
-      } | null)
-    | ({
-        relationTo: 'clase_licencia';
-        value: string | ClaseLicencia;
-      } | null)
-    | ({
-        relationTo: 'examen';
-        value: string | Examan;
-      } | null)
-    | ({
-        relationTo: 'pregunta';
-        value: string | Pregunta;
-      } | null)
-    | ({
-        relationTo: 'opcion';
-        value: string | Opcion;
-      } | null)
-    | ({
-        relationTo: 'examen-pregunta';
-        value: string | ExamenPregunta;
-      } | null)
-    | ({
-        relationTo: 'agenda-recurso';
-        value: string | AgendaRecurso;
-      } | null)
-    | ({
-        relationTo: 'proceso-plantilla';
-        value: string | ProcesoPlantilla;
-      } | null)
-    | ({
-        relationTo: 'proceso-paso';
-        value: string | ProcesoPaso;
-      } | null)
-    | ({
         relationTo: 'tramite';
         value: string | Tramite;
       } | null)
     | ({
-        relationTo: 'emision-licencia';
-        value: string | EmisionLicencia;
-      } | null)
-    | ({
-        relationTo: 'tramite-categoria-seleccionada';
-        value: string | TramiteCategoriaSeleccionada;
+        relationTo: 'tramite-proceso';
+        value: string | TramiteProceso;
       } | null)
     | ({
         relationTo: 'tramite-progreso';
@@ -667,12 +504,32 @@ export interface PayloadLockedDocument {
         value: string | Turno;
       } | null)
     | ({
+        relationTo: 'pregunta';
+        value: string | Pregunta;
+      } | null)
+    | ({
+        relationTo: 'opcion';
+        value: string | Opcion;
+      } | null)
+    | ({
+        relationTo: 'examen';
+        value: string | Examan;
+      } | null)
+    | ({
+        relationTo: 'examen-pregunta';
+        value: string | ExamenPregunta;
+      } | null)
+    | ({
         relationTo: 'intento-examen';
         value: string | IntentoExaman;
       } | null)
     | ({
         relationTo: 'respuesta-seleccionada';
         value: string | RespuestaSeleccionada;
+      } | null)
+    | ({
+        relationTo: 'emision-licencia';
+        value: string | EmisionLicencia;
       } | null);
   globalSlug?: string | null;
   user:
@@ -807,48 +664,54 @@ export interface CiudadanoSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "catalogo-etapa_select".
+ * via the `definition` "tramite_select".
  */
-export interface CatalogoEtapaSelect<T extends boolean = true> {
-  nombre?: T;
-  requiere_turno?: T;
-  es_digital?: T;
-  es_carga_fut?: T;
-  es_multiplicable_por_clase?: T;
+export interface TramiteSelect<T extends boolean = true> {
+  ciudadano?: T;
+  procesos?: T;
+  fut?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tipo_tramite_select".
+ * via the `definition` "tramite-proceso_select".
  */
-export interface TipoTramiteSelect<T extends boolean = true> {
-  nombre?: T;
+export interface TramiteProcesoSelect<T extends boolean = true> {
+  tramite?: T;
+  proceso?: T;
+  progresos?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "clase_licencia_select".
+ * via the `definition` "tramite-progreso_select".
  */
-export interface ClaseLicenciaSelect<T extends boolean = true> {
-  codigo?: T;
-  nombre?: T;
-  descripcion?: T;
+export interface TramiteProgresoSelect<T extends boolean = true> {
+  tramite_proceso?: T;
+  etapa?: T;
+  estado?: T;
+  turnos?: T;
+  aprobado_por_usuario?: T;
+  fecha_aprobacion?: T;
+  observaciones?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "examen_select".
+ * via the `definition` "turno_select".
  */
-export interface ExamenSelect<T extends boolean = true> {
-  titulo?: T;
-  descripcion?: T;
-  activo?: T;
+export interface TurnoSelect<T extends boolean = true> {
+  tramite?: T;
+  area?: T;
+  fecha_hora_inicio?: T;
+  fecha_hora_fin?: T;
+  estado?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -879,36 +742,11 @@ export interface OpcionSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "examen-pregunta_select".
+ * via the `definition` "examen_select".
  */
-export interface ExamenPreguntaSelect<T extends boolean = true> {
-  examen?: T;
-  pregunta?: T;
-  orden?: T;
-  puntaje?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  deletedAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "agenda-recurso_select".
- */
-export interface AgendaRecursoSelect<T extends boolean = true> {
-  nombre?: T;
-  capacidad?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  deletedAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "proceso-plantilla_select".
- */
-export interface ProcesoPlantillaSelect<T extends boolean = true> {
-  nombre?: T;
-  clase_licencia?: T;
-  tipo_tramite?: T;
+export interface ExamenSelect<T extends boolean = true> {
+  titulo?: T;
+  descripcion?: T;
   activo?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -916,82 +754,13 @@ export interface ProcesoPlantillaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "proceso-paso_select".
+ * via the `definition` "examen-pregunta_select".
  */
-export interface ProcesoPasoSelect<T extends boolean = true> {
-  plantilla?: T;
-  etapa?: T;
+export interface ExamenPreguntaSelect<T extends boolean = true> {
+  examen?: T;
+  pregunta?: T;
   orden?: T;
-  es_bloqueante?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  deletedAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tramite_select".
- */
-export interface TramiteSelect<T extends boolean = true> {
-  ciudadano?: T;
-  plantilla?: T;
-  codigo_interno?: T;
-  fut?: T;
-  estado_global?: T;
-  fecha_inicio?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  deletedAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "emision-licencia_select".
- */
-export interface EmisionLicenciaSelect<T extends boolean = true> {
-  tramite?: T;
-  fecha_emision?: T;
-  numero_control_plastico?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  deletedAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tramite-categoria-seleccionada_select".
- */
-export interface TramiteCategoriaSeleccionadaSelect<T extends boolean = true> {
-  tramite?: T;
-  clase_licencia?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  deletedAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tramite-progreso_select".
- */
-export interface TramiteProgresoSelect<T extends boolean = true> {
-  tramite?: T;
-  etapa?: T;
-  orden?: T;
-  clase_referencia?: T;
-  estado?: T;
-  aprobado_por_usuario?: T;
-  fecha_aprobacion?: T;
-  observaciones?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  deletedAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "turno_select".
- */
-export interface TurnoSelect<T extends boolean = true> {
-  tramite_progreso?: T;
-  agenda_recurso?: T;
-  fecha_hora_inicio?: T;
-  fecha_hora_fin?: T;
-  estado?: T;
+  puntaje?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
@@ -1019,6 +788,18 @@ export interface RespuestaSeleccionadaSelect<T extends boolean = true> {
   intento?: T;
   pregunta?: T;
   opcion?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  deletedAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "emision-licencia_select".
+ */
+export interface EmisionLicenciaSelect<T extends boolean = true> {
+  tramite?: T;
+  fecha_emision?: T;
+  numero_control_plastico?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

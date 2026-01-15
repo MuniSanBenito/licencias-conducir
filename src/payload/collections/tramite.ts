@@ -17,8 +17,7 @@ export const Tramite: CollectionConfig = {
     plural: 'Tramites',
   },
   admin: {
-    description:
-      'Expedientes de trámites de licencias. Cabecera que contiene el código interno, FUT nacional y estado global del proceso',
+    useAsTitle: 'ciudadano',
   },
   trash: true,
   fields: [
@@ -30,36 +29,19 @@ export const Tramite: CollectionConfig = {
       label: 'Ciudadano',
     },
     {
-      name: 'plantilla',
-      type: 'relationship',
-      relationTo: 'proceso-plantilla',
-      required: true,
-      label: 'Plantilla',
-    },
-    {
-      name: 'codigo_interno',
-      type: 'text',
-      required: true,
-      label: 'Codigo Interno',
+      type: 'join',
+      name: 'procesos',
+      collection: 'tramite-proceso',
+      on: 'tramite',
+      label: 'Procesos',
     },
     {
       name: 'fut',
       type: 'text',
-      required: true,
+      required: false,
       label: 'FUT',
-    },
-    {
-      name: 'estado_global',
-      type: 'text',
-      required: true,
-      defaultValue: 'EN_CURSO',
-      label: 'Estado Global',
-    },
-    {
-      name: 'fecha_inicio',
-      type: 'date',
-      required: true,
-      label: 'Fecha Inicio',
+      unique: true,
+      index: true,
     },
   ],
 }

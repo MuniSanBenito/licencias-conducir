@@ -7,7 +7,7 @@ export const Ciudadano: CollectionConfig = {
     plural: 'Ciudadanos',
   },
   admin: {
-    description: 'Registro de ciudadanos que solicitan licencias de conducir',
+    useAsTitle: 'dni',
   },
   trash: true,
   fields: [
