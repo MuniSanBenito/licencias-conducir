@@ -263,287 +263,48 @@ Este sistema permite a la Municipalidad de San Benito gestionar exámenes teóri
 11. **Named exports**: Usar named exports excepto en archivos de Next.js
 12. **Organización**: Seguir la estructura de carpetas establecida (`components/`, `hooks/`, `lib/`, etc.)
 
-# DBML
+## 🗄️ Estructura de Base de Datos (MongoDB + Payload CMS)
 
-```dbml
-Table "examen_preguntas" {
-  "id" int [pk, not null, increment]
-  "examen_id" int [ref: < "examenes"."id"]
-  "pregunta_id" int [ref: < "preguntas"."id"]
-  "orden" int [default: 0]
-  "puntaje" decimal(5,2)
+### Collections Implementadas
 
-  Indexes {
-    (examen_id, pregunta_id) [unique, name: "idx_examen_preguntas_examen_id_pregunta_id"]
-  }
-}
+El sistema utiliza las siguientes collections de Payload CMS:
 
-Table "preguntas" {
-  "id" int [pk, not null, increment]
-  "enunciado" text [not null]
-  "imagen_url" varchar(255)
-}
+#### Gestión de Trámites
 
-Table "respuestas_seleccionadas" {
-  "id" int [pk, not null, increment]
-  "intento_id" int [ref: < "intentos_examen"."id"]
-  "pregunta_id" int [ref: < "preguntas"."id"]
-  "opcion_id" int [ref: < "opciones"."id"]
-  Indexes {
-    (intento_id, opcion_id) [unique, name: "idx_respuestas_seleccionadas_intento_id_opcion_id"]
-  }
-}
+- `ciudadano` - Datos del ciudadano (DNI, nombre, apellido, email, fecha nacimiento)
+- `tramite` - Cabecera del expediente, vincula ciudadano con sus procesos
+- `tramite-proceso` - Asocia un trámite con un proceso del `ProcesosEnum`
+- `tramite-progreso` - Checklist vivo que controla el estado de cada etapa
+- `turno` - Asignación de turnos por área y fecha/hora
+- `emision-licencia` - Registro de emisión final de licencias
 
-Table "proceso_plantilla" {
-  "id" int [pk, not null, increment]
-  "nombre" varchar(100) [not null, note: 'Ej: Workflow Licencia Original']
-  "clase_licencia_id" int [ref: < "clases_licencia"."id"]
-  "tipo_tramite_id" int
-  "activo" boolean [default: true]
-}
+#### Exámenes Digitales
 
-Table "tramites_categorias_solicitadas" {
-  "id" int [pk, not null, increment]
-  "tramite_id" int [ref: < "tramites"."id"]
-  "clase_licencia_id" int [ref: < "clases_licencia"."id"]
-  Indexes {
-    (tramite_id, clase_licencia_id) [unique, name: "idx_tramites_categorias_solicitadas_tramite_id_clase_licencia_id"]
-  }
-}
+- `examen` - Banco de exámenes teóricos
+- `pregunta` - Preguntas con enunciado e imagen opcional
+- `opcion` - Opciones de respuesta (soporta múltiples correctas)
+- `examen-pregunta` - Relación examen-pregunta con orden y puntaje
+- `intento-examen` - Registro de sesiones de examen
+- `respuesta-seleccionada` - Cada opción marcada para auditoría
 
-Table "examenes" {
-  "id" int [pk, not null, increment]
-  "titulo" varchar(200) [not null]
-  "descripcion" text
-  "activo" boolean [default: true]
-}
+#### Sistema
 
-Table "tipos_tramite" {
-  "id" int [pk, not null, increment, ref: < "proceso_plantilla"."tipo_tramite_id"]
-  "nombre" varchar(50) [not null, note: 'Ej: Original, Renovacion, Ampliacion']
-}
+- `usuario` - Usuarios del sistema con autenticación
+- `archivo` - Gestión de uploads (imágenes, documentos)
 
-Table "proceso_pasos" {
-  "id" int [pk, not null, increment]
-  "plantilla_id" int [ref: < "proceso_plantilla"."id"]
-  "etapa_id" int [ref: < "catalogo_etapas"."id"]
-  "orden" int [not null]
-  "es_bloqueante" boolean [default: true]
-}
+### Configuración Basada en Enums
 
-Table "intentos_examen" {
-  "id" int [pk, not null, increment]
-  "tramite_progreso_id" int [not null, note: 'Paso Teorico del checklist', ref: < "tramites_progreso"."id"]
-  "examen_id" int [ref: < "examenes"."id"]
-  "fecha_inicio" datetime
-  "fecha_fin" datetime
-  "nota_final" decimal(5,2)
-  "aprobado" boolean
-}
+La configuración del sistema se maneja mediante constantes TypeScript en `src/constants/`:
 
-Table "ciudadanos" {
-  "id" int [pk, not null, increment]
-  "dni" varchar(20) [unique, not null]
-  "nombre" varchar(100) [not null]
-  "apellido" varchar(100) [not null]
-  "email" varchar(100)
-  "fecha_nacimiento" date
-  "created_at" timestamp
-}
-
-Table "clases_licencia" {
-  "id" int [pk, not null, increment]
-  "codigo" varchar(10) [not null, note: 'Ej: A, B, C, D4']
-  "nombre" varchar(100)
-  "descripcion" text
-}
-
-Table "emisiones_licencia" {
-  "id" int [pk, not null, increment]
-  "tramite_id" int [unique]
-  "fecha_emision" datetime [default: `CURRENT_TIMESTAMP`]
-  "usuario_emisor_id" int
-  "numero_control_plastico" varchar(50)
-}
-
-Table "tramites_progreso" {
-  "id" int [pk, not null, increment, ref: < "turnos"."tramite_progreso_id"]
-  "tramite_id" int [ref: < "tramites"."id"]
-  "etapa_id" int
-  "orden" int
-  "clase_referencia_id" int [ref: < "clases_licencia"."id"]
-  "estado" varchar(20) [default: `PENDIENTE`]
-  "aprobado_por_usuario_id" int
-  "fecha_aprobacion" datetime
-  "observaciones" text
-}
-
-Table "catalogo_etapas" {
-  "id" int [pk, not null, increment, ref: < "tramites_progreso"."etapa_id"]
-  "nombre" varchar(50) [not null, note: 'Ej: Papeles, Curso, Teorico, Practico, Medico']
-  "requiere_turno" boolean [default: true]
-  "es_digital" boolean [default: false, note: 'Habilita examen en PC']
-  "es_carga_fut" boolean [default: false, note: 'Pide cargar ID Nacional']
-  "es_multiplicable_por_clase" boolean [default: false, note: 'Si es TRUE (Practico), se genera una fila por cada categoria solicitada']
-}
-
-Table "turnos" {
-  "id" int [pk, not null, increment]
-  "tramite_progreso_id" int [unique, note: 'Se vincula al paso especifico']
-  "agenda_recurso_id" int [ref: < "agenda_recursos"."id"]
-  "fecha_hora_inicio" datetime
-  "fecha_hora_fin" datetime
-  "estado" varchar(20) [default: `RESERVADO`]
-}
-
-Table "tramites" {
-  "id" int [pk, not null, increment, ref: < "emisiones_licencia"."tramite_id"]
-  "ciudadano_id" int [ref: < "ciudadanos"."id"]
-  "plantilla_id" int [ref: < "proceso_plantilla"."id"]
-  "codigo_interno" varchar(50) [unique, note: 'MUNI-2026-XXXX']
-  "nro_fut_nacional" varchar(50) [unique, note: 'Se carga antes del teorico']
-  "estado_global" varchar(20) [default: `EN_CURSO`]
-  "fecha_inicio" datetime [default: `CURRENT_TIMESTAMP`]
-}
-
-Table "opciones" {
-  "id" int [pk, not null, increment]
-  "pregunta_id" int [ref: < "preguntas"."id"]
-  "texto_opcion" varchar(255)
-  "es_correcta" boolean [default: false, note: 'Soporta Checkboxes']
-}
-
-Table "agenda_recursos" {
-  "id" int [pk, not null, increment]
-  "nombre" varchar(100) [note: 'Ej: Pista de Motos, Box Medico']
-  "capacidad" int [default: 1]
-}
-
-
-```
-
-# 🏛️ Sistema de Gestión de Licencias de Conducir - Municipalidad de San Benito
-
-Este repositorio aloja el backend y la lógica de negocio para la gestión integral del ciclo de vida de licencias de conducir. El sistema administra desde la solicitud inicial en mesa de entrada, pasando por validaciones administrativas, cursos, exámenes teóricos (digitales) y prácticos, hasta la emisión final del carnet.
-
-## 🧠 Arquitectura Conceptual
-
-El sistema se basa en tres pilares fundamentales para garantizar flexibilidad y auditoría:
-
-### 1. Patrón "Receta vs. Cocina" (Templates)
-
-Para evitar "hardcodear" los flujos de trámites, el sistema utiliza un modelo de plantillas.
-
-- **La Receta (`proceso_plantilla`):** Define qué pasos (etapas) componen un trámite. _Ej: Una "Renovación B" requiere 1. Papeles, 2. Médico._
-- **La Cocina (`tramites`):** Cuando un ciudadano inicia un trámite, el sistema copia la "receta" y crea una instancia viva. Esto permite que si la ley cambia mañana, los trámites viejos mantengan su estructura original.
-
-### 2. Desacople del FUT Nacional
-
-El sistema maneja un doble identificador.
-
-- **ID Interno:** Generado al inicio (Mesa de Entrada). Permite avanzar con pasos municipales (libre deuda, curso).
-- **FUT Nacional:** Se inyecta en el sistema a mitad del proceso (generalmente antes del examen teórico). El sistema soporta este "late binding" sin bloquear el flujo inicial.
-
-### 3. Soporte Multi-Categoría (Split-Flow)
-
-Un solo expediente (`tramite`) puede contener múltiples evaluaciones prácticas.
-
-- Si un ciudadano solicita Moto (A) y Auto (B), el sistema unifica la teoría y el médico, pero **bifurca** el examen práctico en dos pasos independientes con resultados distintos.
-
----
-
-## 🗄️ Estructura de Base de Datos
-
-El esquema relacional se divide en 5 módulos lógicos:
-
-### A. Configuración (Workflow Engine)
-
-Tablas estáticas que definen las reglas de negocio.
-
-- `clases_licencia`: Catálogo de categorías (A, B, C, D4...).
-- `catalogo_etapas`: Definición de pasos posibles (flag `es_multiplicable_por_clase` define si el paso se repite por categoría).
-- `proceso_plantilla` y `proceso_pasos`: La secuencia ordenada de etapas para cada tipo de trámite.
-
-### B. Core del Trámite (Expediente)
-
-Donde vive la información del ciudadano.
-
-- `tramites`: La cabecera del expediente.
-- `tramites_progreso`: El checklist vivo. Controla el estado (`PENDIENTE`, `APROBADO`) de cada paso.
-- `tramites_categorias_solicitadas`: Detalla qué licencias se pidieron en este expediente específico.
-
-### C. Logística (Turnos)
-
-- `agenda_recursos`: Aulas, boxes médicos, pistas de manejo.
-- `turnos`: Vincula un paso específico del progreso (`tramites_progreso_id`) con un recurso y una fecha.
-
-### D. Exámenes Digitales (Headless Exam System)
-
-Módulo para rendir el teórico en PC.
-
-- `examenes`, `preguntas`, `opciones`: Banco de contenidos. Soporta **Multiple Choice con Checkboxes**.
-- `intentos_examen`: Registro de la sesión del alumno.
-- `respuestas_seleccionadas`: Guarda cada opción marcada para auditoría detallada.
-
----
-
-## 🔄 Flujos Críticos
-
-### Flujo de Licencia Multi-Categoría (Ej: A + B)
-
-El sistema resuelve la complejidad de evaluar múltiples vehículos en un solo trámite de la siguiente manera:
-
-1. **Inicio:** Se crea el trámite y se insertan 2 filas en `tramites_categorias_solicitadas` (A y B).
-2. **Generación de Pasos:** El backend detecta las categorías y genera el checklist en `tramites_progreso`:
-
-- _Paso 1:_ Papeles (Común a todos).
-- _Paso 2:_ Curso (Común a todos).
-- _Paso 3:_ **Práctico Moto** (`clase_referencia_id` = A).
-- _Paso 4:_ **Práctico Auto** (`clase_referencia_id` = B).
-- _Paso 5:_ Médico (Común a todos).
-
-3. **Resultado:** El ciudadano puede aprobar la Moto el martes y desaprobar el Auto el jueves. El trámite no finaliza hasta que todos los pasos bloqueantes se resuelvan.
-
----
-
-## 📊 Diagrama Entidad-Relación (ERD)
-
-```mermaid
-erDiagram
-    ciudadanos ||--o{ tramites : inicia
-    proceso_plantilla ||--o{ tramites : define_estructura
-    tramites ||--o{ tramites_categorias_solicitadas : solicita
-    tramites ||--o{ tramites_progreso : genera_checklist
-
-    tramites_progreso |o--o| turnos : tiene_asignado
-    tramites_progreso ||--o{ intentos_examen : rinde
-
-    intentos_examen ||--o{ respuestas_seleccionadas : contiene
-    respuestas_seleccionadas }o--|| preguntas : responde
-    respuestas_seleccionadas }o--|| opciones : selecciona
-
-    %% Entidades Lógicas Clave
-    tramites_progreso {
-        int orden
-        string estado
-        int clase_referencia_id "NULL=Global, ID=Específico"
-    }
-
-    tramites {
-        string codigo_interno
-        string nro_fut_nacional "NULL al inicio"
-    }
-
-```
-
-## 🛠️ Stack Tecnológico & Integración
-
-- **CMS/Backend:** Payload CMS (Node.js).
-- **Base de Datos:** MongoDB (Base de datos NoSQL utilizada por Payload CMS).
-- **Frontend:** Next.js (Consumo de APIs de examen y gestión de turnos).
+- `ProcesosEnum` - Tipos de trámites y sus pasos
+- `EtapasEnum` - Catálogo de etapas (Papeles, Curso, Teórico, Práctico, Psicofísico)
+- `AreasEnum` - Áreas para turnos (Teórico, Práctico, Psicofísico, Curso, Licencias)
+- `EstadosTramiteEnum` - Estados del trámite (EN CURSO, CANCELADO, FINALIZADO, SUSPENDIDO)
+- `LicenciaClaseXEnum` - Clases de licencia (A1.1, A1.2, B1, B2, C1, D1, etc.)
+- `TramitesEnum` - Tipos de trámite (Original, Renovación, Ampliación)
 
 ### Notas para Desarrolladores
 
-1. **Validación de Pasos:** Antes de permitir interactuar con un paso (ej: rendir examen), verificar siempre que el paso anterior con `orden - 1` esté `APROBADO`.
+1. **Validación de Pasos:** Antes de permitir interactuar con un paso (ej: rendir examen), verificar siempre que la etapa anterior esté completada.
 2. **Client Components:** Recordar usar `'use client'` por defecto. Solo usar Server Components para acceder a `basePayload`.
 3. **Server Actions:** Todas las mutaciones de Payload deben usar Server Actions que retornen `Res<T>`.
