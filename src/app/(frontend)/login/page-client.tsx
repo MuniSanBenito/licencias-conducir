@@ -1,5 +1,6 @@
 'use client'
 import { signIn } from '@/app/actions/auth'
+import { Logo } from '@/payload/brand/logo'
 import { useRouter } from 'next/navigation'
 import { type FormEvent, useState } from 'react'
 import { toast } from 'sonner'
@@ -38,8 +39,8 @@ export function LoginPageClient() {
     <div className="bg-base-200 flex min-h-screen items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-bold">Municipalidad de San Benito</h2>
-          <h3 className="text-center text-2xl font-bold">Gestion de Licencias</h3>
+          <Logo />
+          <h3 className="mt-3 text-center text-2xl font-bold">Gestion de Licencias</h3>
           <p className="mt-2 text-center text-sm opacity-70">Ingresa a tu cuenta para continuar</p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
