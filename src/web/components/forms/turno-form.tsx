@@ -1,10 +1,11 @@
 'use client'
 
+import { getTramiteProgresos } from '@/app/actions/tramites'
+import { createTurno, updateTurno } from '@/app/actions/turnos'
 import { AreasEnum } from '@/constants/areas'
 import type { TramiteProgreso, Turno } from '@/payload-types'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { toast } from 'sonner'
-import { createTurno, getTramiteProgresos, updateTurno } from '../../actions'
 
 interface TurnoFormProps {
   initialData?: Turno
@@ -23,7 +24,7 @@ export function TurnoForm({ initialData, onSuccess, onCancel }: TurnoFormProps) 
     })
   }, [])
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
     setError(null)

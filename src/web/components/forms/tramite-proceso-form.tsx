@@ -1,10 +1,10 @@
 'use client'
 
+import { createTramiteProceso, getTramites, updateTramiteProceso } from '@/app/actions/tramites'
 import { ProcesosEnum } from '@/constants/procesos'
 import type { Tramite, TramiteProceso } from '@/payload-types'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { toast } from 'sonner'
-import { createTramiteProceso, getTramites, updateTramiteProceso } from '../../actions'
 
 interface TramiteProcesoFormProps {
   initialData?: TramiteProceso
@@ -23,7 +23,7 @@ export function TramiteProcesoForm({ initialData, onSuccess, onCancel }: Tramite
     })
   }, [])
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
     setError(null)

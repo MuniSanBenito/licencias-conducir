@@ -1,9 +1,9 @@
 'use client'
 
+import { createCiudadano, updateCiudadano } from '@/app/actions/ciudadano'
 import type { Ciudadano } from '@/payload-types'
-import { useState } from 'react'
+import { useState, type FormEvent } from 'react'
 import { toast } from 'sonner'
-import { createCiudadano, updateCiudadano } from '../../actions'
 
 interface CiudadanoFormProps {
   initialData?: Ciudadano
@@ -15,7 +15,7 @@ export function CiudadanoForm({ initialData, onSuccess, onCancel }: CiudadanoFor
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
     setError(null)

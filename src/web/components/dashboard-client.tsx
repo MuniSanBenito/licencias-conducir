@@ -1,5 +1,6 @@
 'use client'
 
+import { signOut } from '@/app/actions/auth'
 import {
   IconArrowRight,
   IconCalendar,
@@ -8,9 +9,8 @@ import {
   IconLogout,
   IconUsers,
 } from '@tabler/icons-react'
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { twJoin } from 'tailwind-merge'
-import { logoutAction } from '../actions'
 import { CiudadanoForm } from './forms/ciudadano-form'
 import { TramiteForm } from './forms/tramite-form'
 import { TramiteProcesoForm } from './forms/tramite-proceso-form'
@@ -24,7 +24,7 @@ type CollectionKey = 'ciudadano' | 'tramite' | 'tramite-proceso' | 'tramite-prog
 export function DashboardClient() {
   const [activeCollection, setActiveCollection] = useState<CollectionKey>('ciudadano')
 
-  const menuItems: { key: CollectionKey; label: string; icon: React.ReactNode }[] = [
+  const menuItems: { key: CollectionKey; label: string; icon: ReactNode }[] = [
     { key: 'ciudadano', label: 'Ciudadanos', icon: <IconUsers size={20} /> },
     { key: 'tramite', label: 'Trámites', icon: <IconFiles size={20} /> },
     { key: 'tramite-proceso', label: 'Trámite Procesos', icon: <IconArrowRight size={20} /> },
@@ -61,7 +61,7 @@ export function DashboardClient() {
 
         <div className="border-base-200 border-t p-4">
           <button
-            onClick={() => logoutAction()}
+            onClick={() => signOut()}
             className="text-error hover:bg-error/10 flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium transition-colors"
           >
             <IconLogout size={20} className="mr-3" />

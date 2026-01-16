@@ -1,10 +1,14 @@
 'use client'
 
+import {
+  createTramiteProgreso,
+  getTramiteProcesos,
+  updateTramiteProgreso,
+} from '@/app/actions/tramites'
 import { EstadosTramiteEnum } from '@/constants/estados-tramite'
 import type { TramiteProceso, TramiteProgreso } from '@/payload-types'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { toast } from 'sonner'
-import { createTramiteProgreso, getTramiteProcesos, updateTramiteProgreso } from '../../actions'
 
 interface TramiteProgresoFormProps {
   initialData?: TramiteProgreso
@@ -27,7 +31,7 @@ export function TramiteProgresoForm({
     })
   }, [])
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
     setError(null)

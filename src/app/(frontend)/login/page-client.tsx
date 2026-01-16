@@ -4,14 +4,17 @@ import { useRouter } from 'next/navigation'
 import { type FormEvent, useState } from 'react'
 import { toast } from 'sonner'
 
-export function LoginPage() {
+export function LoginPageClient() {
   const router = useRouter()
 
   const [loading, setLoading] = useState(false)
 
+  const [showPassword, setShowPassword] = useState(false)
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
+
     const email: string = e.currentTarget.email.value
     const password: string = e.currentTarget.password.value
 
@@ -35,14 +38,15 @@ export function LoginPage() {
     <div className="bg-base-200 flex min-h-screen items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
       <div className="w-full max-w-md space-y-8">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-bold">Iniciar Sesión</h2>
+          <h2 className="mt-6 text-center text-3xl font-bold">Municipalidad de San Benito</h2>
+          <h3 className="text-center text-2xl font-bold">Gestion de Licencias</h3>
           <p className="mt-2 text-center text-sm opacity-70">Ingresa a tu cuenta para continuar</p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
-            <div className="form-control w-full">
-              <label className="label" htmlFor="email-address">
-                <span className="label-text">Correo electrónico</span>
+            <fieldset className="fieldset">
+              <label className="fieldset-legend" htmlFor="email-address">
+                Correo electrónico
               </label>
               <input
                 id="email-address"
@@ -53,25 +57,34 @@ export function LoginPage() {
                 className="input input-bordered w-full"
                 placeholder="Correo electrónico"
               />
-            </div>
-            <div className="form-control w-full">
-              <label className="label" htmlFor="password">
-                <span className="label-text">Contraseña</span>
+            </fieldset>
+            <fieldset className="fieldset">
+              <label className="fieldset-legend" htmlFor="password">
+                Contraseña
               </label>
               <input
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 autoComplete="current-password"
                 required
                 className="input input-bordered w-full"
                 placeholder="Contraseña"
               />
-            </div>
+              <label className="label">
+                <input
+                  type="checkbox"
+                  className="checkbox"
+                  checked={showPassword}
+                  onChange={() => setShowPassword(!showPassword)}
+                />
+                Mostrar contraseña
+              </label>
+            </fieldset>
           </div>
 
           <div>
-            <button type="submit" className="btn btn-primary w-full">
+            <button type="submit" className="btn btn-primary w-full" disabled={loading}>
               Ingresar
             </button>
           </div>

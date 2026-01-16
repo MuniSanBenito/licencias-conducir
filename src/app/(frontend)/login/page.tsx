@@ -1,9 +1,9 @@
 import { basePayload } from '@/web/libs/payload'
 import { headers } from 'next/headers'
 import { redirect, RedirectType } from 'next/navigation'
-import { LoginPage } from './page-client'
+import { LoginPageClient } from './page-client'
 
-export default async function Page() {
+export default async function LoginPage() {
   const headersStore = await headers()
   const auth = await basePayload.auth({
     headers: headersStore,
@@ -13,5 +13,5 @@ export default async function Page() {
     redirect('/', RedirectType.replace)
   }
 
-  return <LoginPage />
+  return <LoginPageClient />
 }

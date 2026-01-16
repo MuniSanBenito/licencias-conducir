@@ -1,9 +1,10 @@
 'use client'
 
+import { getCiudadanos } from '@/app/actions/ciudadano'
+import { createTramite, updateTramite } from '@/app/actions/tramites'
 import type { Ciudadano, Tramite } from '@/payload-types'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { toast } from 'sonner'
-import { createTramite, getCiudadanos, updateTramite } from '../../actions'
 
 interface TramiteFormProps {
   initialData?: Tramite
@@ -23,7 +24,7 @@ export function TramiteForm({ initialData, onSuccess, onCancel }: TramiteFormPro
     })
   }, [])
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
     setError(null)

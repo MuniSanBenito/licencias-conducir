@@ -1,26 +1,24 @@
 'use client'
 
-import type { Ciudadano, Tramite, TramiteProceso, TramiteProgreso, Turno } from '@/payload-types'
-import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react'
-import { useEffect, useState } from 'react'
-import { toast } from 'sonner'
+import { deleteCiudadano, getCiudadanos } from '@/app/actions/ciudadano'
 import {
-  deleteCiudadano,
   deleteTramite,
   deleteTramiteProceso,
   deleteTramiteProgreso,
-  deleteTurno,
-  getCiudadanos,
   getTramiteProcesos,
   getTramiteProgresos,
   getTramites,
-  getTurnos,
-} from '../actions'
+} from '@/app/actions/tramites'
+import { deleteTurno, getTurnos } from '@/app/actions/turnos'
+import type { Ciudadano, Tramite, TramiteProceso, TramiteProgreso, Turno } from '@/payload-types'
+import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react'
+import { useEffect, useState, type ComponentType } from 'react'
+import { toast } from 'sonner'
 
 interface ResourceManagerProps {
   collection: string
   title: string
-  FormComponent: React.ComponentType<{
+  FormComponent: ComponentType<{
     initialData?: any
     onSuccess: () => void
     onCancel: () => void

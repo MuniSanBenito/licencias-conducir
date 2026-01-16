@@ -1,4 +1,4 @@
-import { DashboardClient } from './_components/dashboard-client'
+import { DashboardClient } from '@/web/components/dashboard-client'
 
 export const metadata = {
   title: 'Admin Panel | Licencias',
