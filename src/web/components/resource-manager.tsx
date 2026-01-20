@@ -1,23 +1,17 @@
 'use client'
 
-import { deleteCiudadano, getCiudadanos } from '@/app/actions/ciudadano'
-import {
-  deleteTramite,
-  deleteTramiteProceso,
-  deleteTramiteProgreso,
-  getTramiteProcesos,
-  getTramiteProgresos,
-  getTramites,
-} from '@/app/actions/tramites'
-import { deleteTurno, getTurnos } from '@/app/actions/turnos'
+import { deleteCiudadano } from '@/app/actions/ciudadano'
+import { deleteTramite, deleteTramiteProceso, deleteTramiteProgreso } from '@/app/actions/tramites'
+import { deleteTurno } from '@/app/actions/turnos'
 import type { Ciudadano, Tramite, TramiteProceso, TramiteProgreso, Turno } from '@/payload-types'
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react'
-import { useEffect, useState, type ComponentType } from 'react'
+import { useState, type ComponentType } from 'react'
 import { toast } from 'sonner'
 
 interface ResourceManagerProps {
   collection: string
   title: string
+  data: any[]
   FormComponent: ComponentType<{
     initialData?: any
     onSuccess: () => void
@@ -25,49 +19,9 @@ interface ResourceManagerProps {
   }>
 }
 
-export function ResourceManager({ collection, title, FormComponent }: ResourceManagerProps) {
-  const [data, setData] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+export function ResourceManager({ collection, title, data, FormComponent }: ResourceManagerProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<any | null>(null)
-
-  const loadData = async () => {
-    setLoading(true)
-    try {
-      let res
-      switch (collection) {
-        case 'ciudadano':
-          res = await getCiudadanos()
-          break
-        case 'tramite':
-          res = await getTramites()
-          break
-        case 'tramite-proceso':
-          res = await getTramiteProcesos()
-          break
-        case 'tramite-progreso':
-          res = await getTramiteProgresos()
-          break
-        case 'turno':
-          res = await getTurnos()
-          break
-      }
-
-      if (res?.ok) {
-        setData(res.data as any[])
-      } else {
-        toast.error('Error al cargar datos')
-      }
-    } catch (err) {
-      toast.error('Error de conexión')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    loadData()
-  }, [collection])
 
   const handleDelete = async (id: string) => {
     if (!confirm('¿Está seguro de eliminar este registro?')) return
@@ -93,7 +47,6 @@ export function ResourceManager({ collection, title, FormComponent }: ResourceMa
 
     if (res?.ok) {
       toast.success('Registro eliminado')
-      loadData()
     } else {
       toast.error('Error al eliminar')
     }
@@ -112,7 +65,6 @@ export function ResourceManager({ collection, title, FormComponent }: ResourceMa
   const handleSuccess = () => {
     setIsModalOpen(false)
     setEditingItem(null)
-    loadData()
   }
 
   const renderHeaders = () => {
@@ -330,13 +282,7 @@ export function ResourceManager({ collection, title, FormComponent }: ResourceMa
               </tr>
             </thead>
             <tbody>
-              {loading ? (
-                <tr>
-                  <td colSpan={4} className="py-4 text-center">
-                    Cargando...
-                  </td>
-                </tr>
-              ) : data.length === 0 ? (
+              {data.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="py-4 text-center">
                     No hay registros

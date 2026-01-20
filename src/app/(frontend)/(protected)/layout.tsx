@@ -1,9 +1,16 @@
 import { basePayload } from '@/web/libs/payload'
+import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { redirect, RedirectType } from 'next/navigation'
 import type { PropsWithChildren } from 'react'
+import { ProtectedLayoutClient } from './layout-client'
 
-export default async function Layout({ children }: PropsWithChildren) {
+export const metadata: Metadata = {
+  title: 'Admin Panel | Licencias',
+  description: 'Gestión administrativa de licencias',
+}
+
+export default async function ProtectedLayout({ children }: PropsWithChildren) {
   const headersStore = await headers()
   const auth = await basePayload.auth({
     headers: headersStore,
@@ -13,5 +20,5 @@ export default async function Layout({ children }: PropsWithChildren) {
     redirect('/login', RedirectType.replace)
   }
 
-  return <>{children}</>
+  return <ProtectedLayoutClient>{children}</ProtectedLayoutClient>
 }

@@ -1,10 +1,3 @@
-import { DashboardClient } from '@/web/components/dashboard-client'
-
-export const metadata = {
-  title: 'Admin Panel | Licencias',
-  description: 'Gestión administrativa de licencias',
-}
-
-export default async function Page() {
-  return <DashboardClient />
+export default function ProtectedPage() {
+  return <>Home</>
 }
