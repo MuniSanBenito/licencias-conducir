@@ -1,0 +1,3 @@
+- tramites y procesos unificarlos en uno solo para no tener que sobrecargar innecesariamente
+- analizar como implementar logica de turnos y progresos de tramites juntos
+- progresos con nombres y no numericos a la hora de crear/editar

@@ -1,3 +1,9 @@
+---
+name: Reglas
+description: Reglas
+applyTo: '**'
+---
+
 # Guía para Agentes de IA
 
 Este documento contiene información importante para agentes de IA que trabajan en este proyecto.
