@@ -3,6 +3,10 @@
     "daisyUI": {
       "type": "sse",
       "url": "https://gitmcp.io/saadeghi/daisyui"
+    },
+    "payload Docs": {
+      "type": "sse",
+      "url": "https://gitmcp.io/payloadcms/payload"
     }
   }
 }
