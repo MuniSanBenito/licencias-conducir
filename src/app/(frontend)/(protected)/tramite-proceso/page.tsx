@@ -1,12 +1,11 @@
-import { TramiteProcesoForm } from '@/web/components/forms/tramite-proceso-form'
-import { ResourceManager } from '@/web/components/resource-manager'
+import { basePayload } from '@/web/libs/payload'
+import { TramiteProcesoPageClient } from './page-client'
 
-export default function TramiteProcesoPage() {
-  return (
-    <ResourceManager
-      collection="tramite-proceso"
-      title="Gestión de Trámite Procesos"
-      FormComponent={TramiteProcesoForm}
-    />
-  )
+export default async function TramiteProcesoPage() {
+  const tramiteProcesos = await basePayload.find({
+    collection: 'tramite-proceso',
+    pagination: false,
+  })
+
+  return <TramiteProcesoPageClient tramiteProcesos={tramiteProcesos?.docs || []} />
 }

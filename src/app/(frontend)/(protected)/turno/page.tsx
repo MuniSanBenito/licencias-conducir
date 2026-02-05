@@ -1,6 +1,12 @@
-import { TurnoForm } from '@/web/components/forms/turno-form'
-import { ResourceManager } from '@/web/components/resource-manager'
+import { basePayload } from '@/web/libs/payload'
+import { TurnoPageClient } from './page-client'
 
-export default function TurnoPage() {
-  return <ResourceManager collection="turno" title="Gestión de Turnos" FormComponent={TurnoForm} />
+export default async function TurnoPage() {
+  const turnos = await basePayload.find({
+    collection: 'turno',
+    pagination: false,
+    depth: 4,
+  })
+
+  return <TurnoPageClient turnos={turnos?.docs || []} />
 }

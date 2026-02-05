@@ -1,8 +1,11 @@
-import { TramiteForm } from '@/web/components/forms/tramite-form'
-import { ResourceManager } from '@/web/components/resource-manager'
+import { basePayload } from '@/web/libs/payload'
+import { TramitePageClient } from './page-client'
 
-export default function TramitePage() {
-  return (
-    <ResourceManager collection="tramite" title="Gestión de Trámites" FormComponent={TramiteForm} />
-  )
+export default async function TramitePage() {
+  const tramite = await basePayload.find({
+    collection: 'tramite',
+    pagination: false,
+  })
+
+  return <TramitePageClient tramites={tramite?.docs || []} />
 }

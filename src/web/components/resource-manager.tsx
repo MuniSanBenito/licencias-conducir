@@ -127,7 +127,7 @@ export function ResourceManager({ collection, title, data, FormComponent }: Reso
               </div>
             </td>
             <td>{c.email}</td>
-            <td>{new Date(c.fecha_nacimiento).toLocaleDateString()}</td>
+            <td>{new Date(c.fecha_nacimiento).toLocaleDateString('es-AR')}</td>
           </>
         )
       case 'tramite':
@@ -140,7 +140,7 @@ export function ResourceManager({ collection, title, data, FormComponent }: Reso
           <>
             <td>{ciudadanoName}</td>
             <td>{t.fut || '-'}</td>
-            <td>{new Date(t.createdAt).toLocaleDateString()}</td>
+            <td>{new Date(t.createdAt).toLocaleDateString('es-AR')}</td>
           </>
         )
       case 'tramite-proceso':
