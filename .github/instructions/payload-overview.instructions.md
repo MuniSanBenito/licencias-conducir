@@ -2,11 +2,6 @@
 name: PayloadCMS payload-overview
 applyTo: '**'
 ---
----
-title: Payload CMS Overview
-description: Core principles and quick reference for Payload CMS development
-tags: [payload, overview, quickstart]
----
 
 # Payload CMS Development Rules
 

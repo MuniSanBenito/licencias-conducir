@@ -2,11 +2,6 @@
 name: PayloadCMS access-control
 applyTo: '**'
 ---
----
-title: Access Control
-description: Collection, field, and global access control patterns
-tags: [payload, access-control, security, permissions, rbac]
----
 
 # Payload CMS Access Control
 

@@ -2,12 +2,6 @@
 name: PayloadCMS access-control-advanced
 applyTo: '**'
 ---
----
-title: Access Control - Advanced Patterns
-description: Context-aware, time-based, subscription-based access, factory functions, templates
-tags: [payload, access-control, security, advanced, performance]
-priority: high
----
 
 # Advanced Access Control Patterns
 

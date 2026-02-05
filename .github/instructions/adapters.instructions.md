@@ -2,11 +2,6 @@
 name: PayloadCMS adapters
 applyTo: '**'
 ---
----
-title: Database Adapters & Transactions
-description: Database adapters, storage, email, and transaction patterns
-tags: [payload, database, mongodb, postgres, sqlite, transactions]
----
 
 # Payload CMS Adapters
 

@@ -2,11 +2,6 @@
 name: PayloadCMS collections
 applyTo: '**'
 ---
----
-title: Collections
-description: Collection configurations and patterns
-tags: [payload, collections, auth, upload, drafts]
----
 
 # Payload CMS Collections
 

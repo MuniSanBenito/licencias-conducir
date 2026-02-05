@@ -2,11 +2,6 @@
 name: PayloadCMS fields
 applyTo: '**'
 ---
----
-title: Fields
-description: Field types, patterns, and configurations
-tags: [payload, fields, validation, conditional]
----
 
 # Payload CMS Fields
 
