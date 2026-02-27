@@ -127,13 +127,7 @@ export interface Config {
   globals: {};
   globalsSelect: {};
   locale: null;
-  user:
-    | (Dev & {
-        collection: 'dev';
-      })
-    | (Usuario & {
-        collection: 'usuario';
-      });
+  user: Dev | Usuario;
   jobs: {
     tasks: unknown;
     workflows: unknown;
@@ -201,6 +195,7 @@ export interface Dev {
       }[]
     | null;
   password?: string | null;
+  collection: 'dev';
 }
 /**
  * Gestión de archivos y documentos del sistema (imágenes de preguntas, documentos adjuntos, etc.)
@@ -250,6 +245,7 @@ export interface Usuario {
       }[]
     | null;
   password?: string | null;
+  collection: 'usuario';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
