@@ -19,6 +19,7 @@ Este documento define las reglas base que todo agente de IA debe seguir al inter
 - **HTML Semántico**: Es **obligatorio** utilizar etiquetas semánticas (ej. `main`, `section`, `article`, `header`, `footer`) y evitar al máximo el uso de etiquetas genéricas como `div` o `span`.
 - **Accesibilidad (A11y)**: La accesibilidad es fundamental. Todo componente debe cumplir con estándares de accesibilidad, incluyendo el uso correcto de roles ARIA y atributos necesarios.
 - **Formularios**: Todos los formularios deben implementarse utilizando la librería `react-hook-form`, **exceptuando** los formularios de login y/o logout.
+- **Atomic Design**: Todos los componentes ajenos a Next.js (es decir, componentes reutilizables que no corresponden a páginas ni layouts del framework) deben seguir el modelo de **Atomic Design**. Estos componentes deben ubicarse dentro de la carpeta `src/web/ui/` y organizarse en el subdirectorio que corresponda según su nivel de abstracción: `atoms/`, `molecules/`, `organisms/` o `templates/`.
 
 ## Convenciones de Código y Nomenclatura
 
