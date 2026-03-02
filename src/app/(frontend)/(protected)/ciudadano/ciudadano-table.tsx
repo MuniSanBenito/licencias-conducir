@@ -1,7 +1,13 @@
 'use client'
 
 import type { Ciudadano } from '@/payload-types'
-import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react'
+import {
+  IconChevronDown,
+  IconChevronLeft,
+  IconChevronRight,
+  IconChevronUp,
+  IconSelector,
+} from '@tabler/icons-react'
 import {
   createColumnHelper,
   flexRender,
@@ -15,16 +21,19 @@ const columnHelper = createColumnHelper<Ciudadano>()
 
 const COLUMNS = [
   columnHelper.accessor('dni', {
+    id: 'dni',
     header: 'DNI',
   }),
   columnHelper.accessor((row) => `${row.apellido}, ${row.nombre}`, {
-    id: 'nombre_completo',
+    id: 'apellido', // Usamos apellido para el sorting de esta columna
     header: 'Nombre Completo',
   }),
   columnHelper.accessor('email', {
+    id: 'email',
     header: 'Email',
   }),
   columnHelper.accessor('fecha_nacimiento', {
+    id: 'fecha_nacimiento',
     header: 'Fecha de Nacimiento',
     cell: (info) => new Date(info.getValue()).toLocaleDateString('es-AR'),
   }),
@@ -40,6 +49,7 @@ interface CiudadanoTableProps {
 export function CiudadanoTable({ ciudadanos, page, totalPages, totalDocs }: CiudadanoTableProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const currentSort = searchParams.get('sort') || '-createdAt'
 
   const table = useReactTable({
     data: ciudadanos,
@@ -53,6 +63,30 @@ export function CiudadanoTable({ ciudadanos, page, totalPages, totalDocs }: Ciud
     router.push(`?${params.toString()}`)
   }
 
+  const handleSort = (columnId: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    const isCurrentDesc = currentSort === `-${columnId}`
+    const isCurrentAsc = currentSort === columnId
+
+    if (isCurrentAsc) {
+      params.set('sort', `-${columnId}`)
+    } else if (isCurrentDesc) {
+      params.delete('sort') // Vuelve al default (-createdAt)
+    } else {
+      params.set('sort', columnId)
+    }
+
+    params.set('page', '1') // Reiniciar a la primera página al cambiar el orden
+    router.push(`?${params.toString()}`)
+  }
+
+  const getSortIcon = (columnId: string) => {
+    if (currentSort === columnId) return <IconChevronUp size={14} className="text-primary" />
+    if (currentSort === `-${columnId}`)
+      return <IconChevronDown size={14} className="text-primary" />
+    return <IconSelector size={14} className="opacity-20" />
+  }
+
   const hasPrevPage = page > 1
   const hasNextPage = page < totalPages
 
@@ -64,13 +98,28 @@ export function CiudadanoTable({ ciudadanos, page, totalPages, totalDocs }: Ciud
             <thead>
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <th key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(header.column.columnDef.header, header.getContext())}
-                    </th>
-                  ))}
+                  {headerGroup.headers.map((header) => {
+                    const columnId = header.column.id
+                    const isSortable = columnId !== 'acciones' // Todas menos acciones si las hubiera
+
+                    return (
+                      <th
+                        key={header.id}
+                        className={twJoin(
+                          isSortable &&
+                            'hover:bg-base-200 cursor-pointer transition-colors select-none',
+                        )}
+                        onClick={() => isSortable && handleSort(columnId)}
+                      >
+                        <div className="flex items-center gap-2">
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(header.column.columnDef.header, header.getContext())}
+                          {isSortable && getSortIcon(columnId)}
+                        </div>
+                      </th>
+                    )
+                  })}
                 </tr>
               ))}
             </thead>
