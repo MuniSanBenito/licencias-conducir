@@ -16,7 +16,8 @@ Este documento define las reglas base que todo agente de IA debe seguir al inter
 - **Clases Dinámicas**: Para `className`s dinámicos, es **obligatorio** utilizar `twJoin` o en su defecto `twMerge` de la librería `tailwind-merge`. Está estrictamente prohibido usar cualquier otra alternativa.
 - **Tablas**: Todas las tablas que se utilicen en el proyecto deben implementarse utilizando la librería `@tanstack/react-table`.
 - **Iconos**: Es **obligatorio** utilizar los iconos de la librería `@tabler/icons-react`. Está estrictamente prohibido incluir iconos SVG directamente en el código.
-
+- **HTML Semántico**: Es **obligatorio** utilizar etiquetas semánticas (ej. `main`, `section`, `article`, `header`, `footer`) y evitar al máximo el uso de etiquetas genéricas como `div` o `span`.
+- **Accesibilidad (A11y)**: La accesibilidad es fundamental. Todo componente debe cumplir con estándares de accesibilidad, incluyendo el uso correcto de roles ARIA y atributos necesarios.
 
 ## Convenciones de Código y Nomenclatura
 
