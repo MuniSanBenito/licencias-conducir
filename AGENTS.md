@@ -18,6 +18,7 @@ Este documento define las reglas base que todo agente de IA debe seguir al inter
 - **Iconos**: Es **obligatorio** utilizar los iconos de la librería `@tabler/icons-react`. Está estrictamente prohibido incluir iconos SVG directamente en el código.
 - **HTML Semántico**: Es **obligatorio** utilizar etiquetas semánticas (ej. `main`, `section`, `article`, `header`, `footer`) y evitar al máximo el uso de etiquetas genéricas como `div` o `span`.
 - **Accesibilidad (A11y)**: La accesibilidad es fundamental. Todo componente debe cumplir con estándares de accesibilidad, incluyendo el uso correcto de roles ARIA y atributos necesarios.
+- **Formularios**: Todos los formularios deben implementarse utilizando la librería `react-hook-form`, **exceptuando** los formularios de login y/o logout.
 
 ## Convenciones de Código y Nomenclatura
 
