@@ -1,13 +1,15 @@
 'use client'
-
+import { deleteCiudadano } from '@/app/actions/ciudadano'
 import type { Ciudadano } from '@/payload-types'
 import {
   IconChevronDown,
   IconChevronLeft,
   IconChevronRight,
   IconChevronUp,
+  IconEdit,
   IconSearch,
   IconSelector,
+  IconTrash,
   IconX,
 } from '@tabler/icons-react'
 import {
@@ -16,31 +18,57 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { toast } from 'sonner'
 import { twJoin } from 'tailwind-merge'
 
 const columnHelper = createColumnHelper<Ciudadano>()
 
-const COLUMNS = [
-  columnHelper.accessor('dni', {
-    id: 'dni',
-    header: 'DNI',
-  }),
-  columnHelper.accessor((row) => `${row.apellido}, ${row.nombre}`, {
-    id: 'apellido', // Usamos apellido para el sorting de esta columna
-    header: 'Nombre Completo',
-  }),
-  columnHelper.accessor('email', {
-    id: 'email',
-    header: 'Email',
-  }),
-  columnHelper.accessor('fecha_nacimiento', {
-    id: 'fecha_nacimiento',
-    header: 'Fecha de Nacimiento',
-    cell: (info) => new Date(info.getValue()).toLocaleDateString('es-AR'),
-  }),
-]
+function buildColumns(onDelete: (ciudadano: Ciudadano) => void) {
+  return [
+    columnHelper.accessor('dni', {
+      id: 'dni',
+      header: 'DNI',
+    }),
+    columnHelper.accessor((row) => `${row.apellido}, ${row.nombre}`, {
+      id: 'apellido', // Usamos apellido para el sorting de esta columna
+      header: 'Nombre Completo',
+    }),
+    columnHelper.accessor('email', {
+      id: 'email',
+      header: 'Email',
+    }),
+    columnHelper.accessor('fecha_nacimiento', {
+      id: 'fecha_nacimiento',
+      header: 'Fecha de Nacimiento',
+      cell: (info) => new Date(info.getValue()).toLocaleDateString('es-AR'),
+    }),
+    columnHelper.display({
+      id: 'acciones',
+      header: 'Acciones',
+      cell: ({ row }) => (
+        <div className="flex gap-1">
+          <Link
+            href={`/ciudadano/${row.original.id}`}
+            className="btn btn-ghost btn-xs"
+            aria-label={`Editar ciudadano ${row.original.dni}`}
+          >
+            <IconEdit size={16} />
+          </Link>
+          <button
+            className="btn btn-ghost btn-xs text-error"
+            aria-label={`Eliminar ciudadano ${row.original.dni}`}
+            onClick={() => onDelete(row.original)}
+          >
+            <IconTrash size={16} />
+          </button>
+        </div>
+      ),
+    }),
+  ]
+}
 
 interface CiudadanoTableProps {
   ciudadanos: Ciudadano[]
@@ -56,10 +84,40 @@ export function CiudadanoTable({ ciudadanos, page, totalPages, totalDocs }: Ciud
   const currentQuery = searchParams.get('q') || ''
 
   const [searchTerm, setSearchTerm] = useState(currentQuery)
+  const [ciudadanoToDelete, setCiudadanoToDelete] = useState<Ciudadano | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const deleteModalRef = useRef<HTMLDialogElement>(null)
+
+  const handleDeleteClick = (ciudadano: Ciudadano) => {
+    setCiudadanoToDelete(ciudadano)
+    deleteModalRef.current?.showModal()
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!ciudadanoToDelete) return
+    setIsDeleting(true)
+    const res = await deleteCiudadano(ciudadanoToDelete.id)
+    setIsDeleting(false)
+    deleteModalRef.current?.close()
+    if (res.ok) {
+      toast.success(res.message)
+      router.refresh()
+    } else {
+      toast.error(res.message)
+    }
+    setCiudadanoToDelete(null)
+  }
+
+  const handleDeleteCancel = () => {
+    deleteModalRef.current?.close()
+    setCiudadanoToDelete(null)
+  }
+
+  const columns = buildColumns(handleDeleteClick)
 
   const table = useReactTable({
     data: ciudadanos,
-    columns: COLUMNS,
+    columns,
     getCoreRowModel: getCoreRowModel(),
   })
 
@@ -176,7 +234,7 @@ export function CiudadanoTable({ ciudadanos, page, totalPages, totalDocs }: Ciud
             <tbody>
               {table.getRowModel().rows.length === 0 ? (
                 <tr>
-                  <td colSpan={COLUMNS.length} className="py-8 text-center">
+                  <td colSpan={columns.length} className="py-8 text-center">
                     No hay ciudadanos registrados
                   </td>
                 </tr>
@@ -195,6 +253,33 @@ export function CiudadanoTable({ ciudadanos, page, totalPages, totalDocs }: Ciud
           </table>
         </div>
       </div>
+
+      {/* Modal de confirmación de eliminación */}
+      <dialog ref={deleteModalRef} className="modal">
+        <div className="modal-box">
+          <h3 className="text-lg font-bold">Confirmar eliminación</h3>
+          {ciudadanoToDelete && (
+            <p className="py-4">
+              ¿Estás seguro que deseas eliminar a{' '}
+              <strong>
+                {ciudadanoToDelete.apellido}, {ciudadanoToDelete.nombre}
+              </strong>{' '}
+              (DNI: {ciudadanoToDelete.dni})? Esta acción no se puede deshacer.
+            </p>
+          )}
+          <div className="modal-action">
+            <button className="btn btn-ghost" onClick={handleDeleteCancel} disabled={isDeleting}>
+              Cancelar
+            </button>
+            <button className="btn btn-error" onClick={handleDeleteConfirm} disabled={isDeleting}>
+              {isDeleting ? 'Eliminando...' : 'Eliminar'}
+            </button>
+          </div>
+        </div>
+        <form method="dialog" className="modal-backdrop">
+          <button onClick={handleDeleteCancel}>cerrar</button>
+        </form>
+      </dialog>
 
       {/* Paginación */}
       {totalPages > 1 && (
