@@ -6,7 +6,9 @@ import {
   IconChevronLeft,
   IconChevronRight,
   IconChevronUp,
+  IconSearch,
   IconSelector,
+  IconX,
 } from '@tabler/icons-react'
 import {
   createColumnHelper,
@@ -15,6 +17,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useState } from 'react'
 import { twJoin } from 'tailwind-merge'
 
 const columnHelper = createColumnHelper<Ciudadano>()
@@ -50,6 +53,9 @@ export function CiudadanoTable({ ciudadanos, page, totalPages, totalDocs }: Ciud
   const router = useRouter()
   const searchParams = useSearchParams()
   const currentSort = searchParams.get('sort') || '-createdAt'
+  const currentQuery = searchParams.get('q') || ''
+
+  const [searchTerm, setSearchTerm] = useState(currentQuery)
 
   const table = useReactTable({
     data: ciudadanos,
@@ -60,6 +66,25 @@ export function CiudadanoTable({ ciudadanos, page, totalPages, totalDocs }: Ciud
   const navigateToPage = (newPage: number) => {
     const params = new URLSearchParams(searchParams.toString())
     params.set('page', String(newPage))
+    router.push(`?${params.toString()}`)
+  }
+
+  const handleSearch = () => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (searchTerm) {
+      params.set('q', searchTerm)
+    } else {
+      params.delete('q')
+    }
+    params.set('page', '1') // Reiniciar a la primera página al buscar
+    router.push(`?${params.toString()}`)
+  }
+
+  const handleClear = () => {
+    setSearchTerm('')
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete('q')
+    params.set('page', '1')
     router.push(`?${params.toString()}`)
   }
 
@@ -92,6 +117,31 @@ export function CiudadanoTable({ ciudadanos, page, totalPages, totalDocs }: Ciud
 
   return (
     <div className="space-y-4">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex max-w-lg flex-1 gap-2">
+          <input
+            type="text"
+            placeholder="Buscar por DNI, nombre o email..."
+            className="input input-bordered flex-1"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+          />
+          <button className="btn btn-primary" onClick={handleSearch}>
+            <IconSearch size={18} />
+            Buscar
+          </button>
+          <button
+            className="btn btn-ghost"
+            onClick={handleClear}
+            disabled={!(searchTerm || currentQuery)}
+          >
+            <IconX size={18} />
+            Limpiar
+          </button>
+        </div>
+      </div>
+
       <div className="bg-base-100 rounded-box overflow-hidden shadow">
         <div className="overflow-x-auto">
           <table className="table-zebra table w-full">
