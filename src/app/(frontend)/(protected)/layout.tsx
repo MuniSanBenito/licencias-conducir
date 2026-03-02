@@ -1,4 +1,4 @@
-import { basePayload } from '@/web/libs/payload'
+import { basePayload } from '@/web/libs/payload/server'
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { redirect, RedirectType } from 'next/navigation'

@@ -1,4 +1,4 @@
-import { basePayload } from '@/web/libs/payload'
+import { basePayload } from '@/web/libs/payload/server'
 import { headers } from 'next/headers'
 import { redirect, RedirectType } from 'next/navigation'
 import { LoginPageClient } from './page-client'

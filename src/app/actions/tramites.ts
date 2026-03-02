@@ -2,7 +2,7 @@
 
 import type { Tramite, TramiteProceso, TramiteProgreso } from '@/payload-types'
 import type { Res } from '@/types'
-import { basePayload } from '@/web/libs/payload'
+import { basePayload } from '@/web/libs/payload/server'
 import { revalidatePath } from 'next/cache'
 
 export async function getTramites(): Promise<Res<Tramite[]>> {

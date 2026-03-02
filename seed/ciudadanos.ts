@@ -1,4 +1,4 @@
-import { basePayload } from '@/web/libs/payload'
+import { basePayload } from '@/web/libs/payload/server'
 
 const NOMBRES = [
   'Juan',
