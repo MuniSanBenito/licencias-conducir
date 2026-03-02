@@ -15,6 +15,8 @@ Este documento define las reglas base que todo agente de IA debe seguir al inter
 - **Tailwind CSS**: El uso de clases de Tailwind CSS está restringido **únicamente** para estructurar layouts específicos (grillas, alineación, flexbox, etc.). No lo uses para estilizar componentes.
 - **Clases Dinámicas**: Para `className`s dinámicos, es **obligatorio** utilizar `twJoin` o en su defecto `twMerge` de la librería `tailwind-merge`. Está estrictamente prohibido usar cualquier otra alternativa.
 - **Tablas**: Todas las tablas que se utilicen en el proyecto deben implementarse utilizando la librería `@tanstack/react-table`.
+- **Iconos**: Es **obligatorio** utilizar los iconos de la librería `@tabler/icons-react`. Está estrictamente prohibido incluir iconos SVG directamente en el código.
+
 
 ## Convenciones de Código y Nomenclatura
 
