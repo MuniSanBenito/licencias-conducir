@@ -122,17 +122,17 @@ export function CiudadanoTable({ ciudadanos, page, totalPages, totalDocs }: Ciud
           <input
             type="text"
             placeholder="Buscar por DNI, nombre o email..."
-            className="input input-bordered flex-1"
+            className="input input-bordered input-sm flex-1"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
           />
-          <button className="btn btn-primary" onClick={handleSearch}>
+          <button className="btn btn-primary btn-sm" onClick={handleSearch}>
             <IconSearch size={18} />
             Buscar
           </button>
           <button
-            className="btn btn-ghost"
+            className="btn btn-ghost btn-sm"
             onClick={handleClear}
             disabled={!(searchTerm || currentQuery)}
           >

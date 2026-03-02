@@ -1,4 +1,6 @@
 import { basePayload } from '@/web/libs/payload/server'
+import { IconPlus } from '@tabler/icons-react'
+import Link from 'next/link'
 import type { Where } from 'payload'
 import { CiudadanoTable } from './ciudadano-table'
 
@@ -30,7 +32,13 @@ export default async function CiudadanoPage({ searchParams }: PageProps<'/ciudad
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Ciudadanos</h2>
+      <header className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Ciudadanos</h2>
+        <Link href="/ciudadano/nuevo" className="btn btn-primary btn-sm">
+          <IconPlus />
+          Nuevo
+        </Link>
+      </header>
       <CiudadanoTable
         ciudadanos={ciudadanos.docs}
         page={ciudadanos.page ?? 1}
