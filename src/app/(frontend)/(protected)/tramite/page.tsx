@@ -2,10 +2,13 @@ import { basePayload } from '@/web/libs/payload/server'
 import { TramitePageClient } from './page-client'
 
 export default async function TramitePage() {
-  const tramite = await basePayload.find({
+  const tramites = await basePayload.find({
     collection: 'tramite',
-    pagination: false,
   })
 
-  return <TramitePageClient tramites={tramite?.docs || []} />
+  const tramitesProceso = await basePayload.find({
+    collection: 'tramite-proceso',
+  })
+
+  return <TramitePageClient tramites={tramites.docs} />
 }

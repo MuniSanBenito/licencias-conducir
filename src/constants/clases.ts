@@ -1,13 +1,3 @@
-/* export const LicenciasClaseEnum = {
-  A: 'A',
-  B: 'B',
-  C: 'C',
-  D: 'D',
-  E: 'E',
-  F: 'F',
-  G: 'G',
-} as const */
-
 export const LicenciaClaseAEnum = {
   'A1.1': 'A1.1',
   'A1.2': 'A1.2',
