@@ -1,7 +1,7 @@
 'use client'
 import { deleteTramite } from '@/app/actions/tramites'
 import type { Tramite } from '@/payload-types'
-import { TramiteForm } from '@/web/components/forms/tramite-form'
+import { TramiteForm } from '@/web/ui/organisms/tramite-form'
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react'
 import { useState } from 'react'
 import { toast } from 'sonner'

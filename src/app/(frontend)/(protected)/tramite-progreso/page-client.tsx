@@ -1,7 +1,7 @@
 'use client'
 import { deleteTramiteProgreso } from '@/app/actions/tramites'
 import type { TramiteProgreso } from '@/payload-types'
-import { TramiteProgresoForm } from '@/web/components/forms/tramite-progreso-form'
+import { TramiteProgresoForm } from '@/web/ui/organisms/tramite-progreso-form'
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react'
 import { useState } from 'react'
 import { toast } from 'sonner'

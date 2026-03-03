@@ -1,7 +1,7 @@
 'use client'
 import { deleteTramiteProceso } from '@/app/actions/tramites'
 import type { TramiteProceso } from '@/payload-types'
-import { TramiteProcesoForm } from '@/web/components/forms/tramite-proceso-form'
+import { TramiteProcesoForm } from '@/web/ui/organisms/tramite-proceso-form'
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react'
 import { useState } from 'react'
 import { toast } from 'sonner'

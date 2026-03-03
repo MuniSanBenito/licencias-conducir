@@ -1,10 +1,8 @@
 import { basePayload } from '@/web/libs/payload/server'
-import { IconPlus } from '@tabler/icons-react'
-import Link from 'next/link'
+import { CiudadanoTable } from '@/web/ui/organisms/ciudadano-table'
 import type { Where } from 'payload'
-import { CiudadanoTable } from './ciudadano-table'
 
-const DEFAULT_LIMIT = 10
+const DEFAULT_LIMIT = 15
 
 export default async function CiudadanoPage({ searchParams }: PageProps<'/ciudadano'>) {
   const { page: pageParam, sort: sortParam, q } = await searchParams
@@ -34,10 +32,6 @@ export default async function CiudadanoPage({ searchParams }: PageProps<'/ciudad
     <div className="space-y-6">
       <header className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">Ciudadanos</h2>
-        <Link href="/ciudadano/nuevo" className="btn btn-primary btn-sm">
-          <IconPlus />
-          Nuevo
-        </Link>
       </header>
       <CiudadanoTable
         ciudadanos={ciudadanos.docs}

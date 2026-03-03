@@ -1,12 +1,14 @@
 'use client'
 import { deleteCiudadano } from '@/app/actions/ciudadano'
 import type { Ciudadano } from '@/payload-types'
+import { CiudadanoForm } from '@/web/ui/organisms/ciudadano-form'
 import {
   IconChevronDown,
   IconChevronLeft,
   IconChevronRight,
   IconChevronUp,
   IconEdit,
+  IconPlus,
   IconSearch,
   IconSelector,
   IconTrash,
@@ -18,7 +20,6 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
@@ -26,7 +27,10 @@ import { twJoin } from 'tailwind-merge'
 
 const columnHelper = createColumnHelper<Ciudadano>()
 
-function buildColumns(onDelete: (ciudadano: Ciudadano) => void) {
+function buildColumns(
+  onEdit: (ciudadano: Ciudadano) => void,
+  onDelete: (ciudadano: Ciudadano) => void,
+) {
   return [
     columnHelper.accessor('dni', {
       id: 'dni',
@@ -50,13 +54,13 @@ function buildColumns(onDelete: (ciudadano: Ciudadano) => void) {
       header: 'Acciones',
       cell: ({ row }) => (
         <div className="flex gap-1">
-          <Link
-            href={`/ciudadano/${row.original.id}`}
+          <button
             className="btn btn-ghost btn-xs"
             aria-label={`Editar ciudadano ${row.original.dni}`}
+            onClick={() => onEdit(row.original)}
           >
             <IconEdit size={16} />
-          </Link>
+          </button>
           <button
             className="btn btn-ghost btn-xs text-error"
             aria-label={`Eliminar ciudadano ${row.original.dni}`}
@@ -84,36 +88,70 @@ export function CiudadanoTable({ ciudadanos, page, totalPages, totalDocs }: Ciud
   const currentQuery = searchParams.get('q') || ''
 
   const [searchTerm, setSearchTerm] = useState(currentQuery)
-  const [ciudadanoToDelete, setCiudadanoToDelete] = useState<Ciudadano | null>(null)
-  const [isDeleting, setIsDeleting] = useState(false)
+
+  const [showEditModal, setShowEditModal] = useState(false)
   const deleteModalRef = useRef<HTMLDialogElement>(null)
 
-  const handleDeleteClick = (ciudadano: Ciudadano) => {
-    setCiudadanoToDelete(ciudadano)
-    deleteModalRef.current?.showModal()
+  const [ciudadanoToEdit, setCiudadanoToEdit] = useState<Ciudadano>()
+  const [ciudadanoToDelete, setCiudadanoToDelete] = useState<Ciudadano>()
+
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  const hasPrevPage = page > 1
+  const hasNextPage = page < totalPages
+
+  const handleClickCreate = () => {
+    setCiudadanoToEdit(undefined)
+
+    setShowEditModal(true)
+  }
+
+  const handleClickEdit = (ciudadano: Ciudadano) => {
+    setCiudadanoToEdit(ciudadano)
+
+    setShowEditModal(true)
+  }
+
+  const handleCloseEditModal = () => {
+    setShowEditModal(false)
+
+    setCiudadanoToEdit(undefined)
+  }
+
+  const handleDeleteCancel = () => {
+    deleteModalRef.current?.close()
+
+    setCiudadanoToDelete(undefined)
   }
 
   const handleDeleteConfirm = async () => {
-    if (!ciudadanoToDelete) return
+    if (!ciudadanoToDelete) {
+      return
+    }
+
     setIsDeleting(true)
+
     const res = await deleteCiudadano(ciudadanoToDelete.id)
+
     setIsDeleting(false)
     deleteModalRef.current?.close()
+
+    setCiudadanoToDelete(undefined)
+
     if (res.ok) {
       toast.success(res.message)
       router.refresh()
     } else {
       toast.error(res.message)
     }
-    setCiudadanoToDelete(null)
   }
 
-  const handleDeleteCancel = () => {
-    deleteModalRef.current?.close()
-    setCiudadanoToDelete(null)
+  const handleClickDelete = (ciudadano: Ciudadano) => {
+    setCiudadanoToDelete(ciudadano)
+    deleteModalRef.current?.showModal()
   }
 
-  const columns = buildColumns(handleDeleteClick)
+  const columns = buildColumns(handleClickEdit, handleClickDelete)
 
   const table = useReactTable({
     data: ciudadanos,
@@ -170,9 +208,6 @@ export function CiudadanoTable({ ciudadanos, page, totalPages, totalDocs }: Ciud
     return <IconSelector size={14} className="opacity-20" />
   }
 
-  const hasPrevPage = page > 1
-  const hasNextPage = page < totalPages
-
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">
@@ -198,6 +233,10 @@ export function CiudadanoTable({ ciudadanos, page, totalPages, totalDocs }: Ciud
             Limpiar
           </button>
         </div>
+        <button className="btn btn-primary btn-sm" onClick={handleClickCreate}>
+          <IconPlus />
+          Nuevo
+        </button>
       </div>
 
       <div className="bg-base-100 rounded-box overflow-hidden shadow">
@@ -253,6 +292,26 @@ export function CiudadanoTable({ ciudadanos, page, totalPages, totalDocs }: Ciud
           </table>
         </div>
       </div>
+
+      {/* Modal de crear/editar ciudadano. motanmos y desmontamos en lugar de via ref para poder "resetear" el form */}
+      {showEditModal ? (
+        <dialog className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="mb-4 text-lg font-bold">
+              {ciudadanoToEdit ? 'Editar Ciudadano' : 'Nuevo Ciudadano'}
+            </h3>
+            <CiudadanoForm
+              defaultValues={ciudadanoToEdit}
+              onSuccess={handleCloseEditModal}
+              onError={handleCloseEditModal}
+              onCancel={handleCloseEditModal}
+            />
+          </div>
+          <form method="dialog" className="modal-backdrop">
+            <button onClick={handleCloseEditModal}>cerrar</button>
+          </form>
+        </dialog>
+      ) : null}
 
       {/* Modal de confirmación de eliminación */}
       <dialog ref={deleteModalRef} className="modal">

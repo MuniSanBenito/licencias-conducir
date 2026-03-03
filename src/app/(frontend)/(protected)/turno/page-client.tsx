@@ -1,7 +1,7 @@
 'use client'
 import { deleteTurno } from '@/app/actions/turnos'
 import type { Turno } from '@/payload-types'
-import { TurnoForm } from '@/web/components/forms/turno-form'
+import { TurnoForm } from '@/web/ui/organisms/turno-form'
 import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
