@@ -2,7 +2,8 @@
 
 import { getCiudadanos } from '@/app/actions/ciudadano'
 import { createTramite, updateTramite } from '@/app/actions/tramites'
-import type { Ciudadano, Tramite } from '@/payload-types'
+import { ProcesosEnum } from '@/constants/procesos'
+import type { Ciudadano, Tramite, TramiteProceso } from '@/payload-types'
 import { IconDeviceFloppy, IconLoader2 } from '@tabler/icons-react'
 import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -12,6 +13,7 @@ import { twJoin } from 'tailwind-merge'
 interface TramiteFormValues {
   ciudadano: string
   fut: string
+  procesos: TramiteProceso['proceso'][]
 }
 
 interface TramiteFormProps {
@@ -19,6 +21,13 @@ interface TramiteFormProps {
   onSuccess: () => void
   onError: (error: Error) => void
   onCancel: () => void
+}
+
+function getExistingProcesos(tramite: Tramite): TramiteProceso['proceso'][] {
+  if (!tramite.procesos?.docs) return []
+  return tramite.procesos.docs
+    .map((doc) => (typeof doc === 'object' ? doc.proceso : null))
+    .filter((p): p is TramiteProceso['proceso'] => p !== null)
 }
 
 export function TramiteForm({ defaultValues, onSuccess, onError, onCancel }: TramiteFormProps) {
@@ -42,6 +51,7 @@ export function TramiteForm({ defaultValues, onSuccess, onError, onCancel }: Tra
               ? defaultValues.ciudadano.id
               : defaultValues.ciudadano,
           fut: defaultValues.fut || '',
+          procesos: getExistingProcesos(defaultValues),
         }
       : undefined,
   })
@@ -57,6 +67,9 @@ export function TramiteForm({ defaultValues, onSuccess, onError, onCancel }: Tra
       onError(new Error(res.message))
     }
   })
+
+  // Solo mostrar procesos activos
+  const activeProcesos = Object.values(ProcesosEnum).filter((p) => p.activo)
 
   return (
     <form className="bg-base-100 rounded-box space-y-6 p-6 shadow" onSubmit={onSubmit}>
@@ -103,6 +116,34 @@ export function TramiteForm({ defaultValues, onSuccess, onError, onCancel }: Tra
         {errors.fut && (
           <label className="label" htmlFor="fut">
             <span className="label-text-alt text-error">{errors.fut.message}</span>
+          </label>
+        )}
+      </fieldset>
+
+      {/* Procesos */}
+      <fieldset className="form-control">
+        <legend className="label">
+          <span className="label-text">Procesos</span>
+        </legend>
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+          {activeProcesos.map((proceso) => (
+            <label key={proceso.nombre} className="label cursor-pointer justify-start gap-3">
+              <input
+                type="checkbox"
+                className="checkbox checkbox-primary checkbox-sm"
+                value={proceso.nombre}
+                {...register('procesos', {
+                  validate: (value) =>
+                    (value && value.length > 0) || 'Debe seleccionar al menos un proceso',
+                })}
+              />
+              <span className="label-text">{proceso.nombre}</span>
+            </label>
+          ))}
+        </div>
+        {errors.procesos && (
+          <label className="label">
+            <span className="label-text-alt text-error">{errors.procesos.message}</span>
           </label>
         )}
       </fieldset>

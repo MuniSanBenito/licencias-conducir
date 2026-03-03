@@ -290,19 +290,19 @@ export interface TramiteProceso {
   id: string;
   tramite: string | Tramite;
   proceso:
-    | 'Licencia Original A1.1'
-    | 'Licencia Original A1.2'
-    | 'Licencia Original A1.3'
-    | 'Licencia Original A1.4'
-    | 'Licencia Original A2.1'
-    | 'Licencia Original A2.2'
-    | 'Licencia Original B1'
-    | 'Licencia Original B2'
-    | 'Licencia Original C1'
-    | 'Licencia Original C2'
-    | 'Licencia Original C3'
-    | 'Licencia Original D1'
-    | 'Licencia Original D2';
+    | 'Original A1.1'
+    | 'Original A1.2'
+    | 'Original A1.3'
+    | 'Original A1.4'
+    | 'Original A2.1'
+    | 'Original A2.2'
+    | 'Original B1'
+    | 'Original B2'
+    | 'Original C1'
+    | 'Original C2'
+    | 'Original C3'
+    | 'Original D1'
+    | 'Original D2';
   progresos?: {
     docs?: (string | TramiteProgreso)[];
     hasNextPage?: boolean;

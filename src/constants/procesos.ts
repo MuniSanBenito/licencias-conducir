@@ -16,7 +16,7 @@ interface Proceso {
 }
 
 const nuevaLicenciaA1_1: Proceso = {
-  nombre: 'Licencia Original A1.1',
+  nombre: 'Original A1.1',
   clase: LicenciaClaseAEnum['A1.1'],
   tipo_tramite: TramitesEnum.ORIGINAL,
   activo: true,
@@ -30,7 +30,7 @@ const nuevaLicenciaA1_1: Proceso = {
 }
 
 const nuevaLicenciaA1_2: Proceso = {
-  nombre: 'Licencia Original A1.2',
+  nombre: 'Original A1.2',
   clase: LicenciaClaseAEnum['A1.2'],
   tipo_tramite: TramitesEnum.ORIGINAL,
   activo: true,
@@ -44,10 +44,10 @@ const nuevaLicenciaA1_2: Proceso = {
 }
 
 const nuevaLicenciaA1_3: Proceso = {
-  nombre: 'Licencia Original A1.3',
+  nombre: 'Original A1.3',
   clase: LicenciaClaseAEnum['A1.3'],
   tipo_tramite: TramitesEnum.ORIGINAL,
-  activo: false,
+  activo: true,
   pasos: [
     EtapasEnum.PAPELES,
     EtapasEnum.CURSO,
@@ -58,10 +58,10 @@ const nuevaLicenciaA1_3: Proceso = {
 }
 
 const nuevaLicenciaA1_4: Proceso = {
-  nombre: 'Licencia Original A1.4',
+  nombre: 'Original A1.4',
   clase: LicenciaClaseAEnum['A1.4'],
   tipo_tramite: TramitesEnum.ORIGINAL,
-  activo: false,
+  activo: true,
   pasos: [
     EtapasEnum.PAPELES,
     EtapasEnum.CURSO,
@@ -72,7 +72,7 @@ const nuevaLicenciaA1_4: Proceso = {
 }
 
 const nuevaLicenciaA2_1: Proceso = {
-  nombre: 'Licencia Original A2.1',
+  nombre: 'Original A2.1',
   clase: LicenciaClaseAEnum['A2.1'],
   tipo_tramite: TramitesEnum.ORIGINAL,
   activo: true,
@@ -86,10 +86,10 @@ const nuevaLicenciaA2_1: Proceso = {
 }
 
 const nuevaLicenciaA2_2: Proceso = {
-  nombre: 'Licencia Original A2.2',
+  nombre: 'Original A2.2',
   clase: LicenciaClaseAEnum['A2.2'],
   tipo_tramite: TramitesEnum.ORIGINAL,
-  activo: false,
+  activo: true,
   pasos: [
     EtapasEnum.PAPELES,
     EtapasEnum.CURSO,
@@ -100,7 +100,7 @@ const nuevaLicenciaA2_2: Proceso = {
 }
 
 const nuevaLicenciaB1: Proceso = {
-  nombre: 'Licencia Original B1',
+  nombre: 'Original B1',
   clase: LicenciaClaseBEnum.B1,
   tipo_tramite: TramitesEnum.ORIGINAL,
   activo: true,
@@ -114,10 +114,10 @@ const nuevaLicenciaB1: Proceso = {
 }
 
 const nuevaLicenciaB2: Proceso = {
-  nombre: 'Licencia Original B2',
+  nombre: 'Original B2',
   clase: LicenciaClaseBEnum.B2,
   tipo_tramite: TramitesEnum.ORIGINAL,
-  activo: false,
+  activo: true,
   pasos: [
     EtapasEnum.PAPELES,
     EtapasEnum.CURSO,
@@ -128,10 +128,10 @@ const nuevaLicenciaB2: Proceso = {
 }
 
 const nuevaLicenciaC1: Proceso = {
-  nombre: 'Licencia Original C1',
+  nombre: 'Original C1',
   clase: LicenciaClaseCEnum.C1,
   tipo_tramite: TramitesEnum.ORIGINAL,
-  activo: false,
+  activo: true,
   pasos: [
     EtapasEnum.PAPELES,
     EtapasEnum.CURSO,
@@ -142,10 +142,10 @@ const nuevaLicenciaC1: Proceso = {
 }
 
 const nuevaLicenciaC2: Proceso = {
-  nombre: 'Licencia Original C2',
+  nombre: 'Original C2',
   clase: LicenciaClaseCEnum.C2,
   tipo_tramite: TramitesEnum.ORIGINAL,
-  activo: false,
+  activo: true,
   pasos: [
     EtapasEnum.PAPELES,
     EtapasEnum.CURSO,
@@ -156,10 +156,10 @@ const nuevaLicenciaC2: Proceso = {
 }
 
 const nuevaLicenciaC3: Proceso = {
-  nombre: 'Licencia Original C3',
+  nombre: 'Original C3',
   clase: LicenciaClaseCEnum.C3,
   tipo_tramite: TramitesEnum.ORIGINAL,
-  activo: false,
+  activo: true,
   pasos: [
     EtapasEnum.PAPELES,
     EtapasEnum.CURSO,
@@ -170,10 +170,10 @@ const nuevaLicenciaC3: Proceso = {
 }
 
 const nuevaLicenciaD1: Proceso = {
-  nombre: 'Licencia Original D1',
+  nombre: 'Original D1',
   clase: 'D1',
   tipo_tramite: TramitesEnum.ORIGINAL,
-  activo: false,
+  activo: true,
   pasos: [
     EtapasEnum.PAPELES,
     EtapasEnum.CURSO,
@@ -184,10 +184,10 @@ const nuevaLicenciaD1: Proceso = {
 }
 
 const nuevaLicenciaD2: Proceso = {
-  nombre: 'Licencia Original D2',
+  nombre: 'Original D2',
   clase: 'D2',
   tipo_tramite: TramitesEnum.ORIGINAL,
-  activo: false,
+  activo: true,
   pasos: [
     EtapasEnum.PAPELES,
     EtapasEnum.CURSO,

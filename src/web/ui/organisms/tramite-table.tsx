@@ -45,6 +45,27 @@ function buildColumns(onEdit: (tramite: Tramite) => void, onDelete: (tramite: Tr
       header: 'FUT',
       cell: (info) => info.getValue() || '-',
     }),
+    columnHelper.display({
+      id: 'procesos',
+      header: 'Procesos',
+      cell: ({ row }) => {
+        const docs = row.original.procesos?.docs
+        if (!docs || docs.length === 0) return '-'
+        return (
+          <div className="flex flex-wrap gap-1">
+            {docs.map((doc) => {
+              const proceso = typeof doc === 'object' ? doc : null
+              if (!proceso) return null
+              return (
+                <span key={proceso.id} className="badge badge-outline badge-sm">
+                  {proceso.proceso}
+                </span>
+              )
+            })}
+          </div>
+        )
+      },
+    }),
     columnHelper.accessor('createdAt', {
       id: 'createdAt',
       header: 'Fecha Inicio',

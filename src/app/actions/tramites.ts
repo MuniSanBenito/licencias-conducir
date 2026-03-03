@@ -19,54 +19,127 @@ export async function getTramites(): Promise<Res<Tramite[]>> {
   }
 }
 
-export async function createTramite(data: any): Promise<Res<Tramite>> {
+interface CreateTramiteData {
+  ciudadano: string
+  fut?: string
+  procesos: TramiteProceso['proceso'][]
+}
+
+export async function createTramite(data: CreateTramiteData): Promise<Res<Tramite>> {
   try {
+    const { procesos, ...tramiteData } = data
+
     const result = await basePayload.create({
       collection: 'tramite',
-      data,
+      data: tramiteData,
     })
+
+    // Crear un tramite-proceso por cada proceso seleccionado
+    await Promise.all(
+      procesos.map((proceso) =>
+        basePayload.create({
+          collection: 'tramite-proceso',
+          data: { tramite: result.id, proceso },
+        }),
+      ),
+    )
+
     revalidatePath('/(frontend)/(protected)', 'page')
-    return { ok: true, data: result, message: 'Tramite creado' }
+    return { ok: true, data: result, message: 'Trámite creado' }
   } catch (error) {
     return {
       ok: false,
       data: null,
-      message: error instanceof Error ? error.message : 'Error al crear tramite',
+      message: error instanceof Error ? error.message : 'Error al crear trámite',
     }
   }
 }
 
-export async function updateTramite(id: string | number, data: any): Promise<Res<Tramite>> {
+interface UpdateTramiteData {
+  ciudadano: string
+  fut?: string
+  procesos: TramiteProceso['proceso'][]
+}
+
+export async function updateTramite(
+  id: string | number,
+  data: UpdateTramiteData,
+): Promise<Res<Tramite>> {
   try {
+    const { procesos: newProcesos, ...tramiteData } = data
+
     const result = await basePayload.update({
       collection: 'tramite',
       id,
-      data,
+      data: tramiteData,
     })
+
+    // Obtener los tramite-proceso existentes
+    const existing = await basePayload.find({
+      collection: 'tramite-proceso',
+      where: { tramite: { equals: id } },
+      limit: 100,
+    })
+
+    const existingProcesos = existing.docs.map((tp) => ({
+      id: tp.id,
+      proceso: tp.proceso,
+    }))
+
+    // Diff: eliminar los que ya no están
+    const toDelete = existingProcesos.filter((ep) => !newProcesos.includes(ep.proceso))
+    await Promise.all(
+      toDelete.map((tp) => basePayload.delete({ collection: 'tramite-proceso', id: tp.id })),
+    )
+
+    // Diff: crear los nuevos
+    const existingNames = existingProcesos.map((ep) => ep.proceso)
+    const toCreate = newProcesos.filter((p) => !existingNames.includes(p))
+    await Promise.all(
+      toCreate.map((proceso) =>
+        basePayload.create({
+          collection: 'tramite-proceso',
+          data: { tramite: String(id), proceso },
+        }),
+      ),
+    )
+
     revalidatePath('/(frontend)/(protected)', 'page')
-    return { ok: true, data: result, message: 'Tramite actualizado' }
+    return { ok: true, data: result, message: 'Trámite actualizado' }
   } catch (error) {
     return {
       ok: false,
       data: null,
-      message: error instanceof Error ? error.message : 'Error al actualizar tramite',
+      message: error instanceof Error ? error.message : 'Error al actualizar trámite',
     }
   }
 }
 
 export async function deleteTramite(id: string | number): Promise<Res<Tramite>> {
   try {
+    // Cascade: eliminar todos los tramite-proceso asociados
+    const procesos = await basePayload.find({
+      collection: 'tramite-proceso',
+      where: { tramite: { equals: id } },
+      limit: 100,
+    })
+
+    await Promise.all(
+      procesos.docs.map((tp) => basePayload.delete({ collection: 'tramite-proceso', id: tp.id })),
+    )
+
     const result = await basePayload.delete({
       collection: 'tramite',
       id,
     })
+
     revalidatePath('/(frontend)/(protected)', 'page')
-    return { ok: true, data: result, message: 'Tramite eliminado' }
+    return { ok: true, data: result, message: 'Trámite eliminado' }
   } catch (error) {
     return {
       ok: false,
       data: null,
-      message: error instanceof Error ? error.message : 'Error al eliminar tramite',
+      message: error instanceof Error ? error.message : 'Error al eliminar trámite',
     }
   }
 }

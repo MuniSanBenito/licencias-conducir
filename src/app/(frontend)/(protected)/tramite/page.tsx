@@ -21,7 +21,7 @@ export default async function TramitePage({ searchParams }: PageProps<'/tramite'
     limit: DEFAULT_LIMIT,
     sort,
     where,
-    depth: 1, // Resuelve la relación con Ciudadano
+    depth: 2, // Resuelve Ciudadano y Procesos
   })
 
   return (
