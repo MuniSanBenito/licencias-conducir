@@ -3,79 +3,74 @@
 import { getCiudadanos } from '@/app/actions/ciudadano'
 import { createTramite, updateTramite } from '@/app/actions/tramites'
 import type { Ciudadano, Tramite } from '@/payload-types'
-import { useEffect, useState, type FormEvent } from 'react'
+import { IconDeviceFloppy, IconLoader2 } from '@tabler/icons-react'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import { twJoin } from 'tailwind-merge'
+
+interface TramiteFormValues {
+  ciudadano: string
+  fut: string
+}
 
 interface TramiteFormProps {
-  initialData?: Tramite
+  defaultValues?: Tramite
   onSuccess: () => void
+  onError: (error: Error) => void
   onCancel: () => void
 }
 
-export function TramiteForm({ initialData, onSuccess, onCancel }: TramiteFormProps) {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+export function TramiteForm({ defaultValues, onSuccess, onError, onCancel }: TramiteFormProps) {
   const [ciudadanos, setCiudadanos] = useState<Ciudadano[]>([])
 
   useEffect(() => {
-    // Fetch ciudadanos for the select input
     getCiudadanos().then((res) => {
-      if (res.ok) setCiudadanos(res.data)
+      if (res.ok) setCiudadanos(res.data!)
     })
   }, [])
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<TramiteFormValues>({
+    values: defaultValues
+      ? {
+          ciudadano:
+            typeof defaultValues.ciudadano === 'object'
+              ? defaultValues.ciudadano.id
+              : defaultValues.ciudadano,
+          fut: defaultValues.fut || '',
+        }
+      : undefined,
+  })
 
-    const formData = new FormData(e.currentTarget)
-    // The relation field 'ciudadano' expects an ID
-    const data = {
-      ciudadano: formData.get('ciudadano') as string,
-      fut: formData.get('fut') as string,
+  const onSubmit = handleSubmit(async (data) => {
+    const res = await (defaultValues ? updateTramite(defaultValues.id, data) : createTramite(data))
+
+    if (res.ok) {
+      toast.success(res.message)
+      onSuccess()
+    } else {
+      toast.error(res.message)
+      onError(new Error(res.message))
     }
-
-    try {
-      let res
-      if (initialData?.id) {
-        res = await updateTramite(initialData.id, data)
-      } else {
-        res = await createTramite(data)
-      }
-
-      if (res.ok) {
-        toast.success(initialData ? 'Trámite actualizado' : 'Trámite creado')
-        onSuccess()
-      } else {
-        setError(res.message)
-        toast.error(res.message)
-      }
-    } catch (err) {
-      setError('Error inesperado')
-      toast.error('Error inesperado')
-    } finally {
-      setLoading(false)
-    }
-  }
+  })
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {error && <div className="alert alert-error text-sm">{error}</div>}
-
-      <div className="form-control">
-        <label className="label">
+    <form className="bg-base-100 rounded-box space-y-6 p-6 shadow" onSubmit={onSubmit}>
+      {/* Ciudadano */}
+      <fieldset className="form-control">
+        <label className="label" htmlFor="ciudadano">
           <span className="label-text">Ciudadano</span>
         </label>
         <select
-          name="ciudadano"
-          defaultValue={
-            typeof initialData?.ciudadano === 'object'
-              ? initialData?.ciudadano?.id
-              : initialData?.ciudadano || ''
-          }
-          className="select select-bordered w-full"
-          required
+          id="ciudadano"
+          className={twJoin('select select-bordered w-full', errors.ciudadano && 'select-error')}
+          {...register('ciudadano', {
+            required: 'Debe seleccionar un ciudadano',
+          })}
         >
           <option value="" disabled>
             Seleccione un ciudadano
@@ -86,28 +81,46 @@ export function TramiteForm({ initialData, onSuccess, onCancel }: TramiteFormPro
             </option>
           ))}
         </select>
-      </div>
+        {errors.ciudadano && (
+          <label className="label" htmlFor="ciudadano">
+            <span className="label-text-alt text-error">{errors.ciudadano.message}</span>
+          </label>
+        )}
+      </fieldset>
 
-      <div className="form-control">
-        <label className="label">
+      {/* FUT */}
+      <fieldset className="form-control">
+        <label className="label" htmlFor="fut">
           <span className="label-text">FUT</span>
         </label>
         <input
+          id="fut"
           type="text"
-          name="fut"
-          defaultValue={initialData?.fut || ''}
-          className="input input-bordered w-full"
+          placeholder="Ej: FUT-001"
+          className={twJoin('input input-bordered w-full', errors.fut && 'input-error')}
+          {...register('fut')}
         />
-      </div>
+        {errors.fut && (
+          <label className="label" htmlFor="fut">
+            <span className="label-text-alt text-error">{errors.fut.message}</span>
+          </label>
+        )}
+      </fieldset>
 
-      <div className="modal-action">
-        <button type="button" className="btn btn-ghost" onClick={onCancel} disabled={loading}>
+      {/* Acciones */}
+      <footer className="flex justify-end gap-3 pt-2">
+        <button type="button" className="btn btn-ghost" onClick={onCancel}>
           Cancelar
         </button>
-        <button type="submit" className="btn btn-primary" disabled={loading}>
-          {loading ? 'Guardando...' : 'Guardar'}
+        <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+          {isSubmitting ? (
+            <IconLoader2 size={20} className="animate-spin" />
+          ) : (
+            <IconDeviceFloppy size={20} />
+          )}
+          {isSubmitting ? 'Guardando...' : 'Guardar'}
         </button>
-      </div>
+      </footer>
     </form>
   )
 }
