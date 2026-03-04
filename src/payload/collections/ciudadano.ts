@@ -45,5 +45,11 @@ export const Ciudadano: CollectionConfig = {
       label: 'Fecha de nacimiento',
       required: true,
     },
+    {
+      name: 'celular',
+      type: 'text',
+      required: false,
+      label: 'Celular',
+    },
   ],
 }

@@ -163,6 +163,25 @@ export function CiudadanoForm({ defaultValues, onSuccess, onError, onCancel }: C
         )}
       </fieldset>
 
+      {/* Celular */}
+      <fieldset className="form-control">
+        <label className="label" htmlFor="celular">
+          <span className="label-text">Celular</span>
+        </label>
+        <input
+          id="celular"
+          type="tel"
+          placeholder="Ej: 3364123456"
+          className={twJoin('input input-bordered w-full', errors.celular && 'input-error')}
+          {...register('celular')}
+        />
+        {errors.celular && (
+          <label className="label" htmlFor="celular">
+            <span className="label-text-alt text-error">{errors.celular.message}</span>
+          </label>
+        )}
+      </fieldset>
+
       {/* Fecha de Nacimiento */}
       <fieldset className="form-control">
         <label className="label" htmlFor="fecha_nacimiento">

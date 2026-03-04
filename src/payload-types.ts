@@ -261,6 +261,7 @@ export interface Ciudadano {
   apellido: string;
   email: string;
   fecha_nacimiento: string;
+  celular?: string | null;
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -670,6 +671,7 @@ export interface CiudadanoSelect<T extends boolean = true> {
   apellido?: T;
   email?: T;
   fecha_nacimiento?: T;
+  celular?: T;
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;

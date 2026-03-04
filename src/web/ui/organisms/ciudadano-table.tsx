@@ -44,6 +44,10 @@ function buildColumns(
       id: 'email',
       header: 'Email',
     }),
+    columnHelper.accessor('celular', {
+      id: 'celular',
+      header: 'Celular',
+    }),
     columnHelper.accessor('fecha_nacimiento', {
       id: 'fecha_nacimiento',
       header: 'Fecha de Nacimiento',
@@ -214,7 +218,7 @@ export function CiudadanoTable({ ciudadanos, page, totalPages, totalDocs }: Ciud
         <div className="flex max-w-lg flex-1 gap-2">
           <input
             type="text"
-            placeholder="Buscar por DNI, nombre o email..."
+            placeholder="Buscar por DNI, nombre, email o celular..."
             className="input input-bordered input-sm flex-1"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
