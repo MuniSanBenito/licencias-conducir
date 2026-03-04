@@ -1,25 +1,17 @@
 'use client'
 
 import { signOut } from '@/app/actions/auth'
-import {
-  IconArrowRight,
-  IconCalendar,
-  IconChecklist,
-  IconFiles,
-  IconLogout,
-  IconUsers,
-} from '@tabler/icons-react'
+import { IconCalendar, IconChecklist, IconFiles, IconLogout, IconUsers } from '@tabler/icons-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { type ReactNode } from 'react'
 import { twJoin } from 'tailwind-merge'
 
-type CollectionKey = 'ciudadano' | 'tramite' | 'tramite-proceso' | 'tramite-progreso' | 'turno'
+type CollectionKey = 'ciudadano' | 'tramite' | 'tramite-progreso' | 'turno'
 
 const menuItems: { key: CollectionKey; label: string; icon: ReactNode }[] = [
   { key: 'ciudadano', label: 'Ciudadanos', icon: <IconUsers size={20} /> },
   { key: 'tramite', label: 'Trámites', icon: <IconFiles size={20} /> },
-  { key: 'tramite-proceso', label: 'Trámite Procesos', icon: <IconArrowRight size={20} /> },
   { key: 'tramite-progreso', label: 'Trámite Progresos', icon: <IconChecklist size={20} /> },
   { key: 'turno', label: 'Turnos', icon: <IconCalendar size={20} /> },
 ]
