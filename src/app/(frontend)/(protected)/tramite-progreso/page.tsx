@@ -1,12 +1,42 @@
 import { basePayload } from '@/web/libs/payload/server'
-import { TramiteProgresoPageClient } from './page-client'
+import { TramiteProgresoTable } from '@/web/ui/organisms/tramite-progreso-table'
+import type { Where } from 'payload'
 
-export default async function TramiteProgresoPage() {
-  const tramiteProgresos = await basePayload.find({
+const DEFAULT_LIMIT = 15
+
+export default async function TramiteProgresoPage({
+  searchParams,
+}: PageProps<'/tramite-progreso'>) {
+  const { page: pageParam, sort: sortParam, q } = await searchParams
+  const page = Math.max(1, Number(pageParam) || 1)
+  const sort = sortParam || '-createdAt'
+
+  const where: Where = q
+    ? {
+        or: [{ estado: { contains: q } }],
+      }
+    : {}
+
+  const progresos = await basePayload.find({
     collection: 'tramite-progreso',
-    pagination: false,
-    depth: 3,
+    page,
+    limit: DEFAULT_LIMIT,
+    sort,
+    where,
+    depth: 3, // Resuelve TramiteProceso → Tramite → Ciudadano
   })
 
-  return <TramiteProgresoPageClient tramiteProgresos={tramiteProgresos?.docs || []} />
+  return (
+    <div className="space-y-6">
+      <header className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Trámite Progresos</h2>
+      </header>
+      <TramiteProgresoTable
+        progresos={progresos.docs}
+        page={progresos.page ?? 1}
+        totalPages={progresos.totalPages}
+        totalDocs={progresos.totalDocs}
+      />
+    </div>
+  )
 }

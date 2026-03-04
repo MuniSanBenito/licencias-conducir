@@ -7,92 +7,95 @@ import {
 } from '@/app/actions/tramites'
 import { EstadosTramiteEnum } from '@/constants/estados-tramite'
 import type { TramiteProceso, TramiteProgreso } from '@/payload-types'
-import { useEffect, useState, type FormEvent } from 'react'
+import { IconDeviceFloppy, IconLoader2 } from '@tabler/icons-react'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import { twJoin } from 'tailwind-merge'
+
+interface TramiteProgresoFormValues {
+  tramite_proceso: string
+  etapa: number
+  estado: TramiteProgreso['estado']
+}
 
 interface TramiteProgresoFormProps {
-  initialData?: TramiteProgreso
+  defaultValues?: TramiteProgreso
   onSuccess: () => void
+  onError: (error: Error) => void
   onCancel: () => void
 }
 
 export function TramiteProgresoForm({
-  initialData,
+  defaultValues,
   onSuccess,
+  onError,
   onCancel,
 }: TramiteProgresoFormProps) {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [procesos, setProcesos] = useState<TramiteProceso[]>([])
 
   useEffect(() => {
     getTramiteProcesos().then((res) => {
-      if (res.ok) setProcesos(res.data)
+      if (res.ok) setProcesos(res.data!)
     })
   }, [])
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    setLoading(true)
-    setError(null)
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<TramiteProgresoFormValues>({
+    values: defaultValues
+      ? {
+          tramite_proceso:
+            typeof defaultValues.tramite_proceso === 'object'
+              ? defaultValues.tramite_proceso.id
+              : defaultValues.tramite_proceso,
+          etapa: defaultValues.etapa,
+          estado: defaultValues.estado,
+        }
+      : undefined,
+  })
 
-    const formData = new FormData(e.currentTarget)
-    const data = {
-      tramite_proceso: formData.get('tramite_proceso') as string,
-      etapa: Number(formData.get('etapa')),
-      estado: formData.get('estado') as 'EN CURSO' | 'CANCELADO' | 'FINALIZADO' | 'SUSPENDIDO',
+  const onSubmit = handleSubmit(async (data) => {
+    const res = await (defaultValues
+      ? updateTramiteProgreso(defaultValues.id, data)
+      : createTramiteProgreso(data))
+
+    if (res.ok) {
+      toast.success(res.message)
+      onSuccess()
+    } else {
+      toast.error(res.message)
+      onError(new Error(res.message))
     }
-
-    try {
-      let res
-      if (initialData?.id) {
-        res = await updateTramiteProgreso(initialData.id, data)
-      } else {
-        res = await createTramiteProgreso(data)
-      }
-
-      if (res.ok) {
-        toast.success(initialData ? 'Progreso actualizado' : 'Progreso creado')
-        onSuccess()
-      } else {
-        setError(res.message)
-        toast.error(res.message)
-      }
-    } catch (err) {
-      setError('Error inesperado')
-      toast.error('Error inesperado')
-    } finally {
-      setLoading(false)
-    }
-  }
+  })
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {error && <div className="alert alert-error text-sm">{error}</div>}
-
-      <div className="form-control">
-        <label className="label">
+    <form className="bg-base-100 rounded-box space-y-6 p-6 shadow" onSubmit={onSubmit}>
+      {/* Trámite Proceso */}
+      <fieldset className="form-control">
+        <label className="label" htmlFor="tramite_proceso">
           <span className="label-text">Trámite Proceso</span>
         </label>
         <select
-          name="tramite_proceso"
-          defaultValue={
-            typeof initialData?.tramite_proceso === 'object'
-              ? initialData.tramite_proceso.id
-              : initialData?.tramite_proceso || ''
-          }
-          className="select select-bordered w-full"
-          required
+          id="tramite_proceso"
+          className={twJoin(
+            'select select-bordered w-full',
+            errors.tramite_proceso && 'select-error',
+          )}
+          {...register('tramite_proceso', {
+            required: 'Debe seleccionar un proceso',
+          })}
         >
           <option value="" disabled>
             Seleccione un proceso
           </option>
           {procesos.map((p) => {
-            // Safe access to nested relations if expanded
             const tramite = typeof p.tramite === 'object' ? p.tramite : null
             const label =
               tramite && typeof tramite.ciudadano === 'object'
-                ? `${tramite.ciudadano.dni} - ${p.proceso}`
+                ? `${tramite.ciudadano.dni} - ${tramite.ciudadano.apellido}, ${tramite.ciudadano.nombre} — ${p.proceso}`
                 : `Proceso ${p.id} (${p.proceso})`
 
             return (
@@ -102,30 +105,48 @@ export function TramiteProgresoForm({
             )
           })}
         </select>
-      </div>
+        {errors.tramite_proceso && (
+          <label className="label" htmlFor="tramite_proceso">
+            <span className="label-text-alt text-error">{errors.tramite_proceso.message}</span>
+          </label>
+        )}
+      </fieldset>
 
-      <div className="form-control">
-        <label className="label">
-          <span className="label-text">Etapa (Número)</span>
+      {/* Etapa */}
+      <fieldset className="form-control">
+        <label className="label" htmlFor="etapa">
+          <span className="label-text">Etapa</span>
         </label>
         <input
+          id="etapa"
           type="number"
-          name="etapa"
-          defaultValue={initialData?.etapa || 0}
-          className="input input-bordered w-full"
-          required
+          min={0}
+          placeholder="Ej: 1"
+          className={twJoin('input input-bordered w-full', errors.etapa && 'input-error')}
+          {...register('etapa', {
+            required: 'La etapa es obligatoria',
+            valueAsNumber: true,
+            min: { value: 0, message: 'La etapa debe ser mayor o igual a 0' },
+          })}
         />
-      </div>
+        {errors.etapa && (
+          <label className="label" htmlFor="etapa">
+            <span className="label-text-alt text-error">{errors.etapa.message}</span>
+          </label>
+        )}
+      </fieldset>
 
-      <div className="form-control">
-        <label className="label">
+      {/* Estado */}
+      <fieldset className="form-control">
+        <label className="label" htmlFor="estado">
           <span className="label-text">Estado</span>
         </label>
         <select
-          name="estado"
-          defaultValue={initialData?.estado || EstadosTramiteEnum.EN_CURSO}
-          className="select select-bordered w-full"
-          required
+          id="estado"
+          className={twJoin('select select-bordered w-full', errors.estado && 'select-error')}
+          {...register('estado', {
+            required: 'Debe seleccionar un estado',
+          })}
         >
           {Object.values(EstadosTramiteEnum).map((e) => (
             <option key={e} value={e}>
@@ -133,16 +154,27 @@ export function TramiteProgresoForm({
             </option>
           ))}
         </select>
-      </div>
+        {errors.estado && (
+          <label className="label" htmlFor="estado">
+            <span className="label-text-alt text-error">{errors.estado.message}</span>
+          </label>
+        )}
+      </fieldset>
 
-      <div className="modal-action">
-        <button type="button" className="btn btn-ghost" onClick={onCancel} disabled={loading}>
+      {/* Acciones */}
+      <footer className="flex justify-end gap-3 pt-2">
+        <button type="button" className="btn btn-ghost" onClick={onCancel}>
           Cancelar
         </button>
-        <button type="submit" className="btn btn-primary" disabled={loading}>
-          {loading ? 'Guardando...' : 'Guardar'}
+        <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+          {isSubmitting ? (
+            <IconLoader2 size={20} className="animate-spin" />
+          ) : (
+            <IconDeviceFloppy size={20} />
+          )}
+          {isSubmitting ? 'Guardando...' : 'Guardar'}
         </button>
-      </div>
+      </footer>
     </form>
   )
 }
