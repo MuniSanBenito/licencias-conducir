@@ -89,9 +89,6 @@ export interface Config {
     'payload-migrations': PayloadMigration;
   };
   collectionsJoins: {
-    tramite: {
-      procesos: 'tramite-proceso';
-    };
     'tramite-proceso': {
       progresos: 'tramite-progreso';
     };
@@ -273,12 +270,83 @@ export interface Ciudadano {
 export interface Tramite {
   id: string;
   ciudadano: string | Ciudadano;
-  procesos?: {
-    docs?: (string | TramiteProceso)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
   fut?: string | null;
+  categorias: (
+    | {
+        etapas?:
+          | {
+              numero: number;
+              estado: 'EN CURSO' | 'CANCELADO' | 'FINALIZADO' | 'SUSPENDIDO';
+              fecha_aprobacion?: string | null;
+              observaciones?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'a1';
+      }
+    | {
+        a2?: boolean | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'a2';
+      }
+    | {
+        a3?: boolean | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'a3';
+      }
+    | {
+        a4?: boolean | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'a4';
+      }
+    | {
+        b1?: boolean | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'b1';
+      }
+    | {
+        b2?: boolean | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'b2';
+      }
+    | {
+        c1?: boolean | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'c1';
+      }
+    | {
+        c2?: boolean | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'c2';
+      }
+    | {
+        c3?: boolean | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'c3';
+      }
+    | {
+        d1?: boolean | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'd1';
+      }
+    | {
+        d2?: boolean | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'd2';
+      }
+  )[];
   updatedAt: string;
   createdAt: string;
   deletedAt?: string | null;
@@ -682,8 +750,96 @@ export interface CiudadanoSelect<T extends boolean = true> {
  */
 export interface TramiteSelect<T extends boolean = true> {
   ciudadano?: T;
-  procesos?: T;
   fut?: T;
+  categorias?:
+    | T
+    | {
+        a1?:
+          | T
+          | {
+              etapas?:
+                | T
+                | {
+                    numero?: T;
+                    estado?: T;
+                    fecha_aprobacion?: T;
+                    observaciones?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        a2?:
+          | T
+          | {
+              a2?: T;
+              id?: T;
+              blockName?: T;
+            };
+        a3?:
+          | T
+          | {
+              a3?: T;
+              id?: T;
+              blockName?: T;
+            };
+        a4?:
+          | T
+          | {
+              a4?: T;
+              id?: T;
+              blockName?: T;
+            };
+        b1?:
+          | T
+          | {
+              b1?: T;
+              id?: T;
+              blockName?: T;
+            };
+        b2?:
+          | T
+          | {
+              b2?: T;
+              id?: T;
+              blockName?: T;
+            };
+        c1?:
+          | T
+          | {
+              c1?: T;
+              id?: T;
+              blockName?: T;
+            };
+        c2?:
+          | T
+          | {
+              c2?: T;
+              id?: T;
+              blockName?: T;
+            };
+        c3?:
+          | T
+          | {
+              c3?: T;
+              id?: T;
+              blockName?: T;
+            };
+        d1?:
+          | T
+          | {
+              d1?: T;
+              id?: T;
+              blockName?: T;
+            };
+        d2?:
+          | T
+          | {
+              d2?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
   updatedAt?: T;
   createdAt?: T;
   deletedAt?: T;
