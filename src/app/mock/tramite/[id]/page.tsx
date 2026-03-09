@@ -1,102 +1,48 @@
 'use client'
 
+import {
+  IconArrowLeft,
+  IconCalendar,
+  IconCalendarPlus,
+  IconCalendarX,
+  IconCheck,
+  IconCircle,
+  IconCircleCheck,
+  IconCircleDot,
+  IconClock,
+  IconId,
+  IconLicense,
+  IconTicket,
+  IconTrophy,
+  IconUser,
+} from '@tabler/icons-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
+import { twJoin } from 'tailwind-merge'
 import { TRAMITES_MOCK } from '../../data'
 import type { EstadoTurno, PasoTramite, Tramite, Turno } from '../../types'
 import { TIPO_TRAMITE_LABELS } from '../../types'
 
 // ─── Helpers ───
 
-function StepIcon({ estado }: { estado: PasoTramite['estado'] }) {
-  if (estado === 'completado') {
-    return (
-      <div
-        style={{
-          width: 32,
-          height: 32,
-          borderRadius: '50%',
-          background: 'linear-gradient(135deg, #43a047, #66bb6a)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#fff',
-          fontSize: 16,
-          fontWeight: 700,
-          boxShadow: '0 2px 6px rgba(67,160,71,0.4)',
-        }}
-      >
-        ✓
-      </div>
-    )
-  }
-  if (estado === 'en_curso') {
-    return (
-      <div
-        style={{
-          width: 32,
-          height: 32,
-          borderRadius: '50%',
-          background: 'linear-gradient(135deg, #1a237e, #3949ab)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#fff',
-          fontSize: 14,
-          boxShadow: '0 2px 8px rgba(26,35,126,0.4)',
-        }}
-      >
-        ●
-      </div>
-    )
-  }
-  return (
-    <div
-      style={{
-        width: 32,
-        height: 32,
-        borderRadius: '50%',
-        background: '#e0e0e0',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#999',
-        fontSize: 14,
-      }}
-    >
-      ○
-    </div>
-  )
-}
-
-const ESTADO_TURNO_CONFIG: Record<EstadoTurno, { label: string; color: string; bg: string }> = {
-  programado: { label: 'Programado', color: '#1565c0', bg: '#e3f2fd' },
-  confirmado: { label: 'Confirmado', color: '#2e7d32', bg: '#e8f5e9' },
-  ausente: { label: 'Ausente', color: '#c62828', bg: '#ffebee' },
-  completado: { label: 'Completado', color: '#2e7d32', bg: '#e8f5e9' },
-  cancelado: { label: 'Cancelado', color: '#666', bg: '#f5f5f5' },
+const ESTADO_TURNO_CONFIG: Record<EstadoTurno, { label: string; badgeClass: string }> = {
+  programado: { label: 'Programado', badgeClass: 'badge badge-info badge-sm' },
+  confirmado: { label: 'Confirmado', badgeClass: 'badge badge-success badge-sm' },
+  ausente: { label: 'Ausente', badgeClass: 'badge badge-error badge-sm' },
+  completado: { label: 'Completado', badgeClass: 'badge badge-success badge-soft badge-sm' },
+  cancelado: { label: 'Cancelado', badgeClass: 'badge badge-ghost badge-sm' },
 }
 
 function TurnoBadge({ turno }: { turno: Turno }) {
   const config = ESTADO_TURNO_CONFIG[turno.estado]
-  return (
-    <span
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 4,
-        padding: '2px 8px',
-        borderRadius: 4,
-        fontSize: 11,
-        fontWeight: 600,
-        background: config.bg,
-        color: config.color,
-      }}
-    >
-      {config.label}
-    </span>
-  )
+  return <span className={config.badgeClass}>{config.label}</span>
+}
+
+function getBadgeClass(tipo: string): string {
+  if (tipo === 'nueva') return 'badge badge-info'
+  if (tipo === 'renovacion') return 'badge badge-warning'
+  return 'badge badge-secondary'
 }
 
 // ─── Componente principal ───
@@ -108,7 +54,6 @@ export default function TramiteDetallePage() {
     TRAMITES_MOCK.find((t) => t.id === tramiteId),
   )
 
-  // Estado para modal de asignar turno
   const [turnoModal, setTurnoModal] = useState<{
     pasoIndex: number
     fecha: string
@@ -117,14 +62,14 @@ export default function TramiteDetallePage() {
 
   if (!tramite) {
     return (
-      <div style={{ textAlign: 'center', padding: 60 }}>
-        <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
-        <h2 style={{ color: '#666' }}>Trámite no encontrado</h2>
-        <p style={{ color: '#999' }}>ID: {tramiteId}</p>
-        <Link href="/mock" style={{ color: '#1a237e', textDecoration: 'underline' }}>
-          Volver al dashboard
+      <section className="py-16 text-center">
+        <IconId size={48} className="mx-auto mb-4 opacity-30" />
+        <h2 className="text-lg font-semibold opacity-60">Trámite no encontrado</h2>
+        <p className="mb-4 text-sm opacity-40">ID: {tramiteId}</p>
+        <Link href="/mock" className="link link-primary">
+          Volver al tablero
         </Link>
-      </div>
+      </section>
     )
   }
 
@@ -138,7 +83,6 @@ export default function TramiteDetallePage() {
     if (pasoActualIndex === -1) return
     const paso = tramite.pasos[pasoActualIndex]
 
-    // Si requiere turno y no tiene uno asignado, no avanzar
     if (paso.requiereTurno && !paso.turno) {
       alert('Este paso requiere un turno asignado antes de poder completarlo.')
       return
@@ -189,589 +133,347 @@ export default function TramiteDetallePage() {
     setTramite({ ...tramite, pasos: nuevosPasos })
   }
 
-  const inputStyle = {
-    width: '100%',
-    padding: '8px 12px',
-    borderRadius: 6,
-    border: '1.5px solid #d0d0d0',
-    fontSize: 14,
-    fontFamily: "'Segoe UI', Roboto, Arial, sans-serif",
-    outline: 'none',
-    boxSizing: 'border-box' as const,
-  }
+  const turnoFalta = (paso: PasoTramite) =>
+    paso.requiereTurno && (!paso.turno || paso.turno.estado === 'cancelado')
 
   return (
-    <div>
+    <section>
       {/* Breadcrumb */}
-      <div style={{ marginBottom: 24, fontSize: 13, color: '#888' }}>
-        <Link href="/mock" style={{ color: '#1a237e', textDecoration: 'none' }}>
-          Dashboard
-        </Link>
-        <span style={{ margin: '0 8px' }}>/</span>
-        <span>{tramite.id}</span>
-      </div>
+      <nav className="breadcrumbs mb-6 text-sm" aria-label="Navegación">
+        <ul>
+          <li>
+            <Link href="/mock" className="gap-1">
+              <IconArrowLeft size={14} />
+              Tablero
+            </Link>
+          </li>
+          <li className="font-semibold">{tramite.id}</li>
+        </ul>
+      </nav>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 24 }}>
+      <section className="grid grid-cols-[1fr_360px] gap-6">
         {/* Columna izquierda: Stepper */}
-        <div
-          style={{
-            background: '#fff',
-            borderRadius: 12,
-            padding: 32,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-          }}
-        >
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: 24,
-            }}
-          >
-            <h2 style={{ margin: 0, fontSize: 18, fontWeight: 600 }}>Progreso del Trámite</h2>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div
-                style={{
-                  width: 120,
-                  height: 8,
-                  background: '#e0e0e0',
-                  borderRadius: 4,
-                  overflow: 'hidden',
-                }}
-              >
-                <div
-                  style={{
-                    height: '100%',
-                    width: `${progreso}%`,
-                    background: todosCompletados
-                      ? 'linear-gradient(90deg, #43a047, #66bb6a)'
-                      : 'linear-gradient(90deg, #1a237e, #3949ab)',
-                    borderRadius: 4,
-                  }}
+        <article className="card card-border bg-base-100">
+          <section className="card-body">
+            <header className="mb-4 flex items-center justify-between">
+              <h2 className="card-title">Progreso del Trámite</h2>
+              <section className="flex items-center gap-3">
+                <progress
+                  className={twJoin(
+                    'progress w-32',
+                    todosCompletados ? 'progress-success' : 'progress-primary',
+                  )}
+                  value={progreso}
+                  max={100}
+                  aria-label={`${progreso}% completado`}
                 />
-              </div>
-              <span style={{ fontSize: 13, fontWeight: 600, color: '#666' }}>{progreso}%</span>
-            </div>
-          </div>
+                <span className="text-sm font-semibold opacity-60">{progreso}%</span>
+              </section>
+            </header>
 
-          {/* Steps */}
-          <div style={{ position: 'relative' }}>
-            {tramite.pasos.map((paso, index) => (
-              <div key={paso.id} style={{ display: 'flex', gap: 16 }}>
-                {/* Icono + línea */}
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                  <StepIcon estado={paso.estado} />
-                  {index < tramite.pasos.length - 1 && (
-                    <div
-                      style={{
-                        width: 2,
-                        flex: 1,
-                        minHeight: 32,
-                        background: paso.estado === 'completado' ? '#43a047' : '#e0e0e0',
-                      }}
+            {/* Timeline */}
+            <ul
+              className="timeline timeline-vertical timeline-compact"
+              aria-label="Pasos del trámite"
+            >
+              {tramite.pasos.map((paso, index) => (
+                <li key={paso.id}>
+                  {index > 0 && (
+                    <hr
+                      className={twJoin(
+                        tramite.pasos[index - 1].estado === 'completado' && 'bg-success',
+                      )}
                     />
                   )}
-                </div>
-                {/* Contenido */}
-                <div
-                  style={{
-                    flex: 1,
-                    paddingBottom: index < tramite.pasos.length - 1 ? 12 : 0,
-                  }}
-                >
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 8,
-                      fontSize: 15,
-                      fontWeight: paso.estado === 'en_curso' ? 700 : 500,
-                      color: paso.estado === 'pendiente' ? '#999' : '#1a1a2e',
-                      paddingTop: 5,
-                    }}
-                  >
-                    {paso.label}
-                    {paso.requiereTurno && (
-                      <span
-                        style={{
-                          fontSize: 10,
-                          padding: '1px 6px',
-                          borderRadius: 3,
-                          background: '#fff3e0',
-                          color: '#e65100',
-                          fontWeight: 600,
-                        }}
-                      >
-                        🎫 Turno
-                      </span>
+                  <section className="timeline-middle">
+                    {paso.estado === 'completado' ? (
+                      <IconCircleCheck size={24} className="text-success" />
+                    ) : paso.estado === 'en_curso' ? (
+                      <IconCircleDot size={24} className="text-primary" />
+                    ) : (
+                      <IconCircle size={24} className="opacity-30" />
                     )}
-                  </div>
-
-                  {paso.fecha && (
-                    <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>📅 {paso.fecha}</div>
-                  )}
-
-                  {/* Turno info */}
-                  {paso.requiereTurno && paso.turno && (
-                    <div
-                      style={{
-                        marginTop: 8,
-                        padding: '10px 14px',
-                        background: '#fafafa',
-                        borderRadius: 8,
-                        border: '1px solid #eee',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <div>
-                          <div style={{ fontSize: 12, color: '#888' }}>Turno asignado</div>
-                          <div style={{ fontSize: 14, fontWeight: 600 }}>
-                            📅 {paso.turno.fecha} · 🕐 {paso.turno.hora}
-                          </div>
-                        </div>
-                        <TurnoBadge turno={paso.turno} />
-                      </div>
-                      {paso.estado === 'en_curso' && paso.turno.estado === 'programado' && (
-                        <button
-                          onClick={() => cancelarTurno(index)}
-                          style={{
-                            padding: '4px 10px',
-                            background: '#ffebee',
-                            color: '#c62828',
-                            border: 'none',
-                            borderRadius: 4,
-                            fontSize: 12,
-                            cursor: 'pointer',
-                          }}
-                        >
-                          Cancelar turno
-                        </button>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Acciones del paso activo */}
-                  {paso.estado === 'en_curso' && (
-                    <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
-                      {paso.requiereTurno && !paso.turno && (
-                        <button
-                          onClick={() => setTurnoModal({ pasoIndex: index, fecha: '', hora: '' })}
-                          style={{
-                            padding: '8px 16px',
-                            background: 'linear-gradient(135deg, #e65100, #f57c00)',
-                            color: '#fff',
-                            border: 'none',
-                            borderRadius: 6,
-                            fontSize: 13,
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                            boxShadow: '0 2px 6px rgba(230,81,0,0.3)',
-                          }}
-                        >
-                          🎫 Asignar Turno
-                        </button>
-                      )}
-                      {paso.requiereTurno && paso.turno?.estado === 'cancelado' && (
-                        <button
-                          onClick={() => setTurnoModal({ pasoIndex: index, fecha: '', hora: '' })}
-                          style={{
-                            padding: '8px 16px',
-                            background: 'linear-gradient(135deg, #e65100, #f57c00)',
-                            color: '#fff',
-                            border: 'none',
-                            borderRadius: 6,
-                            fontSize: 13,
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                          }}
-                        >
-                          🎫 Reasignar Turno
-                        </button>
-                      )}
-                      <button
-                        onClick={avanzarPaso}
-                        disabled={
-                          paso.requiereTurno && (!paso.turno || paso.turno.estado === 'cancelado')
-                        }
-                        style={{
-                          padding: '8px 16px',
-                          background:
-                            paso.requiereTurno && (!paso.turno || paso.turno.estado === 'cancelado')
-                              ? '#e0e0e0'
-                              : 'linear-gradient(135deg, #1a237e, #283593)',
-                          color:
-                            paso.requiereTurno && (!paso.turno || paso.turno.estado === 'cancelado')
-                              ? '#999'
-                              : '#fff',
-                          border: 'none',
-                          borderRadius: 6,
-                          fontSize: 13,
-                          fontWeight: 600,
-                          cursor:
-                            paso.requiereTurno && (!paso.turno || paso.turno.estado === 'cancelado')
-                              ? 'not-allowed'
-                              : 'pointer',
-                          boxShadow:
-                            paso.requiereTurno && (!paso.turno || paso.turno.estado === 'cancelado')
-                              ? 'none'
-                              : '0 2px 6px rgba(26,35,126,0.3)',
-                        }}
+                  </section>
+                  <article className="timeline-end pb-6">
+                    <header className="flex items-center gap-2">
+                      <span
+                        className={twJoin(
+                          'font-medium',
+                          paso.estado === 'en_curso' && 'font-bold',
+                          paso.estado === 'pendiente' && 'opacity-50',
+                        )}
                       >
-                        ✅ Completar paso
-                      </button>
-                    </div>
+                        {paso.label}
+                      </span>
+                      {paso.requiereTurno && (
+                        <span className="badge badge-warning badge-outline badge-xs gap-1">
+                          <IconTicket size={10} />
+                          Turno
+                        </span>
+                      )}
+                    </header>
+
+                    {paso.fecha && (
+                      <p className="mt-1 flex items-center gap-1 text-xs opacity-50">
+                        <IconCalendar size={12} />
+                        {paso.fecha}
+                      </p>
+                    )}
+
+                    {/* Turno info */}
+                    {paso.requiereTurno && paso.turno && (
+                      <section
+                        className="bg-base-200 mt-2 flex items-center justify-between rounded-lg p-3"
+                        aria-label={`Turno para ${paso.label}`}
+                      >
+                        <section className="flex items-center gap-3">
+                          <section>
+                            <p className="text-xs opacity-50">Turno asignado</p>
+                            <p className="flex items-center gap-2 text-sm font-semibold">
+                              <IconCalendar size={14} /> {paso.turno.fecha}
+                              <IconClock size={14} /> {paso.turno.hora}
+                            </p>
+                          </section>
+                          <TurnoBadge turno={paso.turno} />
+                        </section>
+                        {paso.estado === 'en_curso' && paso.turno.estado === 'programado' && (
+                          <button
+                            className="btn btn-error btn-ghost btn-xs"
+                            onClick={() => cancelarTurno(index)}
+                            aria-label={`Cancelar turno de ${paso.label}`}
+                          >
+                            <IconCalendarX size={14} />
+                            Cancelar
+                          </button>
+                        )}
+                      </section>
+                    )}
+
+                    {/* Acciones del paso activo */}
+                    {paso.estado === 'en_curso' && (
+                      <section className="mt-3 flex gap-2">
+                        {turnoFalta(paso) && (
+                          <button
+                            className="btn btn-warning btn-sm"
+                            onClick={() => setTurnoModal({ pasoIndex: index, fecha: '', hora: '' })}
+                          >
+                            <IconCalendarPlus size={16} />
+                            {paso.turno?.estado === 'cancelado'
+                              ? 'Reasignar Turno'
+                              : 'Asignar Turno'}
+                          </button>
+                        )}
+                        <button
+                          className={twJoin(
+                            'btn btn-sm',
+                            turnoFalta(paso) ? 'btn-disabled' : 'btn-primary',
+                          )}
+                          onClick={avanzarPaso}
+                          disabled={turnoFalta(paso)}
+                          aria-label={`Completar paso ${paso.label}`}
+                        >
+                          <IconCheck size={16} />
+                          Completar paso
+                        </button>
+                      </section>
+                    )}
+                  </article>
+                  {index < tramite.pasos.length - 1 && (
+                    <hr className={twJoin(paso.estado === 'completado' && 'bg-success')} />
                   )}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {todosCompletados && (
-            <div
-              style={{
-                marginTop: 24,
-                padding: 16,
-                background: '#e8f5e9',
-                borderRadius: 8,
-                textAlign: 'center',
-                color: '#2e7d32',
-                fontWeight: 600,
-                fontSize: 15,
-              }}
-            >
-              🎉 Trámite completado exitosamente
-            </div>
-          )}
-        </div>
-
-        {/* Columna derecha: Info del trámite */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          {/* Datos ciudadano */}
-          <div
-            style={{
-              background: '#fff',
-              borderRadius: 12,
-              padding: 24,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-            }}
-          >
-            <h3 style={{ margin: '0 0 16px 0', fontSize: 15, fontWeight: 600, color: '#1a237e' }}>
-              👤 Datos del Ciudadano
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {[
-                { label: 'DNI', value: tramite.ciudadano.dni },
-                {
-                  label: 'Nombre',
-                  value: `${tramite.ciudadano.nombre} ${tramite.ciudadano.apellido}`,
-                },
-                { label: 'Celular', value: tramite.ciudadano.celular || '—' },
-                { label: 'Nacimiento', value: tramite.ciudadano.fechaNacimiento },
-                { label: 'Domicilio', value: tramite.ciudadano.domicilio },
-              ].map((campo) => (
-                <div key={campo.label}>
-                  <div
-                    style={{
-                      fontSize: 11,
-                      color: '#888',
-                      textTransform: 'uppercase',
-                      letterSpacing: 0.5,
-                      marginBottom: 2,
-                    }}
-                  >
-                    {campo.label}
-                  </div>
-                  <div style={{ fontSize: 14, fontWeight: 500 }}>{campo.value}</div>
-                </div>
+                </li>
               ))}
-            </div>
-          </div>
+            </ul>
+
+            {todosCompletados && (
+              <section role="alert" className="alert alert-success mt-4">
+                <IconTrophy size={20} />
+                <span className="font-semibold">Trámite completado exitosamente</span>
+              </section>
+            )}
+          </section>
+        </article>
+
+        {/* Columna derecha: Info */}
+        <aside className="flex flex-col gap-5">
+          {/* Datos ciudadano */}
+          <article className="card card-border bg-base-100 card-sm">
+            <section className="card-body">
+              <h3 className="card-title text-sm">
+                <IconUser size={16} />
+                Datos del Ciudadano
+              </h3>
+              <dl className="mt-2 grid gap-2">
+                {[
+                  { dt: 'DNI', dd: tramite.ciudadano.dni },
+                  { dt: 'Nombre', dd: `${tramite.ciudadano.nombre} ${tramite.ciudadano.apellido}` },
+                  { dt: 'Celular', dd: tramite.ciudadano.celular || '—' },
+                  { dt: 'Nacimiento', dd: tramite.ciudadano.fechaNacimiento },
+                  { dt: 'Domicilio', dd: tramite.ciudadano.domicilio },
+                ].map((campo) => (
+                  <section key={campo.dt}>
+                    <dt className="text-[10px] tracking-wider uppercase opacity-40">{campo.dt}</dt>
+                    <dd className="text-sm font-medium">{campo.dd}</dd>
+                  </section>
+                ))}
+              </dl>
+            </section>
+          </article>
 
           {/* Items de licencia */}
-          <div
-            style={{
-              background: '#fff',
-              borderRadius: 12,
-              padding: 24,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-            }}
-          >
-            <h3 style={{ margin: '0 0 16px 0', fontSize: 15, fontWeight: 600, color: '#1a237e' }}>
-              📋 Licencias Solicitadas
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {tramite.items.map((item, i) => (
-                <div
-                  key={i}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '10px 14px',
-                    background: '#f5f5f5',
-                    borderRadius: 8,
-                  }}
-                >
-                  <span style={{ fontWeight: 700, fontSize: 16, color: '#1a237e' }}>
-                    {item.clase}
-                  </span>
-                  <span
-                    style={{
-                      padding: '3px 10px',
-                      borderRadius: 4,
-                      fontSize: 12,
-                      fontWeight: 600,
-                      background:
-                        item.tipo === 'nueva'
-                          ? '#e3f2fd'
-                          : item.tipo === 'renovacion'
-                            ? '#fff3e0'
-                            : '#f3e5f5',
-                      color:
-                        item.tipo === 'nueva'
-                          ? '#1565c0'
-                          : item.tipo === 'renovacion'
-                            ? '#e65100'
-                            : '#6a1b9a',
-                    }}
+          <article className="card card-border bg-base-100 card-sm">
+            <section className="card-body">
+              <h3 className="card-title text-sm">
+                <IconLicense size={16} />
+                Licencias Solicitadas
+              </h3>
+              <section className="mt-2 flex flex-col gap-2">
+                {tramite.items.map((item, i) => (
+                  <section
+                    key={i}
+                    className="bg-base-200 flex items-center justify-between rounded-lg px-4 py-3"
                   >
-                    {TIPO_TRAMITE_LABELS[item.tipo]}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
+                    <span className="text-primary font-bold">{item.clase}</span>
+                    <span className={getBadgeClass(item.tipo)}>
+                      {TIPO_TRAMITE_LABELS[item.tipo]}
+                    </span>
+                  </section>
+                ))}
+              </section>
+            </section>
+          </article>
 
           {/* Resumen de turnos */}
           {tramite.pasos.some((p) => p.requiereTurno) && (
-            <div
-              style={{
-                background: '#fff',
-                borderRadius: 12,
-                padding: 24,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-              }}
-            >
-              <h3 style={{ margin: '0 0 16px 0', fontSize: 15, fontWeight: 600, color: '#1a237e' }}>
-                🎫 Turnos
-              </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {tramite.pasos
-                  .filter((p) => p.requiereTurno)
-                  .map((paso) => (
-                    <div
-                      key={paso.id}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '8px 12px',
-                        background: '#fafafa',
-                        borderRadius: 6,
-                        border: '1px solid #eee',
-                      }}
-                    >
-                      <span style={{ fontSize: 13, fontWeight: 500 }}>{paso.label}</span>
-                      {paso.turno ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <span style={{ fontSize: 12, color: '#666' }}>
-                            {paso.turno.fecha} {paso.turno.hora}
-                          </span>
-                          <TurnoBadge turno={paso.turno} />
-                        </div>
-                      ) : (
-                        <span style={{ fontSize: 12, color: '#ccc' }}>Sin turno</span>
-                      )}
-                    </div>
-                  ))}
-              </div>
-            </div>
+            <article className="card card-border bg-base-100 card-sm">
+              <section className="card-body">
+                <h3 className="card-title text-sm">
+                  <IconTicket size={16} />
+                  Turnos
+                </h3>
+                <section className="mt-2 flex flex-col gap-2">
+                  {tramite.pasos
+                    .filter((p) => p.requiereTurno)
+                    .map((paso) => (
+                      <section
+                        key={paso.id}
+                        className="bg-base-200 flex items-center justify-between rounded-md px-3 py-2"
+                      >
+                        <span className="text-sm font-medium">{paso.label}</span>
+                        {paso.turno ? (
+                          <section className="flex items-center gap-2">
+                            <span className="text-xs opacity-60">
+                              {paso.turno.fecha} {paso.turno.hora}
+                            </span>
+                            <TurnoBadge turno={paso.turno} />
+                          </section>
+                        ) : (
+                          <span className="text-xs opacity-30">Sin turno</span>
+                        )}
+                      </section>
+                    ))}
+                </section>
+              </section>
+            </article>
           )}
 
           {/* Info del trámite */}
-          <div
-            style={{
-              background: '#fff',
-              borderRadius: 12,
-              padding: 24,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-            }}
-          >
-            <h3 style={{ margin: '0 0 16px 0', fontSize: 15, fontWeight: 600, color: '#1a237e' }}>
-              📁 Información
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <div>
-                <div
-                  style={{
-                    fontSize: 11,
-                    color: '#888',
-                    textTransform: 'uppercase',
-                    letterSpacing: 0.5,
-                    marginBottom: 2,
-                  }}
-                >
-                  ID Trámite
-                </div>
-                <div style={{ fontSize: 14, fontWeight: 600, fontFamily: 'monospace' }}>
-                  {tramite.id}
-                </div>
-              </div>
-              <div>
-                <div
-                  style={{
-                    fontSize: 11,
-                    color: '#888',
-                    textTransform: 'uppercase',
-                    letterSpacing: 0.5,
-                    marginBottom: 2,
-                  }}
-                >
-                  Fecha Inicio
-                </div>
-                <div style={{ fontSize: 14, fontWeight: 500 }}>{tramite.fechaInicio}</div>
-              </div>
-              <div>
-                <div
-                  style={{
-                    fontSize: 11,
-                    color: '#888',
-                    textTransform: 'uppercase',
-                    letterSpacing: 0.5,
-                    marginBottom: 2,
-                  }}
-                >
-                  Total Pasos
-                </div>
-                <div style={{ fontSize: 14, fontWeight: 500 }}>
-                  {tramite.pasos.filter((p) => p.estado === 'completado').length} /{' '}
-                  {tramite.pasos.length}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+          <article className="card card-border bg-base-100 card-sm">
+            <section className="card-body">
+              <h3 className="card-title text-sm">
+                <IconId size={16} />
+                Información
+              </h3>
+              <dl className="mt-2 grid gap-2">
+                <section>
+                  <dt className="text-[10px] tracking-wider uppercase opacity-40">ID Trámite</dt>
+                  <dd className="font-mono text-sm font-semibold">{tramite.id}</dd>
+                </section>
+                <section>
+                  <dt className="text-[10px] tracking-wider uppercase opacity-40">Fecha Inicio</dt>
+                  <dd className="text-sm font-medium">{tramite.fechaInicio}</dd>
+                </section>
+                <section>
+                  <dt className="text-[10px] tracking-wider uppercase opacity-40">Total Pasos</dt>
+                  <dd className="text-sm font-medium">
+                    {tramite.pasos.filter((p) => p.estado === 'completado').length} /{' '}
+                    {tramite.pasos.length}
+                  </dd>
+                </section>
+              </dl>
+            </section>
+          </article>
+        </aside>
+      </section>
 
       {/* Modal asignar turno */}
       {turnoModal && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-          }}
+        <dialog
+          className="modal modal-open"
+          aria-modal="true"
+          role="dialog"
+          aria-label="Asignar turno"
         >
-          <div
-            style={{
-              background: '#fff',
-              borderRadius: 16,
-              padding: 32,
-              width: 420,
-              boxShadow: '0 16px 48px rgba(0,0,0,0.2)',
-            }}
-          >
-            <h3 style={{ margin: '0 0 8px 0', fontSize: 18, fontWeight: 600, color: '#1a237e' }}>
-              🎫 Asignar Turno
+          <section className="modal-box">
+            <h3 className="flex items-center gap-2 text-lg font-bold">
+              <IconCalendarPlus size={20} />
+              Asignar Turno
             </h3>
-            <p style={{ margin: '0 0 20px 0', fontSize: 14, color: '#666' }}>
+            <p className="mt-1 text-sm opacity-60">
               {tramite.pasos[turnoModal.pasoIndex]?.label} — {tramite.ciudadano.apellido},{' '}
               {tramite.ciudadano.nombre}
             </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div>
-                <label
-                  style={{
-                    display: 'block',
-                    fontSize: 12,
-                    fontWeight: 600,
-                    color: '#555',
-                    textTransform: 'uppercase',
-                    letterSpacing: 0.5,
-                    marginBottom: 6,
-                  }}
-                >
+            <section className="mt-6 grid gap-4">
+              <fieldset className="fieldset">
+                <label className="fieldset-legend" htmlFor="turno-fecha">
                   Fecha
                 </label>
                 <input
+                  id="turno-fecha"
                   type="date"
-                  style={inputStyle}
+                  className="input input-bordered w-full"
                   value={turnoModal.fecha}
                   onChange={(e) => setTurnoModal({ ...turnoModal, fecha: e.target.value })}
+                  required
+                  aria-required="true"
                 />
-              </div>
-              <div>
-                <label
-                  style={{
-                    display: 'block',
-                    fontSize: 12,
-                    fontWeight: 600,
-                    color: '#555',
-                    textTransform: 'uppercase',
-                    letterSpacing: 0.5,
-                    marginBottom: 6,
-                  }}
-                >
+              </fieldset>
+              <fieldset className="fieldset">
+                <label className="fieldset-legend" htmlFor="turno-hora">
                   Hora
                 </label>
                 <input
+                  id="turno-hora"
                   type="time"
-                  style={inputStyle}
+                  className="input input-bordered w-full"
                   value={turnoModal.hora}
                   onChange={(e) => setTurnoModal({ ...turnoModal, hora: e.target.value })}
+                  required
+                  aria-required="true"
                 />
-              </div>
-            </div>
+              </fieldset>
+            </section>
 
-            <div style={{ marginTop: 24, display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
-              <button
-                onClick={() => setTurnoModal(null)}
-                style={{
-                  padding: '10px 20px',
-                  background: '#f5f5f5',
-                  color: '#666',
-                  border: '1px solid #ddd',
-                  borderRadius: 8,
-                  fontSize: 14,
-                  cursor: 'pointer',
-                }}
-              >
+            <section className="modal-action">
+              <button className="btn btn-ghost" onClick={() => setTurnoModal(null)}>
                 Cancelar
               </button>
               <button
+                className="btn btn-warning"
                 onClick={asignarTurno}
                 disabled={!turnoModal.fecha || !turnoModal.hora}
-                style={{
-                  padding: '10px 20px',
-                  background:
-                    !turnoModal.fecha || !turnoModal.hora
-                      ? '#e0e0e0'
-                      : 'linear-gradient(135deg, #e65100, #f57c00)',
-                  color: !turnoModal.fecha || !turnoModal.hora ? '#999' : '#fff',
-                  border: 'none',
-                  borderRadius: 8,
-                  fontSize: 14,
-                  fontWeight: 600,
-                  cursor: !turnoModal.fecha || !turnoModal.hora ? 'not-allowed' : 'pointer',
-                  boxShadow:
-                    !turnoModal.fecha || !turnoModal.hora ? 'none' : '0 2px 8px rgba(230,81,0,0.3)',
-                }}
               >
-                🎫 Confirmar Turno
+                <IconCalendarPlus size={16} />
+                Confirmar Turno
               </button>
-            </div>
-          </div>
-        </div>
+            </section>
+          </section>
+          <form method="dialog" className="modal-backdrop">
+            <button onClick={() => setTurnoModal(null)}>Cerrar</button>
+          </form>
+        </dialog>
       )}
-    </div>
+    </section>
   )
 }
