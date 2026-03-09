@@ -1,6 +1,5 @@
 'use client'
 
-import { signOut } from '@/app/actions/auth'
 import { IconCalendar, IconChecklist, IconFiles, IconLogout, IconUsers } from '@tabler/icons-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
@@ -40,7 +39,7 @@ export function NavBar() {
       </nav>
 
       <div className="border-base-200 border-t p-4">
-        <button onClick={() => signOut()} className="btn btn-ghost btn-error w-full">
+        <button onClick={() => {}} className="btn btn-ghost btn-error w-full">
           <IconLogout size={20} />
           Cerrar Sesión
         </button>

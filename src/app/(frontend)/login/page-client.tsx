@@ -1,8 +1,7 @@
 'use client'
-import { signIn } from '@/app/actions/auth'
 import { Logo } from '@/payload/brand/logo'
 import { useRouter } from 'next/navigation'
-import { type FormEvent, useState } from 'react'
+import { type SubmitEvent, useState } from 'react'
 import { toast } from 'sonner'
 
 export function LoginPageClient() {
@@ -12,7 +11,7 @@ export function LoginPageClient() {
 
   const [showPassword, setShowPassword] = useState(false)
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
 
@@ -25,26 +24,34 @@ export function LoginPageClient() {
       return
     }
 
-    const response = await signIn({ email, password })
+    /* const response = await signIn({ email, password })
     if (response.ok) {
       toast.success('Inicio de sesión exitoso')
       router.replace('/')
     } else {
       toast.error(response.message)
-    }
+    } */
+
     setLoading(false)
   }
 
   return (
-    <div className="bg-base-200 flex min-h-screen items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8">
-        <div>
+    <main className="bg-base-200 flex min-h-screen items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+      <section className="w-full max-w-md space-y-8" aria-labelledby="login-heading">
+        <header className="text-center">
           <Logo />
-          <h3 className="mt-3 text-center text-2xl font-bold">Gestion de Licencias</h3>
-          <p className="mt-2 text-center text-sm opacity-70">Ingresa a tu cuenta para continuar</p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          <div className="space-y-4">
+          <h1 id="login-heading" className="mt-3 text-2xl font-bold">
+            Gestión de Licencias
+          </h1>
+          <p className="mt-2 text-sm opacity-70">Ingresá a tu cuenta para continuar</p>
+        </header>
+
+        <form
+          className="mt-8 space-y-6"
+          aria-label="Formulario de inicio de sesión"
+          onSubmit={handleSubmit}
+        >
+          <div className="space-y-4" role="group" aria-label="Credenciales de acceso">
             <fieldset className="fieldset">
               <label className="fieldset-legend" htmlFor="email-address">
                 Correo electrónico
@@ -55,10 +62,12 @@ export function LoginPageClient() {
                 type="email"
                 autoComplete="email"
                 required
+                aria-required="true"
                 className="input input-bordered w-full"
-                placeholder="Correo electrónico"
+                placeholder="ejemplo@correo.com"
               />
             </fieldset>
+
             <fieldset className="fieldset">
               <label className="fieldset-legend" htmlFor="password">
                 Contraseña
@@ -69,28 +78,34 @@ export function LoginPageClient() {
                 type={showPassword ? 'text' : 'password'}
                 autoComplete="current-password"
                 required
+                aria-required="true"
+                aria-describedby="toggle-password-visibility"
                 className="input input-bordered w-full"
-                placeholder="Contraseña"
+                placeholder="Tu contraseña"
               />
-              <label className="label">
+              <label id="toggle-password-visibility" className="label cursor-pointer">
                 <input
                   type="checkbox"
                   className="checkbox"
                   checked={showPassword}
                   onChange={() => setShowPassword(!showPassword)}
+                  aria-label="Mostrar contraseña"
                 />
-                Mostrar contraseña
+                <span className="label-text">Mostrar contraseña</span>
               </label>
             </fieldset>
           </div>
 
-          <div>
-            <button type="submit" className="btn btn-primary w-full" disabled={loading}>
-              Ingresar
-            </button>
-          </div>
+          <button
+            type="submit"
+            className="btn btn-primary w-full"
+            disabled={loading}
+            aria-busy={loading}
+          >
+            {loading ? 'Ingresando...' : 'Ingresar'}
+          </button>
         </form>
-      </div>
-    </div>
+      </section>
+    </main>
   )
 }
