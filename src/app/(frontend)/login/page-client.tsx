@@ -1,5 +1,6 @@
 'use client'
 import { Logo } from '@/payload/brand/logo'
+import { sdk } from '@/web/libs/payload/client'
 import { useRouter } from 'next/navigation'
 import { type SubmitEvent, useState } from 'react'
 import { toast } from 'sonner'
@@ -24,13 +25,25 @@ export function LoginPageClient() {
       return
     }
 
-    /* const response = await signIn({ email, password })
-    if (response.ok) {
-      toast.success('Inicio de sesión exitoso')
-      router.replace('/')
-    } else {
-      toast.error(response.message)
-    } */
+    try {
+      const response = await sdk.login({
+        collection: 'usuario',
+        data: {
+          email,
+          password,
+        },
+      })
+      if (response.user) {
+        toast.success('Inicio de sesión exitoso')
+        router.replace('/')
+      } else {
+        console.log(response)
+        toast.error('Ocurrió un error al iniciar sesión')
+      }
+    } catch (error) {
+      console.error(error)
+      toast.error(error instanceof Error ? error.message : 'Ocurrió un error al iniciar sesión')
+    }
 
     setLoading(false)
   }
