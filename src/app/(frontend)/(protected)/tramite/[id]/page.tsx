@@ -2,6 +2,7 @@
 
 import { ConfirmDialog } from '@/web/ui/molecules/confirm-dialog'
 import {
+  IconArrowBackUp,
   IconArrowLeft,
   IconCalendar,
   IconCalendarPlus,
@@ -63,6 +64,7 @@ export default function TramiteDetallePage() {
   } | null>(null)
 
   const [confirmCancelTurno, setConfirmCancelTurno] = useState<number | null>(null)
+  const [confirmRevertPaso, setConfirmRevertPaso] = useState<number | null>(null)
 
   if (!tramite) {
     return (
@@ -143,6 +145,17 @@ export default function TramiteDetallePage() {
 
   const turnoFalta = (paso: PasoTramite) =>
     paso.requiereTurno && (!paso.turno || paso.turno.estado === 'cancelado')
+
+  const revertirAPaso = (targetIndex: number) => {
+    const nuevosPasos = tramite.pasos.map((p, i) => {
+      if (i === targetIndex) return { ...p, estado: 'en_curso' as const, fecha: undefined }
+      if (i > targetIndex) return { ...p, estado: 'pendiente' as const, fecha: undefined }
+      return p
+    })
+    updateTramite(tramite.id, { pasos: nuevosPasos, estado: 'en_curso' })
+    setConfirmRevertPaso(null)
+    toast.success(`Trámite revertido a "${tramite.pasos[targetIndex].label}"`)
+  }
 
   return (
     <section>
@@ -226,6 +239,18 @@ export default function TramiteDetallePage() {
                         <IconCalendar size={12} />
                         {paso.fecha}
                       </p>
+                    )}
+
+                    {/* Botón revertir para pasos completados */}
+                    {paso.estado === 'completado' && !todosCompletados && (
+                      <button
+                        className="btn btn-ghost btn-xs mt-1 opacity-50 hover:opacity-100"
+                        onClick={() => setConfirmRevertPaso(index)}
+                        aria-label={`Revertir a ${paso.label}`}
+                      >
+                        <IconArrowBackUp size={14} />
+                        Revertir a este paso
+                      </button>
                     )}
 
                     {/* Turno info */}
@@ -505,6 +530,24 @@ export default function TramiteDetallePage() {
         variant="error"
         onConfirm={() => confirmCancelTurno !== null && cancelarTurno(confirmCancelTurno)}
         onCancel={() => setConfirmCancelTurno(null)}
+      />
+
+      {/* Modal confirmación revertir paso */}
+      <ConfirmDialog
+        open={confirmRevertPaso !== null}
+        title="Revertir progreso"
+        description={
+          <>
+            ¿Estás seguro de que querés volver al paso{' '}
+            <strong>{confirmRevertPaso !== null && tramite.pasos[confirmRevertPaso]?.label}</strong>
+            ? Todos los pasos siguientes se marcarán como pendientes.
+          </>
+        }
+        confirmLabel="Sí, revertir"
+        confirmIcon={<IconArrowBackUp size={16} />}
+        variant="warning"
+        onConfirm={() => confirmRevertPaso !== null && revertirAPaso(confirmRevertPaso)}
+        onCancel={() => setConfirmRevertPaso(null)}
       />
     </section>
   )
