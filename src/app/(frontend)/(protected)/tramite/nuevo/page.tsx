@@ -84,7 +84,7 @@ export default function NuevoTramitePage() {
       return
     }
     alert('Trámite creado exitosamente (simulado)')
-    router.push('/mock')
+    router.push('/')
   }
 
   return (
@@ -93,7 +93,7 @@ export default function NuevoTramitePage() {
       <nav className="breadcrumbs mb-6 text-sm" aria-label="Navegación">
         <ul>
           <li>
-            <Link href="/mock" className="gap-1">
+            <Link href="/" className="gap-1">
               <IconArrowLeft size={14} />
               Tablero
             </Link>
@@ -114,7 +114,7 @@ export default function NuevoTramitePage() {
                   Ciudadano
                 </h2>
                 {!ciudadanoSeleccionado && (
-                  <Link href="/mock/ciudadanos" className="link link-primary text-sm opacity-70">
+                  <Link href="/ciudadanos" className="link link-primary text-sm opacity-70">
                     Gestionar ciudadanos →
                   </Link>
                 )}
@@ -187,10 +187,7 @@ export default function NuevoTramitePage() {
                         <li className="disabled">
                           <section className="flex flex-col items-center py-4 opacity-60">
                             <span>No se encontraron ciudadanos</span>
-                            <Link
-                              href="/mock/ciudadanos"
-                              className="link link-primary mt-1 text-xs"
-                            >
+                            <Link href="/ciudadanos" className="link link-primary mt-1 text-xs">
                               <IconUserPlus size={14} />
                               Registrar nuevo ciudadano
                             </Link>

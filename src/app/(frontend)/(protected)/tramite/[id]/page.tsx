@@ -66,7 +66,7 @@ export default function TramiteDetallePage() {
         <IconId size={48} className="mx-auto mb-4 opacity-30" />
         <h2 className="text-lg font-semibold opacity-60">Trámite no encontrado</h2>
         <p className="mb-4 text-sm opacity-40">ID: {tramiteId}</p>
-        <Link href="/mock" className="link link-primary">
+        <Link href="/" className="link link-primary">
           Volver al tablero
         </Link>
       </section>
@@ -142,7 +142,7 @@ export default function TramiteDetallePage() {
       <nav className="breadcrumbs mb-6 text-sm" aria-label="Navegación">
         <ul>
           <li>
-            <Link href="/mock" className="gap-1">
+            <Link href="/" className="gap-1">
               <IconArrowLeft size={14} />
               Tablero
             </Link>

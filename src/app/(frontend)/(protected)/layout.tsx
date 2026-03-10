@@ -1,14 +1,9 @@
 import { basePayload } from '@/web/libs/payload/server'
-import { NavBar } from '@/web/ui/molecules/navbar'
-import type { Metadata } from 'next'
+import { Navbar } from '@/web/ui/molecules/navbar'
+import { IconBuildingCommunity, IconCar } from '@tabler/icons-react'
 import { headers } from 'next/headers'
 import { redirect, RedirectType } from 'next/navigation'
 import type { PropsWithChildren } from 'react'
-
-export const metadata: Metadata = {
-  title: 'Admin Panel | Licencias',
-  description: 'Gestión administrativa de licencias',
-}
 
 export default async function ProtectedLayout({ children }: PropsWithChildren) {
   const headersStore = await headers()
@@ -21,21 +16,41 @@ export default async function ProtectedLayout({ children }: PropsWithChildren) {
   }
 
   return (
-    <div className="bg-base-200 flex h-screen">
-      {/* Sidebar */}
-      <aside className="bg-base-100 flex w-64 flex-col shadow-lg">
-        <div className="border-base-200 border-b p-4">
-          <h1 className="text-primary text-xl font-bold">Panel de Control</h1>
-          <p className="text-base-content/60 text-xs">Licencias San Benito</p>
-        </div>
+    <section className="drawer drawer-open">
+      <input id="protected-drawer" type="checkbox" className="drawer-toggle" />
 
-        <NavBar />
-      </aside>
+      <main className="drawer-content flex flex-col">
+        <header className="navbar bg-base-100 border-base-300 border-b shadow-sm">
+          <section className="flex flex-1 items-center gap-2">
+            <IconCar size={24} className="text-primary" />
+            <h1 className="text-lg font-semibold">Licencias de Conducir</h1>
+          </section>
+          <section className="flex-none">
+            <span className="text-sm opacity-70">
+              Operador: <strong>Admin</strong>
+            </span>
+          </section>
+        </header>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-auto p-8">
-        <div className="mx-auto max-w-6xl">{children}</div>
+        <article className="flex-1 p-8">{children}</article>
       </main>
-    </div>
+
+      <aside className="drawer-side">
+        <label htmlFor="protected-drawer" aria-label="Cerrar sidebar" className="drawer-overlay" />
+        <section className="menu bg-neutral text-neutral-content flex min-h-full w-60 flex-col p-0">
+          <header className="border-b border-white/15 p-6 text-center">
+            <IconBuildingCommunity size={32} className="mx-auto mb-1" />
+            <p className="text-xs font-bold tracking-wider uppercase">Municipalidad</p>
+            <p className="mt-1 text-[11px] opacity-80">San Benito · Entre Ríos</p>
+          </header>
+
+          <Navbar />
+
+          <footer className="border-t border-white/15 p-4 text-center text-[11px] opacity-60">
+            Sistema de Licencias v0.1
+          </footer>
+        </section>
+      </aside>
+    </section>
   )
 }
