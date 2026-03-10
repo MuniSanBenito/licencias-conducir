@@ -2,6 +2,7 @@
 
 import { IconSearch, IconUserPlus, IconX } from '@tabler/icons-react'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { useCiudadanos } from '../hooks'
 import { addCiudadano } from '../store'
 import type { Ciudadano } from '../types'
@@ -31,17 +32,18 @@ export default function CiudadanosPage() {
 
   const handleSubmit = () => {
     if (!form.dni || !form.nombre || !form.apellido) {
-      alert('Completá al menos DNI, nombre y apellido')
+      toast.error('Completá al menos DNI, nombre y apellido')
       return
     }
     const yaExiste = ciudadanos.some((c) => c.dni === form.dni)
     if (yaExiste) {
-      alert('Ya existe un ciudadano con ese DNI')
+      toast.error('Ya existe un ciudadano con ese DNI')
       return
     }
     addCiudadano({ ...form })
     setForm({ dni: '', nombre: '', apellido: '', celular: '', fechaNacimiento: '', domicilio: '' })
     setShowForm(false)
+    toast.success(`Ciudadano ${form.apellido}, ${form.nombre} registrado correctamente`)
   }
 
   return (

@@ -162,6 +162,7 @@ export interface Ciudadano {
 
 export interface Tramite {
   id: string
+  fut: string
   ciudadano: Ciudadano
   items: ItemLicencia[]
   pasos: PasoTramite[]

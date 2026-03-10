@@ -4,6 +4,7 @@ import {
   IconArrowLeft,
   IconCheck,
   IconCircle,
+  IconFileText,
   IconLicense,
   IconPhone,
   IconPlus,
@@ -18,6 +19,7 @@ import {
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { twJoin } from 'tailwind-merge'
 import { useCiudadanos } from '../../hooks'
 import type { Ciudadano, ClaseLicencia, TipoTramite } from '../../types'
@@ -35,6 +37,7 @@ export default function NuevoTramitePage() {
   const [busqueda, setBusqueda] = useState('')
   const [showDropdown, setShowDropdown] = useState(false)
   const [ciudadanoSeleccionado, setCiudadanoSeleccionado] = useState<Ciudadano | null>(null)
+  const [fut, setFut] = useState('')
 
   const [items, setItems] = useState<ItemForm[]>([{ clase: 'B1', tipo: 'nueva' }])
 
@@ -79,11 +82,15 @@ export default function NuevoTramitePage() {
   const pasosPreview = getPasosParaTramite(items)
 
   const handleSubmit = () => {
-    if (!ciudadanoSeleccionado) {
-      alert('Seleccioná un ciudadano antes de continuar')
+    if (!fut.trim()) {
+      toast.error('Ingresá el número de FUT')
       return
     }
-    alert('Trámite creado exitosamente (simulado)')
+    if (!ciudadanoSeleccionado) {
+      toast.error('Seleccioná un ciudadano antes de continuar')
+      return
+    }
+    toast.success('Trámite creado exitosamente')
     router.push('/')
   }
 
@@ -105,6 +112,30 @@ export default function NuevoTramitePage() {
       <section className="grid grid-cols-[1fr_320px] gap-6">
         {/* Formulario */}
         <section className="flex flex-col gap-6">
+          {/* FUT */}
+          <article className="card card-border bg-base-100">
+            <section className="card-body">
+              <h2 className="card-title text-base">
+                <IconFileText size={18} />
+                Formulario Único de Trámite (FUT)
+              </h2>
+              <fieldset className="fieldset mt-2">
+                <label className="fieldset-legend" htmlFor="fut">
+                  Número de FUT
+                </label>
+                <input
+                  id="fut"
+                  className="input input-bordered input-primary w-full max-w-xs font-mono"
+                  placeholder="Ej: FUT-10482"
+                  value={fut}
+                  onChange={(e) => setFut(e.target.value)}
+                  required
+                  aria-required="true"
+                />
+              </fieldset>
+            </section>
+          </article>
+
           {/* Selección de ciudadano */}
           <article className="card card-border bg-base-100">
             <section className="card-body">
@@ -123,14 +154,6 @@ export default function NuevoTramitePage() {
               {ciudadanoSeleccionado ? (
                 <section className="bg-primary/10 mt-4 flex items-center justify-between rounded-lg p-4">
                   <section className="flex items-center gap-4">
-                    <figure className="avatar avatar-placeholder">
-                      <section className="bg-primary text-primary-content w-12 rounded-full">
-                        <span className="text-lg">
-                          {ciudadanoSeleccionado.nombre[0]}
-                          {ciudadanoSeleccionado.apellido[0]}
-                        </span>
-                      </section>
-                    </figure>
                     <section>
                       <p className="font-semibold">
                         {ciudadanoSeleccionado.apellido}, {ciudadanoSeleccionado.nombre}
@@ -200,14 +223,6 @@ export default function NuevoTramitePage() {
                               className="flex items-center gap-3"
                               onClick={() => seleccionarCiudadano(c)}
                             >
-                              <figure className="avatar avatar-placeholder">
-                                <section className="bg-base-200 text-base-content w-9 rounded-full">
-                                  <span className="text-xs font-bold">
-                                    {c.nombre[0]}
-                                    {c.apellido[0]}
-                                  </span>
-                                </section>
-                              </figure>
                               <section>
                                 <p className="text-sm font-semibold">
                                   {c.apellido}, {c.nombre}

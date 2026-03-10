@@ -27,7 +27,7 @@ export default async function ProtectedLayout({ children }: PropsWithChildren) {
           </section>
           <section className="flex-none">
             <span className="text-sm opacity-70">
-              Operador: <strong>Admin</strong>
+              Usuario: <strong>{auth.user?.email}</strong>
             </span>
           </section>
         </header>
@@ -45,10 +45,6 @@ export default async function ProtectedLayout({ children }: PropsWithChildren) {
           </header>
 
           <Navbar />
-
-          <footer className="border-t border-white/15 p-4 text-center text-[11px] opacity-60">
-            Sistema de Licencias v0.1
-          </footer>
         </section>
       </aside>
     </section>

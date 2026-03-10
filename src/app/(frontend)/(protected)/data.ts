@@ -105,6 +105,7 @@ const pasosTramite5 = getPasosParaTramite([{ clase: 'A1', tipo: 'nueva' }])
 export const TRAMITES_MOCK: Tramite[] = [
   {
     id: 'TRM-2026-001',
+    fut: 'FUT-10482',
     ciudadano: CIUDADANOS_MOCK[0],
     items: [{ clase: 'B1', tipo: 'nueva' }],
     pasos: avanzarPasos(pasosTramite1, 2),
@@ -113,6 +114,7 @@ export const TRAMITES_MOCK: Tramite[] = [
   },
   {
     id: 'TRM-2026-002',
+    fut: 'FUT-10391',
     ciudadano: CIUDADANOS_MOCK[1],
     items: [
       { clase: 'B1', tipo: 'renovacion' },
@@ -124,6 +126,7 @@ export const TRAMITES_MOCK: Tramite[] = [
   },
   {
     id: 'TRM-2026-003',
+    fut: 'FUT-10520',
     ciudadano: CIUDADANOS_MOCK[2],
     items: [{ clase: 'B1', tipo: 'renovacion' }],
     pasos: avanzarPasos(pasosTramite3, 3),
@@ -132,6 +135,7 @@ export const TRAMITES_MOCK: Tramite[] = [
   },
   {
     id: 'TRM-2026-004',
+    fut: 'FUT-10215',
     ciudadano: CIUDADANOS_MOCK[3],
     items: [{ clase: 'D1', tipo: 'ampliacion' }],
     pasos: avanzarPasos(pasosTramite4, pasosTramite4.length),
@@ -141,6 +145,7 @@ export const TRAMITES_MOCK: Tramite[] = [
   },
   {
     id: 'TRM-2026-005',
+    fut: 'FUT-10587',
     ciudadano: CIUDADANOS_MOCK[4],
     items: [{ clase: 'A1', tipo: 'nueva' }],
     pasos: avanzarPasos(pasosTramite5, 0),

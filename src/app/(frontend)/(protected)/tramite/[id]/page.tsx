@@ -1,5 +1,6 @@
 'use client'
 
+import { ConfirmDialog } from '@/web/ui/molecules/confirm-dialog'
 import {
   IconArrowLeft,
   IconCalendar,
@@ -19,6 +20,7 @@ import {
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { twJoin } from 'tailwind-merge'
 import { TRAMITES_MOCK } from '../../data'
 import type { EstadoTurno, PasoTramite, Tramite, Turno } from '../../types'
@@ -60,6 +62,8 @@ export default function TramiteDetallePage() {
     hora: string
   } | null>(null)
 
+  const [confirmCancelTurno, setConfirmCancelTurno] = useState<number | null>(null)
+
   if (!tramite) {
     return (
       <section className="py-16 text-center">
@@ -84,7 +88,7 @@ export default function TramiteDetallePage() {
     const paso = tramite.pasos[pasoActualIndex]
 
     if (paso.requiereTurno && !paso.turno) {
-      alert('Este paso requiere un turno asignado antes de poder completarlo.')
+      toast.warning('Este paso requiere un turno asignado antes de poder completarlo.')
       return
     }
 
@@ -102,6 +106,7 @@ export default function TramiteDetallePage() {
     })
     const todosOk = nuevosPasos.every((p) => p.estado === 'completado')
     setTramite({ ...tramite, pasos: nuevosPasos, estado: todosOk ? 'completado' : 'en_curso' })
+    toast.success(`Paso "${paso.label}" completado`)
   }
 
   const asignarTurno = () => {
@@ -121,6 +126,7 @@ export default function TramiteDetallePage() {
     })
     setTramite({ ...tramite, pasos: nuevosPasos })
     setTurnoModal(null)
+    toast.success(`Turno asignado para el ${turnoModal.fecha} a las ${turnoModal.hora}`)
   }
 
   const cancelarTurno = (pasoIndex: number) => {
@@ -131,6 +137,8 @@ export default function TramiteDetallePage() {
       return p
     })
     setTramite({ ...tramite, pasos: nuevosPasos })
+    setConfirmCancelTurno(null)
+    toast.success('Turno cancelado')
   }
 
   const turnoFalta = (paso: PasoTramite) =>
@@ -239,7 +247,7 @@ export default function TramiteDetallePage() {
                         {paso.estado === 'en_curso' && paso.turno.estado === 'programado' && (
                           <button
                             className="btn btn-error btn-ghost btn-xs"
-                            onClick={() => cancelarTurno(index)}
+                            onClick={() => setConfirmCancelTurno(index)}
                             aria-label={`Cancelar turno de ${paso.label}`}
                           >
                             <IconCalendarX size={14} />
@@ -386,6 +394,10 @@ export default function TramiteDetallePage() {
               </h3>
               <dl className="mt-2 grid gap-2">
                 <section>
+                  <dt className="text-[10px] tracking-wider uppercase opacity-40">FUT</dt>
+                  <dd className="font-mono text-sm font-bold">{tramite.fut}</dd>
+                </section>
+                <section>
                   <dt className="text-[10px] tracking-wider uppercase opacity-40">ID Trámite</dt>
                   <dd className="font-mono text-sm font-semibold">{tramite.id}</dd>
                 </section>
@@ -474,6 +486,26 @@ export default function TramiteDetallePage() {
           </form>
         </dialog>
       )}
+
+      {/* Modal confirmación cancelar turno */}
+      <ConfirmDialog
+        open={confirmCancelTurno !== null}
+        title="Cancelar turno"
+        description={
+          <>
+            ¿Estás seguro de que querés cancelar el turno de{' '}
+            <strong>
+              {confirmCancelTurno !== null && tramite.pasos[confirmCancelTurno]?.label}
+            </strong>
+            ?
+          </>
+        }
+        confirmLabel="Sí, cancelar turno"
+        confirmIcon={<IconCalendarX size={16} />}
+        variant="error"
+        onConfirm={() => confirmCancelTurno !== null && cancelarTurno(confirmCancelTurno)}
+        onCancel={() => setConfirmCancelTurno(null)}
+      />
     </section>
   )
 }

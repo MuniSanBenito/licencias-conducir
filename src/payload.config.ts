@@ -8,19 +8,19 @@ import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 import { DATABASE_URI, PAYLOAD_SECRET } from './config'
 import { Archivo } from './payload/collections/archivo'
-import { Ciudadano } from './payload/collections/ciudadano'
 import { Dev } from './payload/collections/dev'
-import { EmisionLicencia } from './payload/collections/emision-licencia'
-import { Examen } from './payload/collections/examen'
-import { ExamenPregunta } from './payload/collections/examen-pregunta'
-import { IntentoExamen } from './payload/collections/intento-examen'
-import { Opcion } from './payload/collections/opcion'
-import { Pregunta } from './payload/collections/pregunta'
-import { RespuestaSeleccionada } from './payload/collections/respuesta-seleccionada'
-import { Tramite } from './payload/collections/tramite'
-import { TramiteProceso } from './payload/collections/tramite-proceso'
-import { TramiteProgreso } from './payload/collections/tramite-progreso'
-import { Turno } from './payload/collections/turno'
+// import { Ciudadano } from './payload/collections/ciudadano'
+// import { EmisionLicencia } from './payload/collections/emision-licencia'
+// import { Examen } from './payload/collections/examen'
+// import { ExamenPregunta } from './payload/collections/examen-pregunta'
+// import { IntentoExamen } from './payload/collections/intento-examen'
+// import { Opcion } from './payload/collections/opcion'
+// import { Pregunta } from './payload/collections/pregunta'
+// import { RespuestaSeleccionada } from './payload/collections/respuesta-seleccionada'
+// import { Tramite } from './payload/collections/tramite'
+// import { TramiteProceso } from './payload/collections/tramite-proceso'
+// import { TramiteProgreso } from './payload/collections/tramite-progreso'
+// import { Turno } from './payload/collections/turno'
 import { Usuario } from './payload/collections/usuario'
 import { storagePlugin } from './payload/plugins/storage'
 
@@ -50,18 +50,18 @@ export default buildConfig({
     Dev,
     Archivo,
     Usuario,
-    Ciudadano,
-    Tramite,
-    TramiteProceso,
-    TramiteProgreso,
-    Turno,
-    Pregunta,
-    Opcion,
-    Examen,
-    ExamenPregunta,
-    IntentoExamen,
-    RespuestaSeleccionada,
-    EmisionLicencia,
+    // Ciudadano,
+    // Tramite,
+    // TramiteProceso,
+    // TramiteProgreso,
+    // Turno,
+    // Pregunta,
+    // Opcion,
+    // Examen,
+    // ExamenPregunta,
+    // IntentoExamen,
+    // RespuestaSeleccionada,
+    // EmisionLicencia,
   ],
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,

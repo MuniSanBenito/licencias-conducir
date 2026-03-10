@@ -7,8 +7,10 @@ import {
   IconFiles,
   IconHourglass,
   IconPlayerPause,
+  IconSearch,
 } from '@tabler/icons-react'
 import Link from 'next/link'
+import { useState } from 'react'
 import { twJoin } from 'tailwind-merge'
 import { useTramites } from './hooks'
 import type { Tramite } from './types'
@@ -43,7 +45,18 @@ function getEstadoBadgeClass(tramite: Tramite): string {
 
 export default function DashboardPage() {
   const tramites = useTramites()
+  const [busqueda, setBusqueda] = useState('')
 
+  const q = busqueda.toLowerCase().trim()
+  const filtrados = q
+    ? tramites.filter(
+        (t) =>
+          t.fut.toLowerCase().includes(q) ||
+          t.ciudadano.dni.includes(q) ||
+          t.ciudadano.nombre.toLowerCase().includes(q) ||
+          t.ciudadano.apellido.toLowerCase().includes(q),
+      )
+    : tramites
   const totalTramites = tramites.length
   const enCurso = tramites.filter((t) => t.estado === 'en_curso').length
   const completados = tramites.filter((t) => t.estado === 'completado').length
@@ -86,11 +99,25 @@ export default function DashboardPage() {
         </Link>
       </section>
 
+      {/* Búsqueda */}
+      <label className="input input-bordered mb-4 flex max-w-md items-center gap-2">
+        <IconSearch size={16} className="opacity-50" />
+        <input
+          type="search"
+          className="grow"
+          placeholder="Buscar por FUT, DNI o nombre..."
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)}
+          aria-label="Buscar trámites"
+        />
+      </label>
+
       {/* Tabla */}
       <section className="card card-border bg-base-100 overflow-x-auto">
         <table className="table" aria-label="Lista de trámites recientes">
           <thead>
             <tr>
+              <th>FUT</th>
               <th>ID</th>
               <th>DNI</th>
               <th>Ciudadano</th>
@@ -101,10 +128,11 @@ export default function DashboardPage() {
             </tr>
           </thead>
           <tbody>
-            {tramites.map((tramite) => {
+            {filtrados.map((tramite) => {
               const progreso = getProgreso(tramite)
               return (
                 <tr key={tramite.id} className="hover:bg-base-200/50">
+                  <td className="font-mono text-sm font-bold">{tramite.fut}</td>
                   <td>
                     <Link
                       href={`/tramite/${tramite.id}`}
