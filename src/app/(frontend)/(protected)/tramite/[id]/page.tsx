@@ -22,8 +22,9 @@ import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { twJoin } from 'tailwind-merge'
-import { TRAMITES_MOCK } from '../../data'
-import type { EstadoTurno, PasoTramite, Tramite, Turno } from '../../types'
+import { useTramites } from '../../hooks'
+import { updateTramite } from '../../store'
+import type { EstadoTurno, PasoTramite, Turno } from '../../types'
 import { TIPO_TRAMITE_LABELS } from '../../types'
 
 // ─── Helpers ───
@@ -52,9 +53,8 @@ function getBadgeClass(tipo: string): string {
 export default function TramiteDetallePage() {
   const params = useParams()
   const tramiteId = params.id as string
-  const [tramite, setTramite] = useState<Tramite | undefined>(
-    TRAMITES_MOCK.find((t) => t.id === tramiteId),
-  )
+  const tramites = useTramites()
+  const tramite = tramites.find((t) => t.id === tramiteId)
 
   const [turnoModal, setTurnoModal] = useState<{
     pasoIndex: number
@@ -105,7 +105,7 @@ export default function TramiteDetallePage() {
       return p
     })
     const todosOk = nuevosPasos.every((p) => p.estado === 'completado')
-    setTramite({ ...tramite, pasos: nuevosPasos, estado: todosOk ? 'completado' : 'en_curso' })
+    updateTramite(tramite.id, { pasos: nuevosPasos, estado: todosOk ? 'completado' : 'en_curso' })
     toast.success(`Paso "${paso.label}" completado`)
   }
 
@@ -124,7 +124,7 @@ export default function TramiteDetallePage() {
       }
       return p
     })
-    setTramite({ ...tramite, pasos: nuevosPasos })
+    updateTramite(tramite.id, { pasos: nuevosPasos })
     setTurnoModal(null)
     toast.success(`Turno asignado para el ${turnoModal.fecha} a las ${turnoModal.hora}`)
   }
@@ -136,7 +136,7 @@ export default function TramiteDetallePage() {
       }
       return p
     })
-    setTramite({ ...tramite, pasos: nuevosPasos })
+    updateTramite(tramite.id, { pasos: nuevosPasos })
     setConfirmCancelTurno(null)
     toast.success('Turno cancelado')
   }

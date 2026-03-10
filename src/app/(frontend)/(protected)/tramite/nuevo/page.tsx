@@ -22,6 +22,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { twJoin } from 'tailwind-merge'
 import { useCiudadanos } from '../../hooks'
+import { addTramite, getTramites } from '../../store'
 import type { Ciudadano, ClaseLicencia, TipoTramite } from '../../types'
 import { CLASES_LICENCIA, TIPO_TRAMITE_LABELS, getPasosParaTramite } from '../../types'
 
@@ -90,8 +91,25 @@ export default function NuevoTramitePage() {
       toast.error('Seleccioná un ciudadano antes de continuar')
       return
     }
+
+    const totalTramites = getTramites().length
+    const nuevoId = `TRM-2026-${String(totalTramites + 1).padStart(3, '0')}`
+    const pasos = getPasosParaTramite(items)
+    // El primer paso arranca "en curso"
+    pasos[0].estado = 'en_curso'
+
+    addTramite({
+      id: nuevoId,
+      fut: fut.trim(),
+      ciudadano: ciudadanoSeleccionado,
+      items: items.map((item) => ({ clase: item.clase, tipo: item.tipo })),
+      pasos,
+      estado: 'en_curso',
+      fechaInicio: new Date().toISOString().slice(0, 10),
+    })
+
     toast.success('Trámite creado exitosamente')
-    router.push('/')
+    router.push(`/tramite/${nuevoId}`)
   }
 
   return (
