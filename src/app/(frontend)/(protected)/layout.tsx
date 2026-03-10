@@ -17,9 +17,12 @@ export default async function ProtectedLayout({ children }: PropsWithChildren) {
 
   return (
     <section className="drawer drawer-open">
+      <a href="#main-content" className="btn btn-primary absolute -top-12 left-4 z-50 focus:top-4">
+        Saltar al contenido principal
+      </a>
       <input id="protected-drawer" type="checkbox" className="drawer-toggle" />
 
-      <main className="drawer-content flex flex-col">
+      <main id="main-content" className="drawer-content flex flex-col" tabIndex={-1}>
         <header className="navbar bg-base-100 border-base-300 border-b shadow-sm">
           <section className="flex flex-1 items-center gap-2">
             <IconCar size={24} className="text-primary" />

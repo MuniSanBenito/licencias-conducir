@@ -1,8 +1,12 @@
 export function LoadingOverlay() {
   return (
-    <div className="fixed inset-0 z-9999 flex flex-col items-center justify-center bg-white/30 backdrop-blur-sm">
-      <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600" />
-      <span className="mt-4 text-sm font-medium text-gray-700">Cargando...</span>
+    <div
+      className="bg-base-100/30 fixed inset-0 z-9999 flex flex-col items-center justify-center backdrop-blur-sm"
+      role="status"
+      aria-live="polite"
+    >
+      <span className="loading loading-spinner loading-lg text-primary" />
+      <span className="text-base-content mt-4 text-sm font-medium">Cargando...</span>
     </div>
   )
 }

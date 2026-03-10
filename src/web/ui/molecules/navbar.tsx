@@ -31,7 +31,6 @@ export function Navbar() {
         toast.error('Ocurrió un error al cerrar sesión')
       }
     } catch (error) {
-      console.error(error)
       toast.error(error instanceof Error ? error.message : 'Ocurrió un error al cerrar sesión')
     }
   }

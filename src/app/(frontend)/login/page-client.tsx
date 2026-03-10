@@ -37,11 +37,9 @@ export function LoginPageClient() {
         toast.success('Inicio de sesión exitoso')
         router.replace('/')
       } else {
-        console.log(response)
         toast.error('Ocurrió un error al iniciar sesión')
       }
     } catch (error) {
-      console.error(error)
       toast.error(error instanceof Error ? error.message : 'Ocurrió un error al iniciar sesión')
     }
 

@@ -3,8 +3,12 @@ import { Toaster } from 'sonner'
 import './styles.css'
 
 export const metadata = {
-  description: 'A blank template using Payload in a Next.js app.',
-  title: 'Payload Blank Template',
+  title: {
+    default: 'Gestión de Licencias — Municipalidad de San Benito',
+    template: '%s — Licencias San Benito',
+  },
+  description:
+    'Sistema de gestión de licencias de conducir de la Municipalidad de San Benito, Entre Ríos.',
 }
 
 export default function RootLayout({ children }: PropsWithChildren) {
