@@ -4,8 +4,8 @@
  * puedan re-renderizar cuando los datos cambian.
  */
 
-import { CIUDADANOS_MOCK, TRAMITES_MOCK } from './data'
-import type { Ciudadano, Tramite } from './types'
+import { CIUDADANOS_MOCK, TRAMITES_MOCK } from '@/mock/data'
+import type { Ciudadano, Tramite } from '@/types'
 
 // ─── Estado global mutable ───
 

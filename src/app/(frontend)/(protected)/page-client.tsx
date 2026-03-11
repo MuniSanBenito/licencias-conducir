@@ -1,5 +1,7 @@
 'use client'
 
+import { TIPO_TRAMITE_LABELS, type Tramite } from '@/types'
+import { useTramites } from '@/web/hooks/use-tramites'
 import {
   IconCheck,
   IconClock,
@@ -12,9 +14,6 @@ import {
 import Link from 'next/link'
 import { useState } from 'react'
 import { twJoin } from 'tailwind-merge'
-import { useTramites } from './hooks'
-import type { Tramite } from './types'
-import { TIPO_TRAMITE_LABELS } from './types'
 
 function getEstadoActual(tramite: Tramite): string {
   const pasoActivo = tramite.pasos.find((p) => p.estado === 'en_curso')

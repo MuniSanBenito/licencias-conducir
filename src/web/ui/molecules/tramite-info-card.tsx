@@ -1,4 +1,4 @@
-import type { Tramite } from '@/app/(frontend)/(protected)/types'
+import type { Tramite } from '@/types'
 import { IconId } from '@tabler/icons-react'
 
 interface TramiteInfoCardProps {

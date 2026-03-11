@@ -1,5 +1,6 @@
 'use client'
 
+import { useTramites } from '@/web/hooks/use-tramites'
 import { AsignarTurnoModal } from '@/web/ui/molecules/asignar-turno-modal'
 import { ConfirmDialog } from '@/web/ui/molecules/confirm-dialog'
 import { TramiteCiudadanoCard } from '@/web/ui/molecules/tramite-ciudadano-card'
@@ -12,7 +13,6 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { useTramites } from '../../hooks'
 import { updateTramite } from '../../store'
 
 export default function TramiteDetallePage() {

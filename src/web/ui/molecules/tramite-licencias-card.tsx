@@ -1,5 +1,5 @@
-import type { ItemLicencia } from '@/app/(frontend)/(protected)/types'
-import { TIPO_TRAMITE_LABELS } from '@/app/(frontend)/(protected)/types'
+import type { ItemLicencia } from '@/types'
+import { TIPO_TRAMITE_LABELS } from '@/types'
 import { IconLicense } from '@tabler/icons-react'
 
 function getBadgeClass(tipo: string): string {

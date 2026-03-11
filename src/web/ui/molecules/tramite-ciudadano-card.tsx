@@ -1,4 +1,4 @@
-import type { Ciudadano } from '@/app/(frontend)/(protected)/types'
+import type { Ciudadano } from '@/types'
 import { IconUser } from '@tabler/icons-react'
 
 interface TramiteCiudadanoCardProps {

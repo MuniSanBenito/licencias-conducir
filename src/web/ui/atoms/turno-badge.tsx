@@ -1,4 +1,4 @@
-import type { EstadoTurno, Turno } from '@/app/(frontend)/(protected)/types'
+import type { EstadoTurno, Turno } from '@/types'
 
 const ESTADO_TURNO_CONFIG: Record<EstadoTurno, { label: string; badgeClass: string }> = {
   programado: { label: 'Programado', badgeClass: 'badge badge-info badge-sm' },

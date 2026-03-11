@@ -1,11 +1,11 @@
 'use client'
 
+import type { Ciudadano } from '@/types'
+import { useCiudadanos } from '@/web/hooks/use-ciudadanos'
 import { IconSearch, IconUserPlus, IconX } from '@tabler/icons-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { useCiudadanos } from '../hooks'
 import { addCiudadano } from '../store'
-import type { Ciudadano } from '../types'
 
 export default function CiudadanosPage() {
   const ciudadanos = useCiudadanos()

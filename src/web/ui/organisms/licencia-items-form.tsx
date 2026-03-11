@@ -1,7 +1,7 @@
 'use client'
 
-import type { ClaseLicencia, TipoTramite } from '@/app/(frontend)/(protected)/types'
-import { CLASES_LICENCIA, TIPO_TRAMITE_LABELS } from '@/app/(frontend)/(protected)/types'
+import type { ClaseLicencia, TipoTramite } from '@/types'
+import { CLASES_LICENCIA, TIPO_TRAMITE_LABELS } from '@/types'
 import { IconLicense, IconPlus, IconTrash } from '@tabler/icons-react'
 import { twJoin } from 'tailwind-merge'
 

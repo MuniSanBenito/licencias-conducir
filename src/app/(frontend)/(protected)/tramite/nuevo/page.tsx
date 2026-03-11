@@ -1,5 +1,7 @@
 'use client'
 
+import { getPasosParaTramite, type Ciudadano } from '@/types'
+import { useCiudadanos } from '@/web/hooks/use-ciudadanos'
 import { BuscarCiudadanoInput } from '@/web/ui/molecules/buscar-ciudadano-input'
 import { PasosPreview } from '@/web/ui/molecules/pasos-preview'
 import { LicenciaItemsForm, type ItemForm } from '@/web/ui/organisms/licencia-items-form'
@@ -9,10 +11,7 @@ import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { twJoin } from 'tailwind-merge'
-import { useCiudadanos } from '../../hooks'
 import { addTramite, getTramites } from '../../store'
-import type { Ciudadano } from '../../types'
-import { getPasosParaTramite } from '../../types'
 
 export default function NuevoTramitePage() {
   const router = useRouter()

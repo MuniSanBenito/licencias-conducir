@@ -1,4 +1,4 @@
-import type { PasoTramite } from '@/app/(frontend)/(protected)/types'
+import type { PasoTramite } from '@/types'
 import { TurnoBadge } from '@/web/ui/atoms/turno-badge'
 import { IconTicket } from '@tabler/icons-react'
 
