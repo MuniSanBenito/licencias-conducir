@@ -1,4 +1,5 @@
-import { getPasosParaTramite, type Ciudadano, type PasoTramite, type Tramite } from '@/types'
+import { type Ciudadano, type PasoTramite, type Tramite } from '@/types'
+import { getPasosParaTramite } from '@/web/utils/pasos'
 
 // ─── Ciudadanos de ejemplo ───
 

@@ -1,10 +1,11 @@
 'use client'
 
-import { getPasosParaTramite, type Ciudadano } from '@/types'
+import { type Ciudadano } from '@/types'
 import { useCiudadanos } from '@/web/hooks/use-ciudadanos'
 import { BuscarCiudadanoInput } from '@/web/ui/molecules/buscar-ciudadano-input'
 import { PasosPreview } from '@/web/ui/molecules/pasos-preview'
 import { LicenciaItemsForm, type ItemForm } from '@/web/ui/organisms/licencia-items-form'
+import { getPasosParaTramite } from '@/web/utils/pasos'
 import { IconArrowLeft, IconFileText, IconRocket, IconUser } from '@tabler/icons-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'

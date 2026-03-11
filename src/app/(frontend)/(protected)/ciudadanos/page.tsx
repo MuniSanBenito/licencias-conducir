@@ -1,5 +1,5 @@
+import { CiudadanosPage } from '@/web/ui/templates/ciudadanos-page'
 import type { Metadata } from 'next'
-import CiudadanosPage from './page-client'
 
 export const metadata: Metadata = {
   title: 'Ciudadanos',

@@ -1,13 +1,13 @@
 'use client'
 
+import { addCiudadano } from '@/app/(frontend)/(protected)/store'
 import type { Ciudadano } from '@/types'
 import { useCiudadanos } from '@/web/hooks/use-ciudadanos'
 import { IconSearch, IconUserPlus, IconX } from '@tabler/icons-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { addCiudadano } from '../store'
 
-export default function CiudadanosPage() {
+export function CiudadanosPage() {
   const ciudadanos = useCiudadanos()
   const [busqueda, setBusqueda] = useState('')
   const [showForm, setShowForm] = useState(false)
