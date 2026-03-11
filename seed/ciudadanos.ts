@@ -73,13 +73,16 @@ const seed = async () => {
     const nombre = NOMBRES[Math.floor(Math.random() * NOMBRES.length)]
     const apellido = APELLIDOS[Math.floor(Math.random() * APELLIDOS.length)]
     const dni = (20000000 + Math.floor(Math.random() * 30000000)).toString()
-    const email = `${nombre.toLowerCase()}.${apellido.toLowerCase()}.${dni.slice(-4)}@example.com`
+    const celular = `343640${(1000 + Math.floor(Math.random() * 9000)).toString()}`
 
     // Generar fecha entre 1960 y 2005
     const year = 1960 + Math.floor(Math.random() * 45)
     const month = Math.floor(Math.random() * 12)
     const day = 1 + Math.floor(Math.random() * 28)
-    const fecha_nacimiento = new Date(year, month, day).toISOString()
+    const fechaNacimiento = new Date(year, month, day).toISOString()
+
+    const calles = ['Av. San Martín', 'Calle 9 de Julio', 'Bv. Yrigoyen', 'Calle Belgrano', 'Pasaje Sarmiento', 'Calle Rivadavia', 'Av. Urquiza']
+    const domicilio = `${calles[Math.floor(Math.random() * calles.length)]} ${100 + Math.floor(Math.random() * 900)}, San Benito`
 
     try {
       await basePayload.create({
@@ -88,8 +91,9 @@ const seed = async () => {
           dni,
           nombre,
           apellido,
-          email,
-          fecha_nacimiento,
+          celular,
+          fechaNacimiento,
+          domicilio,
         },
       })
       console.log(`✅ Ciudadano creado: ${nombre} ${apellido} (${dni})`)

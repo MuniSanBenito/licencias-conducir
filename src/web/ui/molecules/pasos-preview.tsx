@@ -1,5 +1,5 @@
-import type { PasoTramite } from '@/types'
-import { TIPO_TRAMITE_LABELS, type ItemLicencia } from '@/types'
+import { TIPO_TRAMITE_LABELS } from '@/constants/tramites'
+import type { ItemLicencia, PasoTramite } from '@/types'
 import { IconCheck, IconCircle, IconTicket } from '@tabler/icons-react'
 import { twJoin } from 'tailwind-merge'
 

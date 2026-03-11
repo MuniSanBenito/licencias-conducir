@@ -1,4 +1,5 @@
-import type { EstadoTurno, Turno } from '@/types'
+import type { EstadoTurno } from '@/constants/tramites'
+import type { Turno } from '@/types'
 
 const ESTADO_TURNO_CONFIG: Record<EstadoTurno, { label: string; badgeClass: string }> = {
   programado: { label: 'Programado', badgeClass: 'badge badge-info badge-sm' },

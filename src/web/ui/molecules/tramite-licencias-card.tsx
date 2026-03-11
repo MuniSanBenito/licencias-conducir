@@ -1,5 +1,5 @@
+import { TIPO_TRAMITE_LABELS } from '@/constants/tramites'
 import type { ItemLicencia } from '@/types'
-import { TIPO_TRAMITE_LABELS } from '@/types'
 import { IconLicense } from '@tabler/icons-react'
 
 function getBadgeClass(tipo: string): string {

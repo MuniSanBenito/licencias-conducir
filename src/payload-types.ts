@@ -71,6 +71,8 @@ export interface Config {
     dev: Dev;
     archivo: Archivo;
     usuario: Usuario;
+    ciudadano: Ciudadano;
+    tramite: Tramite;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -81,6 +83,8 @@ export interface Config {
     dev: DevSelect<false> | DevSelect<true>;
     archivo: ArchivoSelect<false> | ArchivoSelect<true>;
     usuario: UsuarioSelect<false> | UsuarioSelect<true>;
+    ciudadano: CiudadanoSelect<false> | CiudadanoSelect<true>;
+    tramite: TramiteSelect<false> | TramiteSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -217,6 +221,92 @@ export interface Usuario {
   collection: 'usuario';
 }
 /**
+ * Registro de ciudadanos que realizan trámites de licencias de conducir
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ciudadano".
+ */
+export interface Ciudadano {
+  id: string;
+  dni: string;
+  nombre: string;
+  apellido: string;
+  nombreCompleto?: string | null;
+  celular: string;
+  fechaNacimiento: string;
+  domicilio: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Gestión de trámites de licencias de conducir
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tramite".
+ */
+export interface Tramite {
+  id: string;
+  fut: string;
+  ciudadano: string | Ciudadano;
+  estado: 'en_curso' | 'completado' | 'cancelado';
+  fechaInicio: string;
+  fechaFin?: string | null;
+  /**
+   * Licencias solicitadas en este trámite
+   */
+  items: {
+    clase:
+      | 'A1'
+      | 'A2'
+      | 'A3'
+      | 'B1'
+      | 'B2'
+      | 'C1'
+      | 'C2'
+      | 'D1'
+      | 'D2'
+      | 'D3'
+      | 'D4'
+      | 'E1'
+      | 'E2'
+      | 'E3'
+      | 'G1'
+      | 'G2'
+      | 'G3';
+    tipo: 'nueva' | 'renovacion' | 'ampliacion';
+    id?: string | null;
+  }[];
+  /**
+   * Progreso del trámite a través de sus pasos requeridos
+   */
+  pasos: {
+    pasoId:
+      | 'mesa_entradas'
+      | 'area_licencias'
+      | 'pago'
+      | 'revision_licencias'
+      | 'turno_curso'
+      | 'examen_teorico'
+      | 'examen_practico'
+      | 'examen_psicofisico'
+      | 'emision';
+    label: string;
+    estado: 'pendiente' | 'en_curso' | 'completado';
+    requiereTurno?: boolean | null;
+    fecha?: string | null;
+    observaciones?: string | null;
+    turno?: {
+      fecha?: string | null;
+      hora?: string | null;
+      estado?: ('programado' | 'confirmado' | 'ausente' | 'completado' | 'cancelado') | null;
+      observaciones?: string | null;
+    };
+    id?: string | null;
+  }[];
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -251,6 +341,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'usuario';
         value: string | Usuario;
+      } | null)
+    | ({
+        relationTo: 'ciudadano';
+        value: string | Ciudadano;
+      } | null)
+    | ({
+        relationTo: 'tramite';
+        value: string | Tramite;
       } | null);
   globalSlug?: string | null;
   user:
@@ -368,6 +466,60 @@ export interface UsuarioSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ciudadano_select".
+ */
+export interface CiudadanoSelect<T extends boolean = true> {
+  dni?: T;
+  nombre?: T;
+  apellido?: T;
+  nombreCompleto?: T;
+  celular?: T;
+  fechaNacimiento?: T;
+  domicilio?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tramite_select".
+ */
+export interface TramiteSelect<T extends boolean = true> {
+  fut?: T;
+  ciudadano?: T;
+  estado?: T;
+  fechaInicio?: T;
+  fechaFin?: T;
+  items?:
+    | T
+    | {
+        clase?: T;
+        tipo?: T;
+        id?: T;
+      };
+  pasos?:
+    | T
+    | {
+        pasoId?: T;
+        label?: T;
+        estado?: T;
+        requiereTurno?: T;
+        fecha?: T;
+        observaciones?: T;
+        turno?:
+          | T
+          | {
+              fecha?: T;
+              hora?: T;
+              estado?: T;
+              observaciones?: T;
+            };
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
