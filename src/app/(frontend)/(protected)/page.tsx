@@ -1,5 +1,5 @@
+import { DashboardPage } from '@/web/ui/templates/dashboard-page'
 import type { Metadata } from 'next'
-import DashboardPage from './page-client'
 
 export const metadata: Metadata = {
   title: 'Tablero',

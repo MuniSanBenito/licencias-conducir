@@ -1,8 +1,8 @@
 import { basePayload } from '@/web/libs/payload/server'
+import { LoginPage } from '@/web/ui/templates/login-page'
 import type { Metadata } from 'next'
 import { headers } from 'next/headers'
 import { redirect, RedirectType } from 'next/navigation'
-import { LoginPageClient } from './page-client'
 
 export const metadata: Metadata = {
   title: 'Iniciar sesión — Gestión de Licencias',
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     'Accedé al sistema de gestión de licencias de conducir. Ingresá tus credenciales para continuar.',
 }
 
-export default async function LoginPage() {
+export default async function Page() {
   const headersStore = await headers()
   const auth = await basePayload.auth({
     headers: headersStore,
@@ -20,5 +20,5 @@ export default async function LoginPage() {
     redirect('/', RedirectType.replace)
   }
 
-  return <LoginPageClient />
+  return <LoginPage />
 }

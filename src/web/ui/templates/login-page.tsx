@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { type SubmitEvent, useState } from 'react'
 import { toast } from 'sonner'
 
-export function LoginPageClient() {
+export function LoginPage() {
   const router = useRouter()
 
   const [loading, setLoading] = useState(false)

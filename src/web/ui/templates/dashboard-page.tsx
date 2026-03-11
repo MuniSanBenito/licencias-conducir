@@ -42,7 +42,7 @@ function getEstadoBadgeClass(tramite: Tramite): string {
   return 'badge badge-warning badge-soft badge-sm'
 }
 
-export default function DashboardPage() {
+export function DashboardPage() {
   const tramites = useTramites()
   const [busqueda, setBusqueda] = useState('')
 
