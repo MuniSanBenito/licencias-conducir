@@ -233,6 +233,7 @@ export interface Ciudadano {
   apellido: string;
   nombreCompleto?: string | null;
   celular: string;
+  email: string;
   fechaNacimiento: string;
   domicilio: string;
   updatedAt: string;
@@ -477,6 +478,7 @@ export interface CiudadanoSelect<T extends boolean = true> {
   apellido?: T;
   nombreCompleto?: T;
   celular?: T;
+  email?: T;
   fechaNacimiento?: T;
   domicilio?: T;
   updatedAt?: T;

@@ -62,7 +62,13 @@ export const Ciudadano: CollectionConfig = {
           name: 'celular',
           type: 'text',
           required: true,
-          admin: { width: '50%' },
+          admin: { width: '33%' },
+        },
+        {
+          name: 'email',
+          type: 'email',
+          required: true,
+          admin: { width: '33%' },
         },
         {
           name: 'fechaNacimiento',
@@ -70,7 +76,7 @@ export const Ciudadano: CollectionConfig = {
           required: true,
           label: 'Fecha de Nacimiento',
           admin: {
-            width: '50%',
+            width: '33%',
             date: {
               displayFormat: 'dd/MM/yyyy',
             },

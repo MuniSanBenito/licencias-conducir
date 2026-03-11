@@ -66,6 +66,10 @@ const APELLIDOS = [
   'Molina',
 ]
 
+function stripDiacritics(str: string): string {
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+}
+
 const seed = async () => {
   console.log('🌱 Iniciando seed de ciudadanos...')
 
@@ -74,6 +78,7 @@ const seed = async () => {
     const apellido = APELLIDOS[Math.floor(Math.random() * APELLIDOS.length)]
     const dni = (20000000 + Math.floor(Math.random() * 30000000)).toString()
     const celular = `343640${(1000 + Math.floor(Math.random() * 9000)).toString()}`
+    const email = `${stripDiacritics(nombre).toLowerCase()}.${stripDiacritics(apellido).toLowerCase()}.${dni.slice(-4)}@example.com`
 
     // Generar fecha entre 1960 y 2005
     const year = 1960 + Math.floor(Math.random() * 45)
@@ -81,7 +86,15 @@ const seed = async () => {
     const day = 1 + Math.floor(Math.random() * 28)
     const fechaNacimiento = new Date(year, month, day).toISOString()
 
-    const calles = ['Av. San Martín', 'Calle 9 de Julio', 'Bv. Yrigoyen', 'Calle Belgrano', 'Pasaje Sarmiento', 'Calle Rivadavia', 'Av. Urquiza']
+    const calles = [
+      'Av. San Martín',
+      'Calle 9 de Julio',
+      'Bv. Yrigoyen',
+      'Calle Belgrano',
+      'Pasaje Sarmiento',
+      'Calle Rivadavia',
+      'Av. Urquiza',
+    ]
     const domicilio = `${calles[Math.floor(Math.random() * calles.length)]} ${100 + Math.floor(Math.random() * 900)}, San Benito`
 
     try {
@@ -92,6 +105,7 @@ const seed = async () => {
           nombre,
           apellido,
           celular,
+          email,
           fechaNacimiento,
           domicilio,
         },
