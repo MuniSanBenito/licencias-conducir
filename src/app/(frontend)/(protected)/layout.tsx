@@ -1,6 +1,6 @@
 import { basePayload } from '@/web/libs/payload/server'
 import { Navbar } from '@/web/ui/molecules/navbar'
-import { IconBuildingCommunity, IconCar } from '@tabler/icons-react'
+import { IconBuildingCommunity } from '@tabler/icons-react'
 import { headers } from 'next/headers'
 import { redirect, RedirectType } from 'next/navigation'
 import type { PropsWithChildren } from 'react'
@@ -23,7 +23,7 @@ export default async function ProtectedLayout({ children }: PropsWithChildren) {
       <input id="protected-drawer" type="checkbox" className="drawer-toggle" />
 
       <main id="main-content" className="drawer-content flex flex-col" tabIndex={-1}>
-        <header className="navbar bg-base-100 border-base-300 border-b shadow-sm">
+        {/* <header className="navbar bg-base-100 border-base-300 sticky top-0 z-40 border-b shadow-sm">
           <section className="flex flex-1 items-center gap-2">
             <IconCar size={24} className="text-primary" />
             <h1 className="text-lg font-semibold">Licencias de Conducir</h1>
@@ -33,7 +33,7 @@ export default async function ProtectedLayout({ children }: PropsWithChildren) {
               Usuario: <strong>{auth.user?.email}</strong>
             </span>
           </section>
-        </header>
+        </header> */}
 
         <article className="flex-1 p-8">{children}</article>
       </main>
