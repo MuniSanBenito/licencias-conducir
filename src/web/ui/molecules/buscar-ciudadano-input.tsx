@@ -4,7 +4,6 @@ import {
   IconChevronLeft,
   IconChevronRight,
   IconPhone,
-  IconSearch,
   IconUserPlus,
   IconX,
 } from '@tabler/icons-react'
@@ -12,6 +11,7 @@ import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 import { twJoin } from 'tailwind-merge'
+import { BuscarForm } from '../atoms/buscar-form'
 
 interface BuscarCiudadanoInputProps {
   ciudadanos: Ciudadano[]
@@ -100,36 +100,18 @@ export function BuscarCiudadanoInput({
     )
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    handleSearch()
-  }
-
   return (
     <section aria-label="Buscar ciudadano" className="mt-4 flex flex-col gap-3">
-      <form role="search" className="flex gap-2" onSubmit={handleSubmit}>
-        <input
-          type="search"
-          className="input input-bordered input-sm flex-1"
-          placeholder="Buscar por DNI, nombre o apellido..."
-          aria-label="Buscar ciudadano por DNI, nombre o apellido"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <button type="submit" className="btn btn-primary btn-sm">
-          <IconSearch size={18} aria-hidden="true" />
-          Buscar
-        </button>
-        <button
-          type="button"
-          className="btn btn-ghost btn-sm"
-          onClick={handleClear}
-          disabled={!(searchTerm || currentQuery)}
-        >
-          <IconX size={18} aria-hidden="true" />
-          Limpiar
-        </button>
-      </form>
+      <BuscarForm
+        value={searchTerm}
+        onChange={setSearchTerm}
+        onSearch={handleSearch}
+        onClear={handleClear}
+        label="Buscar ciudadano por DNI, nombre o apellido"
+        placeholder="Buscar por DNI, nombre o apellido..."
+        clearDisabled={!(searchTerm || currentQuery)}
+        className="flex gap-2"
+      />
 
       {currentQuery && (
         <div className="flex flex-col gap-2">

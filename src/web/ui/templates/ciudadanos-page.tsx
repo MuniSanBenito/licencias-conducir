@@ -8,10 +8,8 @@ import {
   IconChevronUp,
   IconEdit,
   IconPlus,
-  IconSearch,
   IconSelector,
   IconTrash,
-  IconX,
 } from '@tabler/icons-react'
 import {
   createColumnHelper,
@@ -23,6 +21,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useRef, useState } from 'react'
 import { toast } from 'sonner'
 import { twJoin } from 'tailwind-merge'
+import { BuscarForm } from '../atoms/buscar-form'
 import { CiudadanoForm } from '../organisms/ciudadano-form'
 
 const columnHelper = createColumnHelper<Ciudadano>()
@@ -236,29 +235,16 @@ export function CiudadanosPage({ ciudadanos, page, totalPages, totalDocs }: Prop
 
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-4">
-          <div role="search" className="flex max-w-lg flex-1 gap-2">
-            <input
-              type="text"
-              aria-label="Buscar ciudadanos"
-              placeholder="Buscar por DNI, nombre, email o celular..."
-              className="input input-bordered input-sm flex-1"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-            />
-            <button className="btn btn-primary btn-sm" onClick={handleSearch}>
-              <IconSearch size={18} aria-hidden="true" />
-              Buscar
-            </button>
-            <button
-              className="btn btn-ghost btn-sm"
-              onClick={handleClear}
-              disabled={!(searchTerm || currentQuery)}
-            >
-              <IconX size={18} aria-hidden="true" />
-              Limpiar
-            </button>
-          </div>
+          <BuscarForm
+            value={searchTerm}
+            onChange={setSearchTerm}
+            onSearch={handleSearch}
+            onClear={handleClear}
+            label="Buscar ciudadanos"
+            placeholder="Buscar por DNI, nombre, email o celular..."
+            clearDisabled={!(searchTerm || currentQuery)}
+            className="flex max-w-lg flex-1 gap-2"
+          />
           <button className="btn btn-primary btn-sm" onClick={handleClickCreate}>
             <IconPlus aria-hidden="true" />
             Nuevo
