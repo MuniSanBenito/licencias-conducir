@@ -3,7 +3,6 @@
 import type { ClaseLicencia } from './constants/clases'
 import {
   type EstadoPaso,
-  type EstadoTramite,
   type EstadoTurno,
   type PasoId,
   type TipoTramite,
@@ -31,26 +30,6 @@ export interface PasoTramite {
 export interface ItemLicencia {
   clase: ClaseLicencia
   tipo: TipoTramite
-}
-
-export interface Ciudadano {
-  dni: string
-  nombre: string
-  apellido: string
-  celular: string
-  fechaNacimiento: string
-  domicilio: string
-}
-
-export interface Tramite {
-  id: string
-  fut: string
-  ciudadano: Ciudadano
-  items: ItemLicencia[]
-  pasos: PasoTramite[]
-  estado: EstadoTramite
-  fechaInicio: string
-  fechaFin?: string
 }
 
 interface R {

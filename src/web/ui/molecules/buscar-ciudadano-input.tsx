@@ -1,14 +1,27 @@
 'use client'
-import type { Ciudadano } from '@/types'
-import { IconPhone, IconSearch, IconUserPlus, IconX } from '@tabler/icons-react'
+import type { Ciudadano } from '@/payload-types'
+import {
+  IconChevronLeft,
+  IconChevronRight,
+  IconPhone,
+  IconSearch,
+  IconUserPlus,
+  IconX,
+} from '@tabler/icons-react'
 import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
+import { twJoin } from 'tailwind-merge'
 
 interface BuscarCiudadanoInputProps {
   ciudadanos: Ciudadano[]
   seleccionado: Ciudadano | null
   onSeleccionar: (ciudadano: Ciudadano) => void
   onDeseleccionar: () => void
+  page: number
+  totalPages: number
+  totalDocs: number
+  currentQuery: string
 }
 
 export function BuscarCiudadanoInput({
@@ -16,115 +29,176 @@ export function BuscarCiudadanoInput({
   seleccionado,
   onSeleccionar,
   onDeseleccionar,
+  page,
+  totalPages,
+  currentQuery,
 }: BuscarCiudadanoInputProps) {
-  const [busqueda, setBusqueda] = useState('')
-  const [showDropdown, setShowDropdown] = useState(false)
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
-  const q = busqueda.toLowerCase().trim()
-  const resultados = q
-    ? ciudadanos
-        .filter(
-          (c) =>
-            c.dni.includes(q) ||
-            c.nombre.toLowerCase().includes(q) ||
-            c.apellido.toLowerCase().includes(q),
-        )
-        .slice(0, 8)
-    : []
+  const [searchTerm, setSearchTerm] = useState(currentQuery)
 
-  const handleSeleccionar = (c: Ciudadano) => {
-    onSeleccionar(c)
-    setBusqueda('')
-    setShowDropdown(false)
+  const hasPrevPage = page > 1
+  const hasNextPage = page < totalPages
+
+  const handleSearch = () => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (searchTerm) {
+      params.set('q', searchTerm)
+    } else {
+      params.delete('q')
+    }
+    params.set('page', '1')
+    router.push(`?${params.toString()}`)
   }
 
-  const handleDeseleccionar = () => {
-    onDeseleccionar()
-    setBusqueda('')
+  const handleClear = () => {
+    setSearchTerm('')
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete('q')
+    params.set('page', '1')
+    router.push(`?${params.toString()}`)
+  }
+
+  const navigateToPage = (newPage: number) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('page', String(newPage))
+    router.push(`?${params.toString()}`)
   }
 
   if (seleccionado) {
     return (
-      <section className="bg-primary/10 mt-4 flex items-center justify-between rounded-lg p-4">
-        <section className="flex items-center gap-4">
-          <section>
-            <p className="font-semibold">
-              {seleccionado.apellido}, {seleccionado.nombre}
-            </p>
-            <p className="text-sm opacity-60">
-              DNI: <strong className="font-mono">{seleccionado.dni}</strong>
-              <span className="mx-2 opacity-30">|</span>
-              {seleccionado.celular && (
-                <>
-                  <IconPhone size={12} className="inline" /> {seleccionado.celular}
-                  <span className="mx-2 opacity-30">|</span>
-                </>
-              )}
-              {seleccionado.domicilio}
-            </p>
-          </section>
-        </section>
-        <button className="btn btn-error btn-outline btn-sm" onClick={handleDeseleccionar}>
-          <IconX size={14} />
+      <section
+        aria-label={`Ciudadano seleccionado: ${seleccionado.apellido}, ${seleccionado.nombre}`}
+        className="bg-primary/10 mt-4 flex items-center justify-between rounded-lg p-4"
+      >
+        <div>
+          <p className="font-semibold">
+            {seleccionado.apellido}, {seleccionado.nombre}
+          </p>
+          <p className="text-sm opacity-60">
+            DNI: <strong className="font-mono">{seleccionado.dni}</strong>
+            <span className="mx-2 opacity-30">|</span>
+            {seleccionado.celular && (
+              <>
+                <IconPhone size={12} className="inline" aria-hidden="true" /> {seleccionado.celular}
+                <span className="mx-2 opacity-30">|</span>
+              </>
+            )}
+            {seleccionado.domicilio}
+          </p>
+        </div>
+        <button
+          className="btn btn-error btn-outline btn-sm"
+          onClick={onDeseleccionar}
+          aria-label={`Cambiar ciudadano seleccionado: ${seleccionado.apellido}, ${seleccionado.nombre}`}
+        >
+          <IconX size={14} aria-hidden="true" />
           Cambiar
         </button>
       </section>
     )
   }
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    handleSearch()
+  }
+
   return (
-    <section className="relative mt-4">
-      <label className="input input-bordered input-primary flex items-center gap-2">
-        <IconSearch size={16} className="opacity-50" />
+    <section aria-label="Buscar ciudadano" className="mt-4 flex flex-col gap-3">
+      <form role="search" className="flex gap-2" onSubmit={handleSubmit}>
         <input
           type="search"
-          className="grow"
+          className="input input-bordered input-sm flex-1"
           placeholder="Buscar por DNI, nombre o apellido..."
-          value={busqueda}
-          onChange={(e) => {
-            setBusqueda(e.target.value)
-            setShowDropdown(true)
-          }}
-          onFocus={() => setShowDropdown(true)}
-          onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
-          aria-label="Buscar ciudadano"
-          aria-expanded={showDropdown && busqueda.length > 0}
+          aria-label="Buscar ciudadano por DNI, nombre o apellido"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
-      </label>
-
-      {showDropdown && busqueda.length > 0 && (
-        <ul
-          className="menu bg-base-100 rounded-box border-base-300 absolute top-full right-0 left-0 z-50 mt-1 max-h-72 overflow-auto border shadow-xl"
-          role="listbox"
-          aria-label="Resultados de búsqueda"
+        <button type="submit" className="btn btn-primary btn-sm">
+          <IconSearch size={18} aria-hidden="true" />
+          Buscar
+        </button>
+        <button
+          type="button"
+          className="btn btn-ghost btn-sm"
+          onClick={handleClear}
+          disabled={!(searchTerm || currentQuery)}
         >
-          {resultados.length === 0 ? (
-            <li className="disabled">
-              <section className="flex flex-col items-center py-4 opacity-60">
-                <span>No se encontraron ciudadanos</span>
-                <Link href="/ciudadanos" className="link link-primary mt-1 text-xs">
-                  <IconUserPlus size={14} />
-                  Registrar nuevo ciudadano
-                </Link>
-              </section>
-            </li>
+          <IconX size={18} aria-hidden="true" />
+          Limpiar
+        </button>
+      </form>
+
+      {currentQuery && (
+        <div className="flex flex-col gap-2">
+          {ciudadanos.length === 0 ? (
+            <div className="py-4 text-center opacity-60">
+              <p>No se encontraron ciudadanos</p>
+              <Link
+                href="/ciudadanos"
+                className="link link-primary mt-1 inline-flex items-center gap-1 text-xs"
+              >
+                <IconUserPlus size={14} aria-hidden="true" />
+                Registrar nuevo ciudadano
+              </Link>
+            </div>
           ) : (
-            resultados.map((c) => (
-              <li key={c.dni} role="option" aria-selected={false}>
-                <button className="flex items-center gap-3" onClick={() => handleSeleccionar(c)}>
-                  <section>
+            <ul
+              className="bg-base-100 border-base-300 divide-base-300 rounded-box divide-y border shadow"
+              aria-label="Resultados de búsqueda"
+            >
+              {ciudadanos.map((c) => (
+                <li key={c.id} className="flex items-center justify-between gap-3 px-4 py-3">
+                  <div>
                     <p className="text-sm font-semibold">
                       {c.apellido}, {c.nombre}
                     </p>
                     <p className="text-xs opacity-50">
                       DNI: {c.dni} · {c.domicilio}
                     </p>
-                  </section>
-                </button>
-              </li>
-            ))
+                  </div>
+                  <button
+                    className="btn btn-primary btn-xs"
+                    aria-label={`Seleccionar ciudadano ${c.apellido}, ${c.nombre}`}
+                    onClick={() => onSeleccionar(c)}
+                  >
+                    Seleccionar
+                  </button>
+                </li>
+              ))}
+            </ul>
           )}
-        </ul>
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between">
+              <output className="text-base-content/60 text-sm" aria-live="polite">
+                Página {page} de {totalPages}
+              </output>
+              <nav aria-label="Paginación de resultados">
+                <div className="join">
+                  <button
+                    className={twJoin('join-item btn btn-xs', !hasPrevPage && 'btn-disabled')}
+                    onClick={() => navigateToPage(page - 1)}
+                    disabled={!hasPrevPage}
+                    aria-label="Página anterior"
+                  >
+                    <IconChevronLeft size={14} aria-hidden="true" />
+                  </button>
+                  <button
+                    className={twJoin('join-item btn btn-xs', !hasNextPage && 'btn-disabled')}
+                    onClick={() => navigateToPage(page + 1)}
+                    disabled={!hasNextPage}
+                    aria-label="Página siguiente"
+                  >
+                    <IconChevronRight size={14} aria-hidden="true" />
+                  </button>
+                </div>
+              </nav>
+            </div>
+          )}
+        </div>
       )}
     </section>
   )
