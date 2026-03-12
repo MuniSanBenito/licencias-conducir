@@ -86,24 +86,9 @@ interface Props {
   totalDocs: number
 }
 export function CiudadanosPage({ ciudadanos, page, totalPages, totalDocs }: Props) {
-  /* const handleSubmit = () => {
-    if (!form.dni || !form.nombre || !form.apellido) {
-      toast.error('Completá al menos DNI, nombre y apellido')
-      return
-    }
-    const yaExiste = ciudadanos.some((c) => c.dni === form.dni)
-    if (yaExiste) {
-      toast.error('Ya existe un ciudadano con ese DNI')
-      return
-    }
-    addCiudadano({ ...form })
-    setForm({ dni: '', nombre: '', apellido: '', celular: '', fechaNacimiento: '', domicilio: '' })
-    setShowForm(false)
-    toast.success(`Ciudadano ${form.apellido}, ${form.nombre} registrado correctamente`)
-  } */
-
   const router = useRouter()
   const searchParams = useSearchParams()
+
   const currentSort = searchParams.get('sort') || '-createdAt'
   const currentQuery = searchParams.get('q') || ''
 
