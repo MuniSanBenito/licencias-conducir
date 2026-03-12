@@ -58,20 +58,20 @@ function buildColumns(
       id: 'acciones',
       header: 'Acciones',
       cell: ({ row }) => (
-        <div className="flex gap-1">
+        <div className="flex gap-1" role="group" aria-label="Acciones">
           <button
             className="btn btn-ghost btn-xs"
             aria-label={`Editar ciudadano ${row.original.dni}`}
             onClick={() => onEdit(row.original)}
           >
-            <IconEdit size={16} />
+            <IconEdit size={16} aria-hidden="true" />
           </button>
           <button
             className="btn btn-ghost btn-xs text-error"
             aria-label={`Eliminar ciudadano ${row.original.dni}`}
             onClick={() => onDelete(row.original)}
           >
-            <IconTrash size={16} />
+            <IconTrash size={16} aria-hidden="true" />
           </button>
         </div>
       ),
@@ -219,22 +219,25 @@ export function CiudadanosPage({ ciudadanos, page, totalPages, totalDocs }: Prop
   }
 
   const getSortIcon = (columnId: string) => {
-    if (currentSort === columnId) return <IconChevronUp size={14} className="text-primary" />
+    if (currentSort === columnId)
+      return <IconChevronUp size={14} className="text-primary" aria-hidden="true" />
     if (currentSort === `-${columnId}`)
-      return <IconChevronDown size={14} className="text-primary" />
-    return <IconSelector size={14} className="opacity-20" />
+      return <IconChevronDown size={14} className="text-primary" aria-hidden="true" />
+    return <IconSelector size={14} className="opacity-20" aria-hidden="true" />
   }
 
   return (
-    <section>
+    <section aria-labelledby="ciudadanos-heading">
       {/* Header */}
       <header className="mb-6 flex items-center justify-between">
-        <h2 className="text-xl font-bold">Ciudadanos Registrados</h2>
+        <h2 id="ciudadanos-heading" className="text-xl font-bold">
+          Ciudadanos Registrados
+        </h2>
       </header>
 
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-4">
-          <div className="flex max-w-lg flex-1 gap-2">
+          <div role="search" className="flex max-w-lg flex-1 gap-2">
             <input
               type="text"
               placeholder="Buscar por DNI, nombre, email o celular..."
@@ -244,7 +247,7 @@ export function CiudadanosPage({ ciudadanos, page, totalPages, totalDocs }: Prop
               onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             />
             <button className="btn btn-primary btn-sm" onClick={handleSearch}>
-              <IconSearch size={18} />
+              <IconSearch size={18} aria-hidden="true" />
               Buscar
             </button>
             <button
@@ -252,12 +255,12 @@ export function CiudadanosPage({ ciudadanos, page, totalPages, totalDocs }: Prop
               onClick={handleClear}
               disabled={!(searchTerm || currentQuery)}
             >
-              <IconX size={18} />
+              <IconX size={18} aria-hidden="true" />
               Limpiar
             </button>
           </div>
           <button className="btn btn-primary btn-sm" onClick={handleClickCreate}>
-            <IconPlus />
+            <IconPlus aria-hidden="true" />
             Nuevo
           </button>
         </div>
@@ -265,6 +268,7 @@ export function CiudadanosPage({ ciudadanos, page, totalPages, totalDocs }: Prop
         <div className="bg-base-100 rounded-box overflow-hidden shadow">
           <div className="overflow-x-auto">
             <table className="table-zebra table w-full">
+              <caption className="sr-only">Listado de ciudadanos</caption>
               <thead>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>
@@ -318,9 +322,9 @@ export function CiudadanosPage({ ciudadanos, page, totalPages, totalDocs }: Prop
 
         {/* Modal de crear/editar ciudadano. motanmos y desmontamos en lugar de via ref para poder "resetear" el form */}
         {showEditModal ? (
-          <dialog className="modal modal-open">
+          <dialog className="modal modal-open" aria-labelledby="edit-modal-title" aria-modal="true">
             <div className="modal-box">
-              <h3 className="mb-4 text-lg font-bold">
+              <h3 id="edit-modal-title" className="mb-4 text-lg font-bold">
                 {ciudadanoToEdit ? 'Editar Ciudadano' : 'Nuevo Ciudadano'}
               </h3>
               <CiudadanoForm
@@ -337,9 +341,16 @@ export function CiudadanosPage({ ciudadanos, page, totalPages, totalDocs }: Prop
         ) : null}
 
         {/* Modal de confirmación de eliminación */}
-        <dialog ref={deleteModalRef} className="modal">
+        <dialog
+          ref={deleteModalRef}
+          className="modal"
+          aria-labelledby="delete-modal-title"
+          aria-modal="true"
+        >
           <div className="modal-box max-w-xl">
-            <h3 className="text-lg font-bold">Confirmar eliminación</h3>
+            <h3 id="delete-modal-title" className="text-lg font-bold">
+              Confirmar eliminación
+            </h3>
             {ciudadanoToDelete && (
               <>
                 <p className="py-4">
@@ -369,27 +380,29 @@ export function CiudadanosPage({ ciudadanos, page, totalPages, totalDocs }: Prop
         {/* Paginación */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between">
-            <span className="text-base-content/60 text-sm">
+            <output className="text-base-content/60 text-sm" aria-live="polite">
               Página {page} de {totalPages} — {totalDocs} ciudadanos en total
-            </span>
-            <div className="join">
-              <button
-                className={twJoin('join-item btn btn-sm', !hasPrevPage && 'btn-disabled')}
-                onClick={() => navigateToPage(page - 1)}
-                disabled={!hasPrevPage}
-              >
-                <IconChevronLeft size={16} />
-                Anterior
-              </button>
-              <button
-                className={twJoin('join-item btn btn-sm', !hasNextPage && 'btn-disabled')}
-                onClick={() => navigateToPage(page + 1)}
-                disabled={!hasNextPage}
-              >
-                Siguiente
-                <IconChevronRight size={16} />
-              </button>
-            </div>
+            </output>
+            <nav aria-label="Paginación">
+              <div className="join">
+                <button
+                  className={twJoin('join-item btn btn-sm', !hasPrevPage && 'btn-disabled')}
+                  onClick={() => navigateToPage(page - 1)}
+                  disabled={!hasPrevPage}
+                >
+                  <IconChevronLeft size={16} aria-hidden="true" />
+                  Anterior
+                </button>
+                <button
+                  className={twJoin('join-item btn btn-sm', !hasNextPage && 'btn-disabled')}
+                  onClick={() => navigateToPage(page + 1)}
+                  disabled={!hasNextPage}
+                >
+                  Siguiente
+                  <IconChevronRight size={16} aria-hidden="true" />
+                </button>
+              </div>
+            </nav>
           </div>
         )}
       </div>

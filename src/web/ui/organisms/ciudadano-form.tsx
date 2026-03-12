@@ -65,9 +65,13 @@ export function CiudadanoForm({ defaultValues, onSuccess, onError, onCancel }: C
   })
 
   return (
-    <form className="bg-base-100 rounded-box space-y-6 p-6 shadow" onSubmit={onSubmit}>
+    <form
+      className="bg-base-100 rounded-box space-y-6 p-6 shadow"
+      onSubmit={onSubmit}
+      aria-busy={isSubmitting}
+    >
       {/* DNI */}
-      <fieldset className="form-control">
+      <div className="form-control">
         <label className="label" htmlFor="dni">
           <span className="label-text">DNI</span>
         </label>
@@ -77,6 +81,8 @@ export function CiudadanoForm({ defaultValues, onSuccess, onError, onCancel }: C
           inputMode="numeric"
           placeholder="Ej: 12345678"
           className={twJoin('input input-bordered w-full', errors.dni && 'input-error')}
+          aria-invalid={!!errors.dni}
+          aria-describedby={errors.dni ? 'dni-error' : undefined}
           {...register('dni', {
             required: 'El DNI es obligatorio',
             minLength: {
@@ -91,15 +97,15 @@ export function CiudadanoForm({ defaultValues, onSuccess, onError, onCancel }: C
           })}
         />
         {errors.dni && (
-          <label className="label" htmlFor="dni">
+          <p id="dni-error" role="alert" className="label">
             <span className="label-text-alt text-error">{errors.dni.message}</span>
-          </label>
+          </p>
         )}
-      </fieldset>
+      </div>
 
       {/* Nombre y Apellido */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <fieldset className="form-control">
+        <div className="form-control">
           <label className="label" htmlFor="nombre">
             <span className="label-text">Nombre</span>
           </label>
@@ -108,6 +114,8 @@ export function CiudadanoForm({ defaultValues, onSuccess, onError, onCancel }: C
             type="text"
             placeholder="Ej: Juan"
             className={twJoin('input input-bordered w-full', errors.nombre && 'input-error')}
+            aria-invalid={!!errors.nombre}
+            aria-describedby={errors.nombre ? 'nombre-error' : undefined}
             {...register('nombre', {
               required: 'El nombre es obligatorio',
               minLength: {
@@ -121,13 +129,13 @@ export function CiudadanoForm({ defaultValues, onSuccess, onError, onCancel }: C
             })}
           />
           {errors.nombre && (
-            <label className="label" htmlFor="nombre">
+            <p id="nombre-error" role="alert" className="label">
               <span className="label-text-alt text-error">{errors.nombre.message}</span>
-            </label>
+            </p>
           )}
-        </fieldset>
+        </div>
 
-        <fieldset className="form-control">
+        <div className="form-control">
           <label className="label" htmlFor="apellido">
             <span className="label-text">Apellido</span>
           </label>
@@ -136,6 +144,8 @@ export function CiudadanoForm({ defaultValues, onSuccess, onError, onCancel }: C
             type="text"
             placeholder="Ej: Pérez"
             className={twJoin('input input-bordered w-full', errors.apellido && 'input-error')}
+            aria-invalid={!!errors.apellido}
+            aria-describedby={errors.apellido ? 'apellido-error' : undefined}
             {...register('apellido', {
               required: 'El apellido es obligatorio',
               minLength: {
@@ -149,15 +159,15 @@ export function CiudadanoForm({ defaultValues, onSuccess, onError, onCancel }: C
             })}
           />
           {errors.apellido && (
-            <label className="label" htmlFor="apellido">
+            <p id="apellido-error" role="alert" className="label">
               <span className="label-text-alt text-error">{errors.apellido.message}</span>
-            </label>
+            </p>
           )}
-        </fieldset>
+        </div>
       </div>
 
       {/* Email */}
-      <fieldset className="form-control">
+      <div className="form-control">
         <label className="label" htmlFor="email">
           <span className="label-text">Email</span>
         </label>
@@ -166,6 +176,8 @@ export function CiudadanoForm({ defaultValues, onSuccess, onError, onCancel }: C
           type="email"
           placeholder="juan.perez@email.com"
           className={twJoin('input input-bordered w-full', errors.email && 'input-error')}
+          aria-invalid={!!errors.email}
+          aria-describedby={errors.email ? 'email-error' : undefined}
           {...register('email', {
             required: 'El email es obligatorio',
             pattern: {
@@ -175,14 +187,14 @@ export function CiudadanoForm({ defaultValues, onSuccess, onError, onCancel }: C
           })}
         />
         {errors.email && (
-          <label className="label" htmlFor="email">
+          <p id="email-error" role="alert" className="label">
             <span className="label-text-alt text-error">{errors.email.message}</span>
-          </label>
+          </p>
         )}
-      </fieldset>
+      </div>
 
       {/* Celular */}
-      <fieldset className="form-control">
+      <div className="form-control">
         <label className="label" htmlFor="celular">
           <span className="label-text">Celular</span>
         </label>
@@ -194,14 +206,14 @@ export function CiudadanoForm({ defaultValues, onSuccess, onError, onCancel }: C
           {...register('celular')}
         />
         {errors.celular && (
-          <label className="label" htmlFor="celular">
+          <p id="celular-error" role="alert" className="label">
             <span className="label-text-alt text-error">{errors.celular.message}</span>
-          </label>
+          </p>
         )}
-      </fieldset>
+      </div>
 
       {/* Domicilio */}
-      <fieldset className="form-control">
+      <div className="form-control">
         <label className="label" htmlFor="domicilio">
           <span className="label-text">Domicilio</span>
         </label>
@@ -213,14 +225,14 @@ export function CiudadanoForm({ defaultValues, onSuccess, onError, onCancel }: C
           {...register('domicilio')}
         />
         {errors.domicilio && (
-          <label className="label" htmlFor="domicilio">
+          <p id="domicilio-error" role="alert" className="label">
             <span className="label-text-alt text-error">{errors.domicilio.message}</span>
-          </label>
+          </p>
         )}
-      </fieldset>
+      </div>
 
       {/* Fecha de Nacimiento */}
-      <fieldset className="form-control">
+      <div className="form-control">
         <label className="label" htmlFor="fecha_nacimiento">
           <span className="label-text">Fecha de Nacimiento</span>
         </label>
@@ -228,6 +240,8 @@ export function CiudadanoForm({ defaultValues, onSuccess, onError, onCancel }: C
           id="fecha_nacimiento"
           type="date"
           className={twJoin('input input-bordered w-full', errors.fechaNacimiento && 'input-error')}
+          aria-invalid={!!errors.fechaNacimiento}
+          aria-describedby={errors.fechaNacimiento ? 'fechaNacimiento-error' : undefined}
           {...register('fechaNacimiento', {
             required: 'La fecha de nacimiento es obligatoria',
             validate: (value) => {
@@ -240,11 +254,11 @@ export function CiudadanoForm({ defaultValues, onSuccess, onError, onCancel }: C
           })}
         />
         {errors.fechaNacimiento && (
-          <label className="label" htmlFor="fechaNacimiento">
+          <p id="fechaNacimiento-error" role="alert" className="label">
             <span className="label-text-alt text-error">{errors.fechaNacimiento.message}</span>
-          </label>
+          </p>
         )}
-      </fieldset>
+      </div>
 
       {/* Acciones */}
       <footer className="flex justify-end gap-3 pt-2">
@@ -253,9 +267,9 @@ export function CiudadanoForm({ defaultValues, onSuccess, onError, onCancel }: C
         </button>
         <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
           {isSubmitting ? (
-            <IconLoader2 size={20} className="animate-spin" />
+            <IconLoader2 size={20} className="animate-spin" aria-hidden="true" />
           ) : (
-            <IconDeviceFloppy size={20} />
+            <IconDeviceFloppy size={20} aria-hidden="true" />
           )}
           {isSubmitting ? 'Guardando...' : 'Guardar'}
         </button>
