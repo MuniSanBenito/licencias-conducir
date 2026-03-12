@@ -1,5 +1,4 @@
 'use client'
-
 import { TIPO_TRAMITE_LABELS } from '@/constants/tramites'
 import type { Tramite } from '@/types'
 import { useTramites } from '@/web/hooks/use-tramites'

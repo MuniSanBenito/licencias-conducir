@@ -1,6 +1,4 @@
 'use client'
-
-// import { createCiudadano, updateCiudadano } from '@/app/actions/ciudadano'
 import type { Ciudadano } from '@/payload-types'
 import { sdk } from '@/web/libs/payload/client'
 import { PayloadSDKError } from '@payloadcms/sdk'

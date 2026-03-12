@@ -1,5 +1,4 @@
 'use client'
-
 import type { Ciudadano } from '@/payload-types'
 import { sdk } from '@/web/libs/payload/client'
 import {

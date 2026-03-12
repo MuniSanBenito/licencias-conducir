@@ -1,5 +1,4 @@
 'use client'
-
 import type { PasoTramite } from '@/types'
 import { TurnoBadge } from '@/web/ui/atoms/turno-badge'
 import {

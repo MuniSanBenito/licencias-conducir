@@ -1,5 +1,4 @@
 'use client'
-
 import type { Ciudadano } from '@/types'
 import { IconPhone, IconSearch, IconUserPlus, IconX } from '@tabler/icons-react'
 import Link from 'next/link'
