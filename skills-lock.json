@@ -16,11 +16,6 @@
       "sourceType": "github",
       "computedHash": "fa437acc2249cea2cb28f190ba7faf8fdfac829d1c1aafa9ce938c6dd9338721"
     },
-    "frontend-ui-engineering": {
-      "source": "addyosmani/agent-skills",
-      "sourceType": "github",
-      "computedHash": "98dd807d7d67671156743e94321f9c7549c7d9519f80c5b1fa5f211c6e48e789"
-    },
     "next-best-practices": {
       "source": "vercel-labs/next-skills",
       "sourceType": "github",

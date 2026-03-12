@@ -240,6 +240,7 @@ export function CiudadanosPage({ ciudadanos, page, totalPages, totalDocs }: Prop
           <div role="search" className="flex max-w-lg flex-1 gap-2">
             <input
               type="text"
+              aria-label="Buscar ciudadanos"
               placeholder="Buscar por DNI, nombre, email o celular..."
               className="input input-bordered input-sm flex-1"
               value={searchTerm}

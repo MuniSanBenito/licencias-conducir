@@ -8,11 +8,14 @@ import { IconDeviceFloppy, IconLoader2 } from '@tabler/icons-react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { twJoin } from 'tailwind-merge'
+import { FormField } from '../atoms/form-field'
 
 const DNI_MIN_LENGTH = 7
 const DNI_MAX_LENGTH = 8
 const NOMBRE_MIN_LENGTH = 2
 const NOMBRE_MAX_LENGTH = 50
+const DNI_PATTERN = /^\d+$/
+const EMAIL_PATTERN = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
 
 interface CiudadanoFormProps {
   defaultValues?: Ciudadano
@@ -56,7 +59,7 @@ export function CiudadanoForm({ defaultValues, onSuccess, onError, onCancel }: C
     } catch (error) {
       console.error(error)
       if (error instanceof PayloadSDKError) {
-        error.errors.forEach((error) => toast.error(error.message))
+        error.errors.forEach((err) => toast.error(err.message))
       } else {
         toast.error('Error al guardar el ciudadano')
       }
@@ -71,10 +74,7 @@ export function CiudadanoForm({ defaultValues, onSuccess, onError, onCancel }: C
       aria-busy={isSubmitting}
     >
       {/* DNI */}
-      <div className="form-control">
-        <label className="label" htmlFor="dni">
-          <span className="label-text">DNI</span>
-        </label>
+      <FormField id="dni" label="DNI" error={errors.dni}>
         <input
           id="dni"
           type="text"
@@ -93,22 +93,14 @@ export function CiudadanoForm({ defaultValues, onSuccess, onError, onCancel }: C
               value: DNI_MAX_LENGTH,
               message: `El DNI no puede exceder ${DNI_MAX_LENGTH} dígitos`,
             },
-            pattern: { value: /^\d+$/, message: 'El DNI solo debe contener números' },
+            pattern: { value: DNI_PATTERN, message: 'El DNI solo debe contener números' },
           })}
         />
-        {errors.dni && (
-          <p id="dni-error" role="alert" className="label">
-            <span className="label-text-alt text-error">{errors.dni.message}</span>
-          </p>
-        )}
-      </div>
+      </FormField>
 
       {/* Nombre y Apellido */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div className="form-control">
-          <label className="label" htmlFor="nombre">
-            <span className="label-text">Nombre</span>
-          </label>
+        <FormField id="nombre" label="Nombre" error={errors.nombre}>
           <input
             id="nombre"
             type="text"
@@ -128,17 +120,9 @@ export function CiudadanoForm({ defaultValues, onSuccess, onError, onCancel }: C
               },
             })}
           />
-          {errors.nombre && (
-            <p id="nombre-error" role="alert" className="label">
-              <span className="label-text-alt text-error">{errors.nombre.message}</span>
-            </p>
-          )}
-        </div>
+        </FormField>
 
-        <div className="form-control">
-          <label className="label" htmlFor="apellido">
-            <span className="label-text">Apellido</span>
-          </label>
+        <FormField id="apellido" label="Apellido" error={errors.apellido}>
           <input
             id="apellido"
             type="text"
@@ -158,19 +142,11 @@ export function CiudadanoForm({ defaultValues, onSuccess, onError, onCancel }: C
               },
             })}
           />
-          {errors.apellido && (
-            <p id="apellido-error" role="alert" className="label">
-              <span className="label-text-alt text-error">{errors.apellido.message}</span>
-            </p>
-          )}
-        </div>
+        </FormField>
       </div>
 
       {/* Email */}
-      <div className="form-control">
-        <label className="label" htmlFor="email">
-          <span className="label-text">Email</span>
-        </label>
+      <FormField id="email" label="Email" error={errors.email}>
         <input
           id="email"
           type="email"
@@ -180,24 +156,13 @@ export function CiudadanoForm({ defaultValues, onSuccess, onError, onCancel }: C
           aria-describedby={errors.email ? 'email-error' : undefined}
           {...register('email', {
             required: 'El email es obligatorio',
-            pattern: {
-              value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-              message: 'Ingrese un email válido',
-            },
+            pattern: { value: EMAIL_PATTERN, message: 'Ingrese un email válido' },
           })}
         />
-        {errors.email && (
-          <p id="email-error" role="alert" className="label">
-            <span className="label-text-alt text-error">{errors.email.message}</span>
-          </p>
-        )}
-      </div>
+      </FormField>
 
       {/* Celular */}
-      <div className="form-control">
-        <label className="label" htmlFor="celular">
-          <span className="label-text">Celular</span>
-        </label>
+      <FormField id="celular" label="Celular" error={errors.celular}>
         <input
           id="celular"
           type="tel"
@@ -205,18 +170,10 @@ export function CiudadanoForm({ defaultValues, onSuccess, onError, onCancel }: C
           className={twJoin('input input-bordered w-full', errors.celular && 'input-error')}
           {...register('celular')}
         />
-        {errors.celular && (
-          <p id="celular-error" role="alert" className="label">
-            <span className="label-text-alt text-error">{errors.celular.message}</span>
-          </p>
-        )}
-      </div>
+      </FormField>
 
       {/* Domicilio */}
-      <div className="form-control">
-        <label className="label" htmlFor="domicilio">
-          <span className="label-text">Domicilio</span>
-        </label>
+      <FormField id="domicilio" label="Domicilio" error={errors.domicilio}>
         <input
           id="domicilio"
           type="text"
@@ -224,24 +181,16 @@ export function CiudadanoForm({ defaultValues, onSuccess, onError, onCancel }: C
           className={twJoin('input input-bordered w-full', errors.domicilio && 'input-error')}
           {...register('domicilio')}
         />
-        {errors.domicilio && (
-          <p id="domicilio-error" role="alert" className="label">
-            <span className="label-text-alt text-error">{errors.domicilio.message}</span>
-          </p>
-        )}
-      </div>
+      </FormField>
 
       {/* Fecha de Nacimiento */}
-      <div className="form-control">
-        <label className="label" htmlFor="fecha_nacimiento">
-          <span className="label-text">Fecha de Nacimiento</span>
-        </label>
+      <FormField id="fecha_nacimiento" label="Fecha de Nacimiento" error={errors.fechaNacimiento}>
         <input
           id="fecha_nacimiento"
           type="date"
           className={twJoin('input input-bordered w-full', errors.fechaNacimiento && 'input-error')}
           aria-invalid={!!errors.fechaNacimiento}
-          aria-describedby={errors.fechaNacimiento ? 'fechaNacimiento-error' : undefined}
+          aria-describedby={errors.fechaNacimiento ? 'fecha_nacimiento-error' : undefined}
           {...register('fechaNacimiento', {
             required: 'La fecha de nacimiento es obligatoria',
             validate: (value) => {
@@ -253,12 +202,7 @@ export function CiudadanoForm({ defaultValues, onSuccess, onError, onCancel }: C
             },
           })}
         />
-        {errors.fechaNacimiento && (
-          <p id="fechaNacimiento-error" role="alert" className="label">
-            <span className="label-text-alt text-error">{errors.fechaNacimiento.message}</span>
-          </p>
-        )}
-      </div>
+      </FormField>
 
       {/* Acciones */}
       <footer className="flex justify-end gap-3 pt-2">
