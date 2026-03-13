@@ -1,3 +1,4 @@
+import { DISPLAY_DATE_FORMAT } from '@/constants/fechas'
 import type { CollectionConfig } from 'payload'
 
 export const Ciudadano: CollectionConfig = {
@@ -47,9 +48,7 @@ export const Ciudadano: CollectionConfig = {
       type: 'text',
       virtual: true,
       hooks: {
-        afterRead: [
-          ({ siblingData }) => `${siblingData.apellido}, ${siblingData.nombre}`,
-        ],
+        afterRead: [({ siblingData }) => `${siblingData.apellido}, ${siblingData.nombre}`],
       },
       admin: {
         hidden: true,
@@ -78,7 +77,7 @@ export const Ciudadano: CollectionConfig = {
           admin: {
             width: '33%',
             date: {
-              displayFormat: 'dd/MM/yyyy',
+              displayFormat: DISPLAY_DATE_FORMAT,
             },
           },
         },

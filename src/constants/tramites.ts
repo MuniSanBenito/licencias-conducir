@@ -114,6 +114,30 @@ export const ESTADO_TURNO_LABELS: Record<EstadoTurno, string> = {
   [ESTADO_TURNO.CANCELADO]: 'Cancelado',
 }
 
+export const TIPO_TRAMITE_BADGE_CLASS: Record<TipoTramite, string> = {
+  [TIPO_TRAMITE.NUEVA]: 'badge badge-info',
+  [TIPO_TRAMITE.RENOVACION]: 'badge badge-warning',
+  [TIPO_TRAMITE.AMPLIACION]: 'badge badge-secondary',
+}
+
+export const TIPO_TRAMITE_BADGE_SM_CLASS: Record<TipoTramite, string> = {
+  [TIPO_TRAMITE.NUEVA]: 'badge badge-info badge-sm',
+  [TIPO_TRAMITE.RENOVACION]: 'badge badge-warning badge-sm',
+  [TIPO_TRAMITE.AMPLIACION]: 'badge badge-secondary badge-sm',
+}
+
+export const TIPO_TRAMITE_TEXT_CLASS: Record<TipoTramite, string> = {
+  [TIPO_TRAMITE.NUEVA]: 'text-info',
+  [TIPO_TRAMITE.RENOVACION]: 'text-warning',
+  [TIPO_TRAMITE.AMPLIACION]: 'text-secondary',
+}
+
+export const ESTADO_TRAMITE_BADGE_SOFT_SM_CLASS: Record<EstadoTramite, string> = {
+  [ESTADO_TRAMITE.EN_CURSO]: 'badge badge-warning badge-soft badge-sm',
+  [ESTADO_TRAMITE.COMPLETADO]: 'badge badge-success badge-soft badge-sm',
+  [ESTADO_TRAMITE.CANCELADO]: 'badge badge-error badge-soft badge-sm',
+}
+
 // ─── Pasos del trámite ───
 
 export const PASO_ID = {

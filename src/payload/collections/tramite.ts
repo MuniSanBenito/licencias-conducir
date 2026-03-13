@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { CLASES_LICENCIA } from '@/constants/clases'
+import { DISPLAY_DATE_FORMAT } from '@/constants/fechas'
 import {
   ESTADO_PASO_DEFAULT,
   ESTADO_TRAMITE_DEFAULT,
@@ -72,7 +73,7 @@ export const Tramite: CollectionConfig = {
           label: 'Fecha de Inicio',
           admin: {
             width: '35%',
-            date: { displayFormat: 'dd/MM/yyyy' },
+            date: { displayFormat: DISPLAY_DATE_FORMAT },
           },
         },
         {
@@ -81,7 +82,7 @@ export const Tramite: CollectionConfig = {
           label: 'Fecha de Fin',
           admin: {
             width: '35%',
-            date: { displayFormat: 'dd/MM/yyyy' },
+            date: { displayFormat: DISPLAY_DATE_FORMAT },
             condition: (data) => ESTADOS_TRAMITE_CON_FECHA_FIN.includes(data?.estado),
           },
         },
@@ -183,7 +184,7 @@ export const Tramite: CollectionConfig = {
               label: 'Fecha de Realización',
               admin: {
                 width: '35%',
-                date: { displayFormat: 'dd/MM/yyyy' },
+                date: { displayFormat: DISPLAY_DATE_FORMAT },
               },
             },
             {
@@ -212,7 +213,7 @@ export const Tramite: CollectionConfig = {
                   label: 'Fecha del Turno',
                   admin: {
                     width: '35%',
-                    date: { displayFormat: 'dd/MM/yyyy' },
+                    date: { displayFormat: DISPLAY_DATE_FORMAT },
                   },
                 },
                 {

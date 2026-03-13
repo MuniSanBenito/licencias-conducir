@@ -19,3 +19,5 @@ export const CLASES_LICENCIA = [
 ] as const
 
 export type ClaseLicencia = (typeof CLASES_LICENCIA)[number]
+
+export const CLASE_LICENCIA_DEFAULT: ClaseLicencia = 'B1'

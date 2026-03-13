@@ -7,6 +7,7 @@ import { es } from 'payload/i18n/es'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 import { DATABASE_URI, PAYLOAD_SECRET } from './config'
+import { DISPLAY_DATE_FORMAT } from './constants/fechas'
 import { Archivo } from './payload/collections/archivo'
 import { Ciudadano } from './payload/collections/ciudadano'
 import { Dev } from './payload/collections/dev'
@@ -25,7 +26,7 @@ export default buildConfig({
     },
     avatar: 'default',
     theme: 'light',
-    dateFormat: 'dd/MM/yyyy',
+    dateFormat: DISPLAY_DATE_FORMAT,
     meta: {
       titleSuffix: '| Licencias San Benito',
     },
@@ -36,13 +37,7 @@ export default buildConfig({
       },
     },
   },
-  collections: [
-    Dev,
-    Archivo,
-    Usuario,
-    Ciudadano,
-    Tramite,
-  ],
+  collections: [Dev, Archivo, Usuario, Ciudadano, Tramite],
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,
   typescript: {

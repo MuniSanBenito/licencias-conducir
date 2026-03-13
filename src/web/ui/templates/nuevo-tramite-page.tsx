@@ -1,4 +1,5 @@
 'use client'
+import { CLASE_LICENCIA_DEFAULT } from '@/constants/clases'
 import { ESTADO_TRAMITE, TIPO_TRAMITE } from '@/constants/tramites'
 import type { Ciudadano } from '@/payload-types'
 import { sdk } from '@/web/libs/payload/client'
@@ -26,7 +27,9 @@ export function NuevoTramitePage({ ciudadanos, page, totalPages, totalDocs, curr
 
   const [ciudadanoSeleccionado, setCiudadanoSeleccionado] = useState<Ciudadano | null>(null)
   const [fut, setFut] = useState('')
-  const [items, setItems] = useState<ItemForm[]>([{ clase: 'B1', tipo: TIPO_TRAMITE.NUEVA }])
+  const [items, setItems] = useState<ItemForm[]>([
+    { clase: CLASE_LICENCIA_DEFAULT, tipo: TIPO_TRAMITE.NUEVA },
+  ])
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const pasosPreview = getPasosParaTramite(items)

@@ -3,7 +3,9 @@
 import {
   ESTADO_PASO,
   ESTADO_TRAMITE,
-  TIPO_TRAMITE,
+  ESTADO_TRAMITE_BADGE_SOFT_SM_CLASS,
+  ESTADO_TRAMITE_LABELS,
+  TIPO_TRAMITE_BADGE_SM_CLASS,
   TIPO_TRAMITE_LABELS,
 } from '@/constants/tramites'
 import type { Ciudadano, Tramite } from '@/payload-types'
@@ -60,7 +62,7 @@ function getEstadoActual(tramite: TramiteConCiudadano): string {
   const todosCompletados = tramite.pasos.every((paso) => paso.estado === ESTADO_PASO.COMPLETADO)
 
   if (todosCompletados) {
-    return 'Completado'
+    return ESTADO_TRAMITE_LABELS[ESTADO_TRAMITE.COMPLETADO]
   }
 
   return 'Pendiente de inicio'
@@ -76,16 +78,8 @@ function getProgreso(tramite: TramiteConCiudadano): number {
   return Math.round((completados / tramite.pasos.length) * 100)
 }
 
-function getBadgeClass(tipo: TramiteConCiudadano['items'][number]['tipo']): string {
-  if (tipo === TIPO_TRAMITE.NUEVA) return 'badge badge-info badge-sm'
-  if (tipo === TIPO_TRAMITE.RENOVACION) return 'badge badge-warning badge-sm'
-  return 'badge badge-secondary badge-sm'
-}
-
 function getEstadoBadgeClass(tramite: TramiteConCiudadano): string {
-  if (tramite.estado === ESTADO_TRAMITE.COMPLETADO) return 'badge badge-success badge-soft badge-sm'
-  if (tramite.estado === ESTADO_TRAMITE.CANCELADO) return 'badge badge-error badge-soft badge-sm'
-  return 'badge badge-warning badge-soft badge-sm'
+  return ESTADO_TRAMITE_BADGE_SOFT_SM_CLASS[tramite.estado]
 }
 
 function getSortIcon(currentSort: string, columnId: string) {
@@ -133,7 +127,7 @@ function buildColumns() {
           {row.original.items.map((item) => (
             <span
               key={`${row.original.id}-${item.id ?? item.clase}-${item.tipo}`}
-              className={getBadgeClass(item.tipo)}
+              className={TIPO_TRAMITE_BADGE_SM_CLASS[item.tipo]}
             >
               {item.clase} · {TIPO_TRAMITE_LABELS[item.tipo]}
             </span>

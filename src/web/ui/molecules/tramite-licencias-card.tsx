@@ -1,14 +1,8 @@
-import { TIPO_TRAMITE, TIPO_TRAMITE_LABELS } from '@/constants/tramites'
+import { TIPO_TRAMITE_BADGE_CLASS, TIPO_TRAMITE_LABELS } from '@/constants/tramites'
 import type { Tramite } from '@/payload-types'
 import { IconLicense } from '@tabler/icons-react'
 
 type ItemLicencia = Tramite['items'][number]
-
-function getBadgeClass(tipo: string): string {
-  if (tipo === TIPO_TRAMITE.NUEVA) return 'badge badge-info'
-  if (tipo === TIPO_TRAMITE.RENOVACION) return 'badge badge-warning'
-  return 'badge badge-secondary'
-}
 
 interface TramiteLicenciasCardProps {
   items: ItemLicencia[]
@@ -29,7 +23,9 @@ export function TramiteLicenciasCard({ items }: TramiteLicenciasCardProps) {
               className="bg-base-200 flex items-center justify-between rounded-lg px-4 py-3"
             >
               <span className="text-primary font-bold">{item.clase}</span>
-              <span className={getBadgeClass(item.tipo)}>{TIPO_TRAMITE_LABELS[item.tipo]}</span>
+              <span className={TIPO_TRAMITE_BADGE_CLASS[item.tipo]}>
+                {TIPO_TRAMITE_LABELS[item.tipo]}
+              </span>
             </section>
           ))}
         </section>
