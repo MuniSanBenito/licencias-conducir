@@ -1,5 +1,6 @@
 import type { Tramite } from '@/payload-types'
 import { TurnoBadge } from '@/web/ui/atoms/turno-badge'
+import { formatDate } from '@/web/utils/fechas'
 import { IconTicket } from '@tabler/icons-react'
 
 type PasoTramite = Tramite['pasos'][number]
@@ -29,7 +30,7 @@ export function TramiteTurnosCard({ pasos }: TramiteTurnosCardProps) {
               {paso.turno ? (
                 <section className="flex items-center gap-2">
                   <span className="text-xs opacity-60">
-                    {paso.turno.fecha} {paso.turno.hora}
+                    {formatDate(paso.turno.fecha)} {paso.turno.hora}
                   </span>
                   <TurnoBadge turno={paso.turno} />
                 </section>

@@ -41,6 +41,10 @@ export default async function TramiteDetallePage({ params }: PageProps<'/tramite
   const progreso = Math.round(
     (tramite.pasos.filter((p) => p.estado === 'completado').length / tramite.pasos.length) * 100,
   )
+  const ciudadanoDisplayName = `${tramite.ciudadano.nombre} ${tramite.ciudadano.apellido}`
+  const breadcrumbDetail = tramite.fut
+    ? `${ciudadanoDisplayName} - FUT ${tramite.fut}`
+    : ciudadanoDisplayName
 
   return (
     <section>
@@ -52,7 +56,7 @@ export default async function TramiteDetallePage({ params }: PageProps<'/tramite
               Tablero
             </Link>
           </li>
-          <li className="font-semibold">{tramite.id}</li>
+          <li className="font-semibold">{breadcrumbDetail}</li>
         </ul>
       </nav>
 

@@ -1,6 +1,7 @@
 'use client'
 import type { Tramite } from '@/payload-types'
 import { TurnoBadge } from '@/web/ui/atoms/turno-badge'
+import { formatDate } from '@/web/utils/fechas'
 import {
   IconArrowBackUp,
   IconCalendar,
@@ -97,7 +98,7 @@ export function TramiteTimeline({
                 {paso.fecha && (
                   <p className="mt-1 flex items-center gap-1 text-xs opacity-50">
                     <IconCalendar size={12} />
-                    {paso.fecha}
+                    {formatDate(paso.fecha)}
                   </p>
                 )}
 
@@ -125,7 +126,7 @@ export function TramiteTimeline({
                       <section>
                         <p className="text-xs opacity-50">Turno asignado</p>
                         <p className="flex items-center gap-2 text-sm font-semibold">
-                          <IconCalendar size={14} /> {paso.turno.fecha}
+                          <IconCalendar size={14} /> {formatDate(paso.turno.fecha)}
                           <IconClock size={14} /> {paso.turno.hora}
                         </p>
                       </section>

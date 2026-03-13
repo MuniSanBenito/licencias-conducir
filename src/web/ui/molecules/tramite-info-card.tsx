@@ -1,4 +1,5 @@
 import type { Tramite } from '@/payload-types'
+import { formatDate } from '@/web/utils/fechas'
 import { IconId } from '@tabler/icons-react'
 
 interface TramiteInfoCardProps {
@@ -24,7 +25,7 @@ export function TramiteInfoCard({ tramite }: TramiteInfoCardProps) {
           </section>
           <section>
             <dt className="text-[10px] tracking-wider uppercase opacity-40">Fecha Inicio</dt>
-            <dd className="text-sm font-medium">{tramite.fechaInicio}</dd>
+            <dd className="text-sm font-medium">{formatDate(tramite.fechaInicio)}</dd>
           </section>
           <section>
             <dt className="text-[10px] tracking-wider uppercase opacity-40">Total Pasos</dt>

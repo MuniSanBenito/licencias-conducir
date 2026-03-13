@@ -1,4 +1,5 @@
 import type { Ciudadano } from '@/payload-types'
+import { formatDate } from '@/web/utils/fechas'
 import { IconUser } from '@tabler/icons-react'
 
 interface TramiteCiudadanoCardProps {
@@ -18,7 +19,7 @@ export function TramiteCiudadanoCard({ ciudadano }: TramiteCiudadanoCardProps) {
             { dt: 'DNI', dd: ciudadano.dni },
             { dt: 'Nombre', dd: `${ciudadano.nombre} ${ciudadano.apellido}` },
             { dt: 'Celular', dd: ciudadano.celular || '—' },
-            { dt: 'Nacimiento', dd: ciudadano.fechaNacimiento },
+            { dt: 'Nacimiento', dd: formatDate(ciudadano.fechaNacimiento) },
             { dt: 'Domicilio', dd: ciudadano.domicilio },
           ].map((campo) => (
             <section key={campo.dt}>
