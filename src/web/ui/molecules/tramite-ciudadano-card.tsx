@@ -1,4 +1,4 @@
-import type { Ciudadano } from '@/types'
+import type { Ciudadano } from '@/payload-types'
 import { IconUser } from '@tabler/icons-react'
 
 interface TramiteCiudadanoCardProps {

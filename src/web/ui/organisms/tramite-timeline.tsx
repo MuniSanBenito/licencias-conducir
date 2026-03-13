@@ -1,5 +1,5 @@
 'use client'
-import type { PasoTramite } from '@/types'
+import type { Tramite } from '@/payload-types'
 import { TurnoBadge } from '@/web/ui/atoms/turno-badge'
 import {
   IconArrowBackUp,
@@ -16,18 +16,20 @@ import {
 } from '@tabler/icons-react'
 import { twJoin } from 'tailwind-merge'
 
+type PasoTramite = Tramite['pasos'][number]
+
 interface TramiteTimelineProps {
   pasos: PasoTramite[]
   progreso: number
   todosCompletados: boolean
-  onAvanzarPaso: () => void
-  onAsignarTurno: (pasoIndex: number) => void
-  onCancelarTurno: (pasoIndex: number) => void
-  onRevertirPaso: (pasoIndex: number) => void
+  onAvanzarPaso?: () => void
+  onAsignarTurno?: (pasoIndex: number) => void
+  onCancelarTurno?: (pasoIndex: number) => void
+  onRevertirPaso?: (pasoIndex: number) => void
 }
 
 function turnoFalta(paso: PasoTramite) {
-  return paso.requiereTurno && (!paso.turno || paso.turno.estado === 'cancelado')
+  return Boolean(paso.requiereTurno && (!paso.turno || paso.turno.estado === 'cancelado'))
 }
 
 export function TramiteTimeline({
@@ -100,14 +102,18 @@ export function TramiteTimeline({
                 )}
 
                 {paso.estado === 'completado' && !todosCompletados && (
-                  <button
-                    className="btn btn-ghost btn-xs mt-1 opacity-50 hover:opacity-100"
-                    onClick={() => onRevertirPaso(index)}
-                    aria-label={`Revertir a ${paso.label}`}
-                  >
-                    <IconArrowBackUp size={14} />
-                    Revertir a este paso
-                  </button>
+                  <>
+                    {onRevertirPaso && (
+                      <button
+                        className="btn btn-ghost btn-xs mt-1 opacity-50 hover:opacity-100"
+                        onClick={() => onRevertirPaso(index)}
+                        aria-label={`Revertir a ${paso.label}`}
+                      >
+                        <IconArrowBackUp size={14} />
+                        Revertir a este paso
+                      </button>
+                    )}
+                  </>
                 )}
 
                 {paso.requiereTurno && paso.turno && (
@@ -125,22 +131,24 @@ export function TramiteTimeline({
                       </section>
                       <TurnoBadge turno={paso.turno} />
                     </section>
-                    {paso.estado === 'en_curso' && paso.turno.estado === 'programado' && (
-                      <button
-                        className="btn btn-error btn-ghost btn-xs"
-                        onClick={() => onCancelarTurno(index)}
-                        aria-label={`Cancelar turno de ${paso.label}`}
-                      >
-                        <IconCalendarX size={14} />
-                        Cancelar
-                      </button>
-                    )}
+                    {paso.estado === 'en_curso' &&
+                      paso.turno.estado === 'programado' &&
+                      onCancelarTurno && (
+                        <button
+                          className="btn btn-error btn-ghost btn-xs"
+                          onClick={() => onCancelarTurno(index)}
+                          aria-label={`Cancelar turno de ${paso.label}`}
+                        >
+                          <IconCalendarX size={14} />
+                          Cancelar
+                        </button>
+                      )}
                   </section>
                 )}
 
                 {paso.estado === 'en_curso' && (
                   <section className="mt-3 flex gap-2">
-                    {turnoFalta(paso) && (
+                    {turnoFalta(paso) && onAsignarTurno && (
                       <button
                         className="btn btn-warning btn-sm"
                         onClick={() => onAsignarTurno(index)}
@@ -149,18 +157,20 @@ export function TramiteTimeline({
                         {paso.turno?.estado === 'cancelado' ? 'Reasignar Turno' : 'Asignar Turno'}
                       </button>
                     )}
-                    <button
-                      className={twJoin(
-                        'btn btn-sm',
-                        turnoFalta(paso) ? 'btn-disabled' : 'btn-primary',
-                      )}
-                      onClick={onAvanzarPaso}
-                      disabled={turnoFalta(paso)}
-                      aria-label={`Completar paso ${paso.label}`}
-                    >
-                      <IconCheck size={16} />
-                      Completar paso
-                    </button>
+                    {onAvanzarPaso && (
+                      <button
+                        className={twJoin(
+                          'btn btn-sm',
+                          turnoFalta(paso) ? 'btn-disabled' : 'btn-primary',
+                        )}
+                        onClick={onAvanzarPaso}
+                        disabled={turnoFalta(paso)}
+                        aria-label={`Completar paso ${paso.label}`}
+                      >
+                        <IconCheck size={16} />
+                        Completar paso
+                      </button>
+                    )}
                   </section>
                 )}
               </article>

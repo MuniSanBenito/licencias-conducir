@@ -1,4 +1,4 @@
-import type { Tramite } from '@/types'
+import type { Tramite } from '@/payload-types'
 import { IconId } from '@tabler/icons-react'
 
 interface TramiteInfoCardProps {

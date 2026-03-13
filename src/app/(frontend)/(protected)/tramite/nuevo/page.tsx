@@ -27,6 +27,7 @@ export default async function Page({ searchParams }: PageProps<'/tramite/nuevo'>
     sort,
     where,
   })
+
   return (
     <NuevoTramitePage
       ciudadanos={ciudadanos.docs}
