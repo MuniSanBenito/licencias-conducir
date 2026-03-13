@@ -1,70 +1,31 @@
 import { basePayload } from '@/web/libs/payload/server'
+import {
+  SEED_APELLIDOS,
+  SEED_CALLES,
+  SEED_CELULAR_PREFIJO,
+  SEED_CELULAR_SUFIX_MIN,
+  SEED_CELULAR_SUFIX_RANGE,
+  SEED_CIUDADANOS_TOTAL,
+  SEED_DIAS_POR_MES,
+  SEED_DNI_MIN,
+  SEED_DNI_RANGE,
+  SEED_DOMICILIO_ALTURA_MIN,
+  SEED_DOMICILIO_ALTURA_RANGE,
+  SEED_EMAIL_DOMAIN,
+  SEED_FECHA_NACIMIENTO_YEAR_MIN,
+  SEED_FECHA_NACIMIENTO_YEAR_RANGE,
+  SEED_LOCALIDAD,
+  SEED_MESES_POR_ANIO,
+  SEED_NOMBRES,
+} from 'seed/constants'
 
-const NOMBRES = [
-  'Juan',
-  'María',
-  'José',
-  'Ana',
-  'Carlos',
-  'Laura',
-  'Luis',
-  'Sofía',
-  'Diego',
-  'Lucía',
-  'Pedro',
-  'Elena',
-  'Miguel',
-  'Carmen',
-  'Javier',
-  'Isabel',
-  'Ricardo',
-  'Paula',
-  'Andrés',
-  'Marta',
-  'Fernando',
-  'Beatriz',
-  'Hugo',
-  'Valentina',
-  'Mateo',
-  'Camila',
-  'Santiago',
-  'Martina',
-  'Nicolás',
-  'Daniela',
-]
+function randomInt(maxExclusive: number): number {
+  return Math.floor(Math.random() * maxExclusive)
+}
 
-const APELLIDOS = [
-  'García',
-  'Rodríguez',
-  'González',
-  'Fernández',
-  'López',
-  'Martínez',
-  'Sánchez',
-  'Pérez',
-  'Gómez',
-  'Martin',
-  'Jiménez',
-  'Ruiz',
-  'Hernández',
-  'Díaz',
-  'Moreno',
-  'Muñoz',
-  'Álvarez',
-  'Romero',
-  'Alonso',
-  'Gutiérrez',
-  'Navarro',
-  'Torres',
-  'Domínguez',
-  'Vázquez',
-  'Ramos',
-  'Gil',
-  'Ramírez',
-  'Serrano',
-  'Blanco',
-  'Molina',
-]
+function randomFrom<T>(values: readonly T[]): T {
+  return values[randomInt(values.length)]
+}
 
 function stripDiacritics(str: string): string {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -73,29 +34,20 @@ function stripDiacritics(str: string): string {
 const seed = async () => {
   console.log('🌱 Iniciando seed de ciudadanos...')
 
-  for (let i = 0; i < 35; i++) {
-    const nombre = NOMBRES[Math.floor(Math.random() * NOMBRES.length)]
-    const apellido = APELLIDOS[Math.floor(Math.random() * APELLIDOS.length)]
-    const dni = (20000000 + Math.floor(Math.random() * 30000000)).toString()
-    const celular = `343640${(1000 + Math.floor(Math.random() * 9000)).toString()}`
-    const email = `${stripDiacritics(nombre).toLowerCase()}.${stripDiacritics(apellido).toLowerCase()}.${dni.slice(-4)}@example.com`
+  for (let i = 0; i < SEED_CIUDADANOS_TOTAL; i++) {
+    const nombre = randomFrom(SEED_NOMBRES)
+    const apellido = randomFrom(SEED_APELLIDOS)
+    const dni = (SEED_DNI_MIN + randomInt(SEED_DNI_RANGE)).toString()
+    const celular = `${SEED_CELULAR_PREFIJO}${(SEED_CELULAR_SUFIX_MIN + randomInt(SEED_CELULAR_SUFIX_RANGE)).toString()}`
+    const email = `${stripDiacritics(nombre).toLowerCase()}.${stripDiacritics(apellido).toLowerCase()}.${dni.slice(-4)}@${SEED_EMAIL_DOMAIN}`
 
     // Generar fecha entre 1960 y 2005
-    const year = 1960 + Math.floor(Math.random() * 45)
-    const month = Math.floor(Math.random() * 12)
-    const day = 1 + Math.floor(Math.random() * 28)
+    const year = SEED_FECHA_NACIMIENTO_YEAR_MIN + randomInt(SEED_FECHA_NACIMIENTO_YEAR_RANGE)
+    const month = randomInt(SEED_MESES_POR_ANIO)
+    const day = 1 + randomInt(SEED_DIAS_POR_MES)
     const fechaNacimiento = new Date(year, month, day).toISOString()
 
-    const calles = [
-      'Av. San Martín',
-      'Calle 9 de Julio',
-      'Bv. Yrigoyen',
-      'Calle Belgrano',
-      'Pasaje Sarmiento',
-      'Calle Rivadavia',
-      'Av. Urquiza',
-    ]
-    const domicilio = `${calles[Math.floor(Math.random() * calles.length)]} ${100 + Math.floor(Math.random() * 900)}, San Benito`
+    const domicilio = `${randomFrom(SEED_CALLES)} ${SEED_DOMICILIO_ALTURA_MIN + randomInt(SEED_DOMICILIO_ALTURA_RANGE)}, ${SEED_LOCALIDAD}`
 
     try {
       await basePayload.create({

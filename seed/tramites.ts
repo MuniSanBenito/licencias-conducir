@@ -10,6 +10,31 @@ import {
 } from '@/constants/tramites'
 import { basePayload } from '@/web/libs/payload/server'
 import { getPasosParaTramite, type ItemLicencia } from '@/web/utils/pasos'
+import {
+  SEED_CANTIDAD_ITEMS_MAX,
+  SEED_DIAS_POR_MES,
+  SEED_FUT_MIN,
+  SEED_FUT_PREFIX,
+  SEED_FUT_RANGE,
+  SEED_PASO_FECHA_DAY_CYCLE,
+  SEED_PASO_FECHA_PREFIX,
+  SEED_PROBABILIDAD_DOS_ITEMS,
+  SEED_TRAMITES_FECHA_INICIO_MONTH_RANGE,
+  SEED_TRAMITES_FECHA_INICIO_YEAR,
+  SEED_TRAMITES_TOTAL,
+  SEED_TURNO_FECHA_DEFAULT,
+  SEED_TURNO_HORA_BASE,
+  SEED_TURNO_HORA_DEFAULT,
+  SEED_TURNO_HORA_RANGE,
+} from './constants'
+
+function randomInt(maxExclusive: number): number {
+  return Math.floor(Math.random() * maxExclusive)
+}
+
+function randomFrom<T>(values: readonly T[]): T {
+  return values[randomInt(values.length)]
+}
 
 // ─── Helper para avanzar pasos (adapta al schema de Payload) ───
 
@@ -27,11 +52,11 @@ function avanzarPasos(items: ItemLicencia[], cantidad: number) {
       return {
         ...base,
         estado: ESTADO_PASO.COMPLETADO,
-        fecha: `2026-03-0${(i % 9) + 1}`,
+        fecha: `${SEED_PASO_FECHA_PREFIX}${(i % SEED_PASO_FECHA_DAY_CYCLE) + 1}`,
         turno: base.requiereTurno
           ? {
-              fecha: `2026-03-0${(i % 9) + 1}`,
-              hora: `${8 + (i % 4)}:00`,
+              fecha: `${SEED_PASO_FECHA_PREFIX}${(i % SEED_PASO_FECHA_DAY_CYCLE) + 1}`,
+              hora: `${SEED_TURNO_HORA_BASE + (i % SEED_TURNO_HORA_RANGE)}:00`,
               estado: ESTADO_TURNO.COMPLETADO,
             }
           : undefined,
@@ -44,8 +69,8 @@ function avanzarPasos(items: ItemLicencia[], cantidad: number) {
         estado: ESTADO_PASO.EN_CURSO,
         turno: base.requiereTurno
           ? {
-              fecha: '2026-03-15',
-              hora: '10:00',
+              fecha: SEED_TURNO_FECHA_DEFAULT,
+              hora: SEED_TURNO_HORA_DEFAULT,
               estado: ESTADO_TURNO.PROGRAMADO,
             }
           : undefined,
@@ -79,42 +104,41 @@ const seed = async () => {
   const TIPOS = TIPOS_TRAMITE
   const ESTADOS = ESTADOS_TRAMITE
 
-  // Generar 25 trámites (5 originales + 20 extras)
-  for (let i = 0; i < 25; i++) {
+  for (let i = 0; i < SEED_TRAMITES_TOTAL; i++) {
     try {
-      const ciudadano = ciudadanos[Math.floor(Math.random() * ciudadanos.length)]
-      const fut = `FUT-${10000 + Math.floor(Math.random() * 90000)}`
+      const ciudadano = randomFrom(ciudadanos)
+      const fut = `${SEED_FUT_PREFIX}-${SEED_FUT_MIN + randomInt(SEED_FUT_RANGE)}`
 
       // Determinar cantidad de items (1 o 2)
-      const cantItems = Math.random() > 0.8 ? 2 : 1
+      const cantItems = Math.random() < SEED_PROBABILIDAD_DOS_ITEMS ? SEED_CANTIDAD_ITEMS_MAX : 1
       const items: ItemLicencia[] = []
       for (let j = 0; j < cantItems; j++) {
         items.push({
-          clase: CLASES_LICENCIA[Math.floor(Math.random() * CLASES_LICENCIA.length)] as any,
-          tipo: TIPOS[Math.floor(Math.random() * TIPOS.length)],
+          clase: randomFrom(CLASES_LICENCIA),
+          tipo: randomFrom(TIPOS),
         })
       }
 
       const totalPasos = getPasosParaTramite(items).length
 
       // Estado aleatorio
-      const estado = ESTADOS[Math.floor(Math.random() * ESTADOS.length)]
+      const estado = randomFrom(ESTADOS)
 
       // Cuántos pasos avanzar
       let pasosAvanzados = 0
       if (estado === ESTADO_TRAMITE.COMPLETADO) {
         pasosAvanzados = totalPasos
       } else if (estado === ESTADO_TRAMITE.EN_CURSO) {
-        pasosAvanzados = Math.floor(Math.random() * totalPasos)
+        pasosAvanzados = randomInt(totalPasos)
       } else {
-        pasosAvanzados = Math.floor(Math.random() * (totalPasos / 2))
+        pasosAvanzados = randomInt(Math.max(1, Math.floor(totalPasos / 2)))
       }
 
       const pasos = avanzarPasos(items, pasosAvanzados)
       const fechaInicio = new Date(
-        2026,
-        0 + Math.floor(Math.random() * 3),
-        1 + Math.floor(Math.random() * 28),
+        SEED_TRAMITES_FECHA_INICIO_YEAR,
+        randomInt(SEED_TRAMITES_FECHA_INICIO_MONTH_RANGE),
+        1 + randomInt(SEED_DIAS_POR_MES),
       ).toISOString()
 
       await basePayload.create({
