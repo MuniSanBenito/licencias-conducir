@@ -1,10 +1,10 @@
 import { TIPO_TRAMITE_LABELS } from '@/constants/tramites'
-import type { ItemLicencia, PasoTramite } from '@/types'
+import type { ItemLicencia, PasoTramitePreview } from '@/web/utils/pasos'
 import { IconCheck, IconCircle, IconTicket } from '@tabler/icons-react'
 import { twJoin } from 'tailwind-merge'
 
 interface PasosPreviewProps {
-  pasos: PasoTramite[]
+  pasos: PasoTramitePreview[]
   items: ItemLicencia[]
 }
 

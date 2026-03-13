@@ -1,8 +1,7 @@
-import { PASO_LABELS, PASOS_CON_TURNO } from '@/constants/tramites'
 import { CLASES_LICENCIA } from '@/constants/clases'
-import type { ItemLicencia } from '@/types'
-import { getPasosParaTramite } from '@/web/utils/pasos'
+import { PASO_LABELS, PASOS_CON_TURNO } from '@/constants/tramites'
 import { basePayload } from '@/web/libs/payload/server'
+import { getPasosParaTramite, type ItemLicencia } from '@/web/utils/pasos'
 
 // ─── Helper para avanzar pasos (adapta al schema de Payload) ───
 
@@ -61,7 +60,9 @@ const seed = async () => {
   })
 
   if (ciudadanos.length === 0) {
-    console.error('❌ No hay ciudadanos en la base de datos. Ejecutá primero el seed de ciudadanos.')
+    console.error(
+      '❌ No hay ciudadanos en la base de datos. Ejecutá primero el seed de ciudadanos.',
+    )
     process.exit(1)
   }
 
@@ -75,7 +76,7 @@ const seed = async () => {
     try {
       const ciudadano = ciudadanos[Math.floor(Math.random() * ciudadanos.length)]
       const fut = `FUT-${10000 + Math.floor(Math.random() * 90000)}`
-      
+
       // Determinar cantidad de items (1 o 2)
       const cantItems = Math.random() > 0.8 ? 2 : 1
       const items: ItemLicencia[] = []
@@ -87,10 +88,10 @@ const seed = async () => {
       }
 
       const totalPasos = getPasosParaTramite(items).length
-      
+
       // Estado aleatorio
       const estado = ESTADOS[Math.floor(Math.random() * ESTADOS.length)]
-      
+
       // Cuántos pasos avanzar
       let pasosAvanzados = 0
       if (estado === 'completado') {
@@ -102,7 +103,11 @@ const seed = async () => {
       }
 
       const pasos = avanzarPasos(items, pasosAvanzados)
-      const fechaInicio = new Date(2026, 0 + Math.floor(Math.random() * 3), 1 + Math.floor(Math.random() * 28)).toISOString()
+      const fechaInicio = new Date(
+        2026,
+        0 + Math.floor(Math.random() * 3),
+        1 + Math.floor(Math.random() * 28),
+      ).toISOString()
 
       await basePayload.create({
         collection: 'tramite',
@@ -117,12 +122,11 @@ const seed = async () => {
         },
       })
 
-      console.log(`✅ Trámite creado: ${fut} → ${ciudadano.nombre} ${ciudadano.apellido} (${estado})`)
-    } catch (error) {
-      console.error(
-        `❌ Error al crear trámite:`,
-        error instanceof Error ? error.message : error,
+      console.log(
+        `✅ Trámite creado: ${fut} → ${ciudadano.nombre} ${ciudadano.apellido} (${estado})`,
       )
+    } catch (error) {
+      console.error(`❌ Error al crear trámite:`, error instanceof Error ? error.message : error)
     }
   }
 
