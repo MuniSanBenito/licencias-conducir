@@ -102,7 +102,15 @@ function buildColumns() {
     columnHelper.accessor('fut', {
       id: 'fut',
       header: 'FUT',
-      cell: (info) => <p className="font-mono text-sm font-bold">{info.getValue()}</p>,
+      cell: ({ row }) => (
+        <Link
+          href={`/tramite/${row.original.id}`}
+          className="link link-primary font-mono text-sm font-bold"
+          aria-label={`Ver detalle del trámite ${row.original.fut}`}
+        >
+          {row.original.fut}
+        </Link>
+      ),
     }),
     columnHelper.accessor((row) => row.ciudadano.dni, {
       id: 'ciudadano_dni',
