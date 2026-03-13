@@ -1,4 +1,5 @@
 'use client'
+import { ESTADO_PASO, ESTADO_TURNO } from '@/constants/tramites'
 import type { Tramite } from '@/payload-types'
 import { TurnoBadge } from '@/web/ui/atoms/turno-badge'
 import { formatDate } from '@/web/utils/fechas'
@@ -30,7 +31,9 @@ interface TramiteTimelineProps {
 }
 
 function turnoFalta(paso: PasoTramite) {
-  return Boolean(paso.requiereTurno && (!paso.turno || paso.turno.estado === 'cancelado'))
+  return Boolean(
+    paso.requiereTurno && (!paso.turno || paso.turno.estado === ESTADO_TURNO.CANCELADO),
+  )
 }
 
 export function TramiteTimeline({
@@ -65,12 +68,16 @@ export function TramiteTimeline({
           {pasos.map((paso, index) => (
             <li key={paso.id}>
               {index > 0 && (
-                <hr className={twJoin(pasos[index - 1].estado === 'completado' && 'bg-success')} />
+                <hr
+                  className={twJoin(
+                    pasos[index - 1].estado === ESTADO_PASO.COMPLETADO && 'bg-success',
+                  )}
+                />
               )}
               <section className="timeline-middle">
-                {paso.estado === 'completado' ? (
+                {paso.estado === ESTADO_PASO.COMPLETADO ? (
                   <IconCircleCheck size={24} className="text-success" />
-                ) : paso.estado === 'en_curso' ? (
+                ) : paso.estado === ESTADO_PASO.EN_CURSO ? (
                   <IconCircleDot size={24} className="text-primary" />
                 ) : (
                   <IconCircle size={24} className="opacity-30" />
@@ -81,8 +88,8 @@ export function TramiteTimeline({
                   <span
                     className={twJoin(
                       'font-medium',
-                      paso.estado === 'en_curso' && 'font-bold',
-                      paso.estado === 'pendiente' && 'opacity-50',
+                      paso.estado === ESTADO_PASO.EN_CURSO && 'font-bold',
+                      paso.estado === ESTADO_PASO.PENDIENTE && 'opacity-50',
                     )}
                   >
                     {paso.label}
@@ -102,7 +109,7 @@ export function TramiteTimeline({
                   </p>
                 )}
 
-                {paso.estado === 'completado' && !todosCompletados && (
+                {paso.estado === ESTADO_PASO.COMPLETADO && !todosCompletados && (
                   <>
                     {onRevertirPaso && (
                       <button
@@ -132,8 +139,8 @@ export function TramiteTimeline({
                       </section>
                       <TurnoBadge turno={paso.turno} />
                     </section>
-                    {paso.estado === 'en_curso' &&
-                      paso.turno.estado === 'programado' &&
+                    {paso.estado === ESTADO_PASO.EN_CURSO &&
+                      paso.turno.estado === ESTADO_TURNO.PROGRAMADO &&
                       onCancelarTurno && (
                         <button
                           className="btn btn-error btn-ghost btn-xs"
@@ -147,7 +154,7 @@ export function TramiteTimeline({
                   </section>
                 )}
 
-                {paso.estado === 'en_curso' && (
+                {paso.estado === ESTADO_PASO.EN_CURSO && (
                   <section className="mt-3 flex gap-2">
                     {turnoFalta(paso) && onAsignarTurno && (
                       <button
@@ -155,7 +162,9 @@ export function TramiteTimeline({
                         onClick={() => onAsignarTurno(index)}
                       >
                         <IconCalendarPlus size={16} />
-                        {paso.turno?.estado === 'cancelado' ? 'Reasignar Turno' : 'Asignar Turno'}
+                        {paso.turno?.estado === ESTADO_TURNO.CANCELADO
+                          ? 'Reasignar Turno'
+                          : 'Asignar Turno'}
                       </button>
                     )}
                     {onAvanzarPaso && (
@@ -176,7 +185,7 @@ export function TramiteTimeline({
                 )}
               </article>
               {index < pasos.length - 1 && (
-                <hr className={twJoin(paso.estado === 'completado' && 'bg-success')} />
+                <hr className={twJoin(paso.estado === ESTADO_PASO.COMPLETADO && 'bg-success')} />
               )}
             </li>
           ))}

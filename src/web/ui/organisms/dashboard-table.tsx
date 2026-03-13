@@ -1,6 +1,11 @@
 'use client'
 
-import { TIPO_TRAMITE_LABELS } from '@/constants/tramites'
+import {
+  ESTADO_PASO,
+  ESTADO_TRAMITE,
+  TIPO_TRAMITE,
+  TIPO_TRAMITE_LABELS,
+} from '@/constants/tramites'
 import type { Ciudadano, Tramite } from '@/payload-types'
 import { BuscarForm } from '@/web/ui/atoms/buscar-form'
 import {
@@ -46,13 +51,13 @@ interface Props {
 const columnHelper = createColumnHelper<TramiteConCiudadano>()
 
 function getEstadoActual(tramite: TramiteConCiudadano): string {
-  const pasoActivo = tramite.pasos.find((paso) => paso.estado === 'en_curso')
+  const pasoActivo = tramite.pasos.find((paso) => paso.estado === ESTADO_PASO.EN_CURSO)
 
   if (pasoActivo) {
     return pasoActivo.label
   }
 
-  const todosCompletados = tramite.pasos.every((paso) => paso.estado === 'completado')
+  const todosCompletados = tramite.pasos.every((paso) => paso.estado === ESTADO_PASO.COMPLETADO)
 
   if (todosCompletados) {
     return 'Completado'
@@ -62,7 +67,7 @@ function getEstadoActual(tramite: TramiteConCiudadano): string {
 }
 
 function getProgreso(tramite: TramiteConCiudadano): number {
-  const completados = tramite.pasos.filter((paso) => paso.estado === 'completado').length
+  const completados = tramite.pasos.filter((paso) => paso.estado === ESTADO_PASO.COMPLETADO).length
 
   if (tramite.pasos.length === 0) {
     return 0
@@ -72,14 +77,14 @@ function getProgreso(tramite: TramiteConCiudadano): number {
 }
 
 function getBadgeClass(tipo: TramiteConCiudadano['items'][number]['tipo']): string {
-  if (tipo === 'nueva') return 'badge badge-info badge-sm'
-  if (tipo === 'renovacion') return 'badge badge-warning badge-sm'
+  if (tipo === TIPO_TRAMITE.NUEVA) return 'badge badge-info badge-sm'
+  if (tipo === TIPO_TRAMITE.RENOVACION) return 'badge badge-warning badge-sm'
   return 'badge badge-secondary badge-sm'
 }
 
 function getEstadoBadgeClass(tramite: TramiteConCiudadano): string {
-  if (tramite.estado === 'completado') return 'badge badge-success badge-soft badge-sm'
-  if (tramite.estado === 'cancelado') return 'badge badge-error badge-soft badge-sm'
+  if (tramite.estado === ESTADO_TRAMITE.COMPLETADO) return 'badge badge-success badge-soft badge-sm'
+  if (tramite.estado === ESTADO_TRAMITE.CANCELADO) return 'badge badge-error badge-soft badge-sm'
   return 'badge badge-warning badge-soft badge-sm'
 }
 
@@ -141,9 +146,9 @@ function buildColumns() {
       header: 'Etapa Actual',
       cell: ({ row }) => (
         <span className={getEstadoBadgeClass(row.original)}>
-          {row.original.estado === 'completado' && <IconCheck size={12} />}
-          {row.original.estado === 'en_curso' && <IconPlayerPause size={12} />}
-          {row.original.estado === 'cancelado' && <IconX size={12} />}
+          {row.original.estado === ESTADO_TRAMITE.COMPLETADO && <IconCheck size={12} />}
+          {row.original.estado === ESTADO_TRAMITE.EN_CURSO && <IconPlayerPause size={12} />}
+          {row.original.estado === ESTADO_TRAMITE.CANCELADO && <IconX size={12} />}
           {getEstadoActual(row.original)}
         </span>
       ),

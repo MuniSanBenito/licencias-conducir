@@ -1,3 +1,4 @@
+import { ESTADO_TRAMITE } from '@/constants/tramites'
 import type { Ciudadano, Tramite } from '@/payload-types'
 import { basePayload } from '@/web/libs/payload/server'
 import { DashboardTable } from '@/web/ui/organisms/dashboard-table'
@@ -54,9 +55,18 @@ export default async function Page({ searchParams }: PageProps<'/'>) {
       depth: 1,
     }),
     basePayload.count({ collection: 'tramite' }),
-    basePayload.count({ collection: 'tramite', where: { estado: { equals: 'en_curso' } } }),
-    basePayload.count({ collection: 'tramite', where: { estado: { equals: 'completado' } } }),
-    basePayload.count({ collection: 'tramite', where: { estado: { equals: 'cancelado' } } }),
+    basePayload.count({
+      collection: 'tramite',
+      where: { estado: { equals: ESTADO_TRAMITE.EN_CURSO } },
+    }),
+    basePayload.count({
+      collection: 'tramite',
+      where: { estado: { equals: ESTADO_TRAMITE.COMPLETADO } },
+    }),
+    basePayload.count({
+      collection: 'tramite',
+      where: { estado: { equals: ESTADO_TRAMITE.CANCELADO } },
+    }),
   ])
 
   const tramitesConCiudadano = tramites.docs.filter(

@@ -1,4 +1,5 @@
 'use client'
+import { ESTADO_TRAMITE, TIPO_TRAMITE } from '@/constants/tramites'
 import type { Ciudadano } from '@/payload-types'
 import { sdk } from '@/web/libs/payload/client'
 import { BuscarCiudadanoInput } from '@/web/ui/molecules/buscar-ciudadano-input'
@@ -25,7 +26,7 @@ export function NuevoTramitePage({ ciudadanos, page, totalPages, totalDocs, curr
 
   const [ciudadanoSeleccionado, setCiudadanoSeleccionado] = useState<Ciudadano | null>(null)
   const [fut, setFut] = useState('')
-  const [items, setItems] = useState<ItemForm[]>([{ clase: 'B1', tipo: 'nueva' }])
+  const [items, setItems] = useState<ItemForm[]>([{ clase: 'B1', tipo: TIPO_TRAMITE.NUEVA }])
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const pasosPreview = getPasosParaTramite(items)
@@ -46,7 +47,7 @@ export function NuevoTramitePage({ ciudadanos, page, totalPages, totalDocs, curr
       const pasos = getPasosParaTramite(items).map((paso, index) => ({
         pasoId: paso.id,
         label: paso.label,
-        estado: index === 0 ? 'en_curso' : paso.estado,
+        estado: index === 0 ? ESTADO_TRAMITE.EN_CURSO : paso.estado,
         requiereTurno: paso.requiereTurno,
       }))
 
@@ -57,7 +58,7 @@ export function NuevoTramitePage({ ciudadanos, page, totalPages, totalDocs, curr
           ciudadano: ciudadanoSeleccionado.id,
           items: items.map((item) => ({ clase: item.clase, tipo: item.tipo })),
           pasos,
-          estado: 'en_curso',
+          estado: ESTADO_TRAMITE.EN_CURSO,
           fechaInicio: new Date().toISOString(),
         },
       })

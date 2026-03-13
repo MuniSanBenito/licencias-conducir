@@ -1,5 +1,6 @@
 'use client'
 
+import { ESTADO_PASO, ESTADO_TRAMITE, ESTADO_TURNO } from '@/constants/tramites'
 import type { Ciudadano, Tramite } from '@/payload-types'
 import { sdk } from '@/web/libs/payload/client'
 import { AsignarTurnoModal } from '@/web/ui/molecules/asignar-turno-modal'
@@ -41,8 +42,8 @@ function mapPasoForUpdate(paso: PasoTramite) {
 }
 
 function calcularEstadoTramite(pasos: PasoTramite[]): Tramite['estado'] {
-  const todosCompletados = pasos.every((paso) => paso.estado === 'completado')
-  return todosCompletados ? 'completado' : 'en_curso'
+  const todosCompletados = pasos.every((paso) => paso.estado === ESTADO_PASO.COMPLETADO)
+  return todosCompletados ? ESTADO_TRAMITE.COMPLETADO : ESTADO_TRAMITE.EN_CURSO
 }
 
 export function TramiteDetallePage({ tramite }: Props) {
@@ -55,10 +56,14 @@ export function TramiteDetallePage({ tramite }: Props) {
   const [confirmCancelTurno, setConfirmCancelTurno] = useState<number | null>(null)
   const [confirmRevertPaso, setConfirmRevertPaso] = useState<number | null>(null)
 
-  const pasoActualIndex = tramiteState.pasos.findIndex((paso) => paso.estado === 'en_curso')
-  const todosCompletados = tramiteState.pasos.every((paso) => paso.estado === 'completado')
+  const pasoActualIndex = tramiteState.pasos.findIndex(
+    (paso) => paso.estado === ESTADO_PASO.EN_CURSO,
+  )
+  const todosCompletados = tramiteState.pasos.every(
+    (paso) => paso.estado === ESTADO_PASO.COMPLETADO,
+  )
   const progreso = Math.round(
-    (tramiteState.pasos.filter((paso) => paso.estado === 'completado').length /
+    (tramiteState.pasos.filter((paso) => paso.estado === ESTADO_PASO.COMPLETADO).length /
       tramiteState.pasos.length) *
       100,
   )
@@ -110,10 +115,10 @@ export function TramiteDetallePage({ tramite }: Props) {
       if (index === pasoActualIndex) {
         return {
           ...currentPaso,
-          estado: 'completado' as const,
+          estado: ESTADO_PASO.COMPLETADO,
           fecha: new Date().toISOString(),
           turno: currentPaso.turno
-            ? { ...currentPaso.turno, estado: 'completado' as const }
+            ? { ...currentPaso.turno, estado: ESTADO_TURNO.COMPLETADO }
             : undefined,
         }
       }
@@ -121,7 +126,7 @@ export function TramiteDetallePage({ tramite }: Props) {
       if (index === pasoActualIndex + 1) {
         return {
           ...currentPaso,
-          estado: 'en_curso' as const,
+          estado: ESTADO_PASO.EN_CURSO,
         }
       }
 
@@ -149,7 +154,7 @@ export function TramiteDetallePage({ tramite }: Props) {
         turno: {
           fecha,
           hora,
-          estado: 'programado' as const,
+          estado: ESTADO_TURNO.PROGRAMADO,
         },
       }
     })
@@ -172,7 +177,7 @@ export function TramiteDetallePage({ tramite }: Props) {
         ...paso,
         turno: {
           ...paso.turno,
-          estado: 'cancelado' as const,
+          estado: ESTADO_TURNO.CANCELADO,
         },
       }
     })
@@ -190,7 +195,7 @@ export function TramiteDetallePage({ tramite }: Props) {
       if (index === targetIndex) {
         return {
           ...paso,
-          estado: 'en_curso' as const,
+          estado: ESTADO_PASO.EN_CURSO,
           fecha: undefined,
         }
       }
@@ -198,7 +203,7 @@ export function TramiteDetallePage({ tramite }: Props) {
       if (index > targetIndex) {
         return {
           ...paso,
-          estado: 'pendiente' as const,
+          estado: ESTADO_PASO.PENDIENTE,
           fecha: undefined,
         }
       }
@@ -206,7 +211,7 @@ export function TramiteDetallePage({ tramite }: Props) {
       return paso
     })
 
-    const ok = await persistTramite(nuevosPasos, 'en_curso')
+    const ok = await persistTramite(nuevosPasos, ESTADO_TRAMITE.EN_CURSO)
 
     if (ok) {
       setConfirmRevertPaso(null)

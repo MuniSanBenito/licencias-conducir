@@ -1,49 +1,21 @@
 import type { CollectionConfig } from 'payload'
 
 import { CLASES_LICENCIA } from '@/constants/clases'
+import {
+  ESTADO_PASO_DEFAULT,
+  ESTADO_TRAMITE_DEFAULT,
+  ESTADOS_TRAMITE_CON_FECHA_FIN,
+  OPCIONES_ESTADO_PASO,
+  OPCIONES_ESTADO_TRAMITE,
+  OPCIONES_ESTADO_TURNO,
+  OPCIONES_PASO_ID,
+  OPCIONES_TIPO_TRAMITE,
+} from '@/constants/tramites'
 
 const OPCIONES_CLASE = CLASES_LICENCIA.map((clase) => ({
   label: clase,
   value: clase,
 }))
-
-const OPCIONES_TIPO_TRAMITE = [
-  { label: 'Nueva', value: 'nueva' },
-  { label: 'Renovación', value: 'renovacion' },
-  { label: 'Ampliación', value: 'ampliacion' },
-]
-
-const OPCIONES_ESTADO_TRAMITE = [
-  { label: 'En Curso', value: 'en_curso' },
-  { label: 'Completado', value: 'completado' },
-  { label: 'Cancelado', value: 'cancelado' },
-]
-
-const OPCIONES_ESTADO_PASO = [
-  { label: 'Pendiente', value: 'pendiente' },
-  { label: 'En Curso', value: 'en_curso' },
-  { label: 'Completado', value: 'completado' },
-]
-
-const OPCIONES_PASO_ID = [
-  { label: 'Mesa de Entradas', value: 'mesa_entradas' },
-  { label: 'Área de Licencias', value: 'area_licencias' },
-  { label: 'Pago', value: 'pago' },
-  { label: 'Revisión Licencias', value: 'revision_licencias' },
-  { label: 'Turno Curso', value: 'turno_curso' },
-  { label: 'Examen Teórico', value: 'examen_teorico' },
-  { label: 'Examen Práctico', value: 'examen_practico' },
-  { label: 'Examen Psicofísico', value: 'examen_psicofisico' },
-  { label: 'Emisión de Licencia', value: 'emision' },
-]
-
-const OPCIONES_ESTADO_TURNO = [
-  { label: 'Programado', value: 'programado' },
-  { label: 'Confirmado', value: 'confirmado' },
-  { label: 'Ausente', value: 'ausente' },
-  { label: 'Completado', value: 'completado' },
-  { label: 'Cancelado', value: 'cancelado' },
-]
 
 export const Tramite: CollectionConfig = {
   slug: 'tramite',
@@ -90,7 +62,7 @@ export const Tramite: CollectionConfig = {
           type: 'select',
           options: OPCIONES_ESTADO_TRAMITE,
           required: true,
-          defaultValue: 'en_curso',
+          defaultValue: ESTADO_TRAMITE_DEFAULT,
           admin: { width: '30%' },
         },
         {
@@ -110,7 +82,7 @@ export const Tramite: CollectionConfig = {
           admin: {
             width: '35%',
             date: { displayFormat: 'dd/MM/yyyy' },
-            condition: (data) => data?.estado === 'completado' || data?.estado === 'cancelado',
+            condition: (data) => ESTADOS_TRAMITE_CON_FECHA_FIN.includes(data?.estado),
           },
         },
       ],
@@ -190,7 +162,7 @@ export const Tramite: CollectionConfig = {
               type: 'select',
               options: OPCIONES_ESTADO_PASO,
               required: true,
-              defaultValue: 'pendiente',
+              defaultValue: ESTADO_PASO_DEFAULT,
               admin: { width: '25%' },
             },
           ],

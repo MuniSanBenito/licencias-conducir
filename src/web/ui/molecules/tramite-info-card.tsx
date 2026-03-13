@@ -1,3 +1,4 @@
+import { ESTADO_PASO } from '@/constants/tramites'
 import type { Tramite } from '@/payload-types'
 import { formatDate } from '@/web/utils/fechas'
 import { IconId } from '@tabler/icons-react'
@@ -30,7 +31,7 @@ export function TramiteInfoCard({ tramite }: TramiteInfoCardProps) {
           <section>
             <dt className="text-[10px] tracking-wider uppercase opacity-40">Total Pasos</dt>
             <dd className="text-sm font-medium">
-              {tramite.pasos.filter((p) => p.estado === 'completado').length} /{' '}
+              {tramite.pasos.filter((p) => p.estado === ESTADO_PASO.COMPLETADO).length} /{' '}
               {tramite.pasos.length}
             </dd>
           </section>

@@ -1,7 +1,7 @@
-import { getPayload, Payload } from 'payload'
 import config from '@/payload.config'
+import { getPayload, type Payload } from 'payload'
 
-import { describe, it, beforeAll, expect } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 
 let payload: Payload
 
@@ -13,7 +13,7 @@ describe('API', () => {
 
   it('fetches users', async () => {
     const users = await payload.find({
-      collection: 'users',
+      collection: 'usuario',
     })
     expect(users).toBeDefined()
   })

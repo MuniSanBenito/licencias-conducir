@@ -1,8 +1,10 @@
 import type { ClaseLicencia } from '@/constants/clases'
 import {
+  ESTADO_PASO,
   ORDEN_PASOS,
   PASO_LABELS,
   PASOS_POR_TIPO,
+  type EstadoPaso,
   type PasoId,
   type TipoTramite,
 } from '@/constants/tramites'
@@ -16,7 +18,7 @@ export interface ItemLicencia {
 export interface PasoTramitePreview {
   id: PasoId
   label: string
-  estado: 'pendiente' | 'en_curso' | 'completado'
+  estado: EstadoPaso
   requiereTurno: boolean
 }
 
@@ -40,7 +42,7 @@ export function getPasosParaTramite(items: ItemLicencia[]): PasoTramitePreview[]
   return ORDEN_PASOS.filter((paso) => pasosRequeridos.has(paso)).map((paso) => ({
     id: paso,
     label: PASO_LABELS[paso],
-    estado: 'pendiente',
+    estado: ESTADO_PASO.PENDIENTE,
     requiereTurno: pasoRequiereTurno(paso),
   }))
 }

@@ -1,4 +1,4 @@
-import { TIPO_TRAMITE_LABELS } from '@/constants/tramites'
+import { TIPO_TRAMITE, TIPO_TRAMITE_LABELS } from '@/constants/tramites'
 import type { ItemLicencia, PasoTramitePreview } from '@/web/utils/pasos'
 import { IconCheck, IconCircle, IconTicket } from '@tabler/icons-react'
 import { twJoin } from 'tailwind-merge'
@@ -50,9 +50,9 @@ export function PasosPreview({ pasos, items }: PasosPreviewProps) {
               <span
                 className={twJoin(
                   'text-xs',
-                  item.tipo === 'nueva'
+                  item.tipo === TIPO_TRAMITE.NUEVA
                     ? 'text-info'
-                    : item.tipo === 'renovacion'
+                    : item.tipo === TIPO_TRAMITE.RENOVACION
                       ? 'text-warning'
                       : 'text-secondary',
                 )}

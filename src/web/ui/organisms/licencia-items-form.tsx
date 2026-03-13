@@ -1,6 +1,6 @@
 'use client'
 import { CLASES_LICENCIA, type ClaseLicencia } from '@/constants/clases'
-import { TIPO_TRAMITE_LABELS, type TipoTramite } from '@/constants/tramites'
+import { TIPO_TRAMITE, TIPO_TRAMITE_LABELS, type TipoTramite } from '@/constants/tramites'
 import { IconLicense, IconPlus, IconTrash } from '@tabler/icons-react'
 import { twJoin } from 'tailwind-merge'
 
@@ -16,7 +16,7 @@ interface LicenciaItemsFormProps {
 
 export function LicenciaItemsForm({ items, onItemsChange }: LicenciaItemsFormProps) {
   const agregarItem = () => {
-    onItemsChange([...items, { clase: 'B1', tipo: 'nueva' }])
+    onItemsChange([...items, { clase: 'B1', tipo: TIPO_TRAMITE.NUEVA }])
   }
 
   const eliminarItem = (index: number) => {

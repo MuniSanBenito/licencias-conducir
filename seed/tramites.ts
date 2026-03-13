@@ -1,5 +1,13 @@
 import { CLASES_LICENCIA } from '@/constants/clases'
-import { PASO_LABELS, PASOS_CON_TURNO } from '@/constants/tramites'
+import {
+  ESTADO_PASO,
+  ESTADO_TRAMITE,
+  ESTADO_TURNO,
+  ESTADOS_TRAMITE,
+  PASO_LABELS,
+  PASOS_CON_TURNO,
+  TIPOS_TRAMITE,
+} from '@/constants/tramites'
 import { basePayload } from '@/web/libs/payload/server'
 import { getPasosParaTramite, type ItemLicencia } from '@/web/utils/pasos'
 
@@ -18,13 +26,13 @@ function avanzarPasos(items: ItemLicencia[], cantidad: number) {
     if (i < cantidad) {
       return {
         ...base,
-        estado: 'completado' as const,
+        estado: ESTADO_PASO.COMPLETADO,
         fecha: `2026-03-0${(i % 9) + 1}`,
         turno: base.requiereTurno
           ? {
               fecha: `2026-03-0${(i % 9) + 1}`,
               hora: `${8 + (i % 4)}:00`,
-              estado: 'completado' as const,
+              estado: ESTADO_TURNO.COMPLETADO,
             }
           : undefined,
       }
@@ -33,18 +41,18 @@ function avanzarPasos(items: ItemLicencia[], cantidad: number) {
     if (i === cantidad) {
       return {
         ...base,
-        estado: 'en_curso' as const,
+        estado: ESTADO_PASO.EN_CURSO,
         turno: base.requiereTurno
           ? {
               fecha: '2026-03-15',
               hora: '10:00',
-              estado: 'programado' as const,
+              estado: ESTADO_TURNO.PROGRAMADO,
             }
           : undefined,
       }
     }
 
-    return { ...base, estado: 'pendiente' as const }
+    return { ...base, estado: ESTADO_PASO.PENDIENTE }
   })
 }
 
@@ -68,8 +76,8 @@ const seed = async () => {
 
   console.log(`📋 ${ciudadanos.length} ciudadanos encontrados, generando trámites...`)
 
-  const TIPOS = ['nueva', 'renovacion', 'ampliacion'] as const
-  const ESTADOS = ['en_curso', 'completado', 'cancelado'] as const
+  const TIPOS = TIPOS_TRAMITE
+  const ESTADOS = ESTADOS_TRAMITE
 
   // Generar 25 trámites (5 originales + 20 extras)
   for (let i = 0; i < 25; i++) {
@@ -94,9 +102,9 @@ const seed = async () => {
 
       // Cuántos pasos avanzar
       let pasosAvanzados = 0
-      if (estado === 'completado') {
+      if (estado === ESTADO_TRAMITE.COMPLETADO) {
         pasosAvanzados = totalPasos
-      } else if (estado === 'en_curso') {
+      } else if (estado === ESTADO_TRAMITE.EN_CURSO) {
         pasosAvanzados = Math.floor(Math.random() * totalPasos)
       } else {
         pasosAvanzados = Math.floor(Math.random() * (totalPasos / 2))
@@ -118,7 +126,7 @@ const seed = async () => {
           pasos,
           estado,
           fechaInicio,
-          fechaFin: estado === 'completado' ? new Date().toISOString() : undefined,
+          fechaFin: estado === ESTADO_TRAMITE.COMPLETADO ? new Date().toISOString() : undefined,
         },
       })
 

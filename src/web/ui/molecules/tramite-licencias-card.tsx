@@ -1,12 +1,12 @@
-import { TIPO_TRAMITE_LABELS } from '@/constants/tramites'
+import { TIPO_TRAMITE, TIPO_TRAMITE_LABELS } from '@/constants/tramites'
 import type { Tramite } from '@/payload-types'
 import { IconLicense } from '@tabler/icons-react'
 
 type ItemLicencia = Tramite['items'][number]
 
 function getBadgeClass(tipo: string): string {
-  if (tipo === 'nueva') return 'badge badge-info'
-  if (tipo === 'renovacion') return 'badge badge-warning'
+  if (tipo === TIPO_TRAMITE.NUEVA) return 'badge badge-info'
+  if (tipo === TIPO_TRAMITE.RENOVACION) return 'badge badge-warning'
   return 'badge badge-secondary'
 }
 
