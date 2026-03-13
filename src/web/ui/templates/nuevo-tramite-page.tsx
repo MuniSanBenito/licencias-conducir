@@ -1,13 +1,16 @@
 'use client'
 import type { Ciudadano } from '@/payload-types'
+import { sdk } from '@/web/libs/payload/client'
 import { BuscarCiudadanoInput } from '@/web/ui/molecules/buscar-ciudadano-input'
 import { PasosPreview } from '@/web/ui/molecules/pasos-preview'
 import { LicenciaItemsForm, type ItemForm } from '@/web/ui/organisms/licencia-items-form'
 import { getPasosParaTramite } from '@/web/utils/pasos'
-import { IconArrowLeft, IconFileText, IconRocket, IconUser } from '@tabler/icons-react'
+import { PayloadSDKError } from '@payloadcms/sdk'
+import { IconArrowLeft, IconFileText, IconLoader2, IconRocket, IconUser } from '@tabler/icons-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { twJoin } from 'tailwind-merge'
 
 interface Props {
@@ -23,10 +26,11 @@ export function NuevoTramitePage({ ciudadanos, page, totalPages, totalDocs, curr
   const [ciudadanoSeleccionado, setCiudadanoSeleccionado] = useState<Ciudadano | null>(null)
   const [fut, setFut] = useState('')
   const [items, setItems] = useState<ItemForm[]>([{ clase: 'B1', tipo: 'nueva' }])
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const pasosPreview = getPasosParaTramite(items)
 
-  /* const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!fut.trim()) {
       toast.error('Ingresá el número de FUT')
       return
@@ -36,24 +40,45 @@ export function NuevoTramitePage({ ciudadanos, page, totalPages, totalDocs, curr
       return
     }
 
-    const totalTramites = getTramites().length
-    const nuevoId = `TRM-2026-${String(totalTramites + 1).padStart(3, '0')}`
-    const pasos = getPasosParaTramite(items)
-    pasos[0].estado = 'en_curso'
+    setIsSubmitting(true)
 
-    addTramite({
-      id: nuevoId,
-      fut: fut.trim(),
-      ciudadano: ciudadanoSeleccionado,
-      items: items.map((item) => ({ clase: item.clase, tipo: item.tipo })),
-      pasos,
-      estado: 'en_curso',
-      fechaInicio: new Date().toISOString().slice(0, 10),
-    })
+    try {
+      const pasos = getPasosParaTramite(items).map((paso, index) => ({
+        pasoId: paso.id,
+        label: paso.label,
+        estado: index === 0 ? 'en_curso' : paso.estado,
+        requiereTurno: paso.requiereTurno,
+      }))
 
-    toast.success('Trámite creado exitosamente')
-    router.push(`/tramite/${nuevoId}`)
-  } */
+      const response = await sdk.create({
+        collection: 'tramite',
+        data: {
+          fut: fut.trim(),
+          ciudadano: ciudadanoSeleccionado.id,
+          items: items.map((item) => ({ clase: item.clase, tipo: item.tipo })),
+          pasos,
+          estado: 'en_curso',
+          fechaInicio: new Date().toISOString(),
+        },
+      })
+
+      if (response?.id) {
+        toast.success('Trámite creado exitosamente')
+        router.push(`/tramite/${response.id}`)
+      } else {
+        throw new Error('Error al crear el trámite')
+      }
+    } catch (error) {
+      console.error(error)
+      if (error instanceof PayloadSDKError) {
+        error.errors.forEach((err) => toast.error(err.message))
+      } else {
+        toast.error('Error al crear el trámite')
+      }
+    }
+
+    setIsSubmitting(false)
+  }
 
   return (
     <section>
@@ -133,11 +158,15 @@ export function NuevoTramitePage({ ciudadanos, page, totalPages, totalDocs, curr
               'btn btn-lg self-start',
               ciudadanoSeleccionado ? 'btn-primary' : 'btn-disabled',
             )}
-            // onClick={handleSubmit}
-            disabled={!ciudadanoSeleccionado}
+            onClick={handleSubmit}
+            disabled={!ciudadanoSeleccionado || isSubmitting}
           >
-            <IconRocket size={20} />
-            Iniciar Trámite
+            {isSubmitting ? (
+              <IconLoader2 size={20} className="animate-spin" aria-hidden="true" />
+            ) : (
+              <IconRocket size={20} aria-hidden="true" />
+            )}
+            {isSubmitting ? 'Creando...' : 'Iniciar Trámite'}
           </button>
         </section>
 

@@ -1,10 +1,6 @@
 import type { Ciudadano, Tramite } from '@/payload-types'
 import { basePayload } from '@/web/libs/payload/server'
-import { TramiteCiudadanoCard } from '@/web/ui/molecules/tramite-ciudadano-card'
-import { TramiteInfoCard } from '@/web/ui/molecules/tramite-info-card'
-import { TramiteLicenciasCard } from '@/web/ui/molecules/tramite-licencias-card'
-import { TramiteTurnosCard } from '@/web/ui/molecules/tramite-turnos-card'
-import { TramiteTimeline } from '@/web/ui/organisms/tramite-timeline'
+import { TramiteDetallePage } from '@/web/ui/templates/tramite-detalle-page'
 import { IconArrowLeft } from '@tabler/icons-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -29,7 +25,7 @@ async function getTramite(tramiteId: string): Promise<TramiteConCiudadano | null
   }
 }
 
-export default async function TramiteDetallePage({ params }: PageProps<'/tramite/[id]'>) {
+export default async function Page({ params }: PageProps<'/tramite/[id]'>) {
   const { id: tramiteId } = await params
   const tramite = await getTramite(tramiteId)
 
@@ -37,10 +33,6 @@ export default async function TramiteDetallePage({ params }: PageProps<'/tramite
     notFound()
   }
 
-  const todosCompletados = tramite.pasos.every((p) => p.estado === 'completado')
-  const progreso = Math.round(
-    (tramite.pasos.filter((p) => p.estado === 'completado').length / tramite.pasos.length) * 100,
-  )
   const ciudadanoDisplayName = `${tramite.ciudadano.nombre} ${tramite.ciudadano.apellido}`
   const breadcrumbDetail = tramite.fut
     ? `${ciudadanoDisplayName} - FUT ${tramite.fut}`
@@ -60,20 +52,7 @@ export default async function TramiteDetallePage({ params }: PageProps<'/tramite
         </ul>
       </nav>
 
-      <section className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
-        <TramiteTimeline
-          pasos={tramite.pasos}
-          progreso={progreso}
-          todosCompletados={todosCompletados}
-        />
-
-        <aside className="flex flex-col gap-5">
-          <TramiteCiudadanoCard ciudadano={tramite.ciudadano} />
-          <TramiteLicenciasCard items={tramite.items} />
-          <TramiteTurnosCard pasos={tramite.pasos} />
-          <TramiteInfoCard tramite={tramite} />
-        </aside>
-      </section>
+      <TramiteDetallePage tramite={tramite} />
     </section>
   )
 }
