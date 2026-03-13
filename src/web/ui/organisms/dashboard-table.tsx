@@ -9,7 +9,6 @@ import {
   IconChevronLeft,
   IconChevronRight,
   IconChevronUp,
-  IconClock,
   IconFilePlus,
   IconPlayerPause,
   IconSelector,
@@ -42,7 +41,6 @@ interface Props {
   page: number
   totalPages: number
   totalDocs: number
-  stats: DashboardStats
 }
 
 const columnHelper = createColumnHelper<TramiteConCiudadano>()
@@ -184,7 +182,7 @@ function buildColumns() {
   ]
 }
 
-export function DashboardPage({ tramites, page, totalPages, totalDocs, stats }: Props) {
+export function DashboardTable({ tramites, page, totalPages, totalDocs }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -251,168 +249,107 @@ export function DashboardPage({ tramites, page, totalPages, totalDocs, stats }: 
   }
 
   return (
-    <section aria-labelledby="dashboard-heading">
-      <header className="mb-6 flex items-center justify-between">
-        <h2 id="dashboard-heading" className="text-xl font-bold">
-          Tablero de Trámites
-        </h2>
-      </header>
+    <section className="space-y-4">
+      <section className="flex items-center justify-between gap-4">
+        <BuscarForm
+          value={searchTerm}
+          onChange={setSearchTerm}
+          onSearch={handleSearch}
+          onClear={handleClear}
+          label="Buscar trámites"
+          placeholder="Buscar por FUT, DNI o nombre..."
+          clearDisabled={!(searchTerm || currentQuery)}
+          className="flex max-w-lg flex-1 gap-2"
+        />
 
-      <section
-        className="mb-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4"
-        aria-label="Estadísticas de trámites"
-      >
-        <article className="card card-border bg-base-100">
-          <section className="card-body flex-row items-center gap-4">
-            <figure className="rounded-btn bg-base-200 text-primary p-3">
-              <IconFilePlus size={24} aria-hidden="true" />
-            </figure>
-            <section>
-              <p className="text-sm opacity-60">Total Trámites</p>
-              <p className="text-primary text-3xl font-bold">{stats.totalTramites}</p>
-            </section>
-          </section>
-        </article>
-
-        <article className="card card-border bg-base-100">
-          <section className="card-body flex-row items-center gap-4">
-            <figure className="rounded-btn bg-base-200 text-warning p-3">
-              <IconClock size={24} aria-hidden="true" />
-            </figure>
-            <section>
-              <p className="text-sm opacity-60">En Curso</p>
-              <p className="text-warning text-3xl font-bold">{stats.enCurso}</p>
-            </section>
-          </section>
-        </article>
-
-        <article className="card card-border bg-base-100">
-          <section className="card-body flex-row items-center gap-4">
-            <figure className="rounded-btn bg-base-200 text-success p-3">
-              <IconCheck size={24} aria-hidden="true" />
-            </figure>
-            <section>
-              <p className="text-sm opacity-60">Completados</p>
-              <p className="text-success text-3xl font-bold">{stats.completados}</p>
-            </section>
-          </section>
-        </article>
-
-        <article className="card card-border bg-base-100">
-          <section className="card-body flex-row items-center gap-4">
-            <figure className="rounded-btn bg-base-200 text-error p-3">
-              <IconX size={24} aria-hidden="true" />
-            </figure>
-            <section>
-              <p className="text-sm opacity-60">Cancelados</p>
-              <p className="text-error text-3xl font-bold">{stats.cancelados}</p>
-            </section>
-          </section>
-        </article>
+        <Link href="/tramite/nuevo" className="btn btn-primary btn-sm">
+          <IconFilePlus size={18} aria-hidden="true" />
+          Nuevo Trámite
+        </Link>
       </section>
 
-      <section className="space-y-4">
-        <section className="flex items-center justify-between gap-4">
-          <BuscarForm
-            value={searchTerm}
-            onChange={setSearchTerm}
-            onSearch={handleSearch}
-            onClear={handleClear}
-            label="Buscar trámites"
-            placeholder="Buscar por FUT, DNI o nombre..."
-            clearDisabled={!(searchTerm || currentQuery)}
-            className="flex max-w-lg flex-1 gap-2"
-          />
+      <section className="bg-base-100 rounded-box overflow-hidden shadow">
+        <section className="overflow-x-auto">
+          <table className="table-zebra table w-full" aria-label="Lista de trámites recientes">
+            <thead>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    const columnId = header.column.id
+                    const isSortable = ['fut', 'fechaInicio'].includes(columnId)
 
-          <Link href="/tramite/nuevo" className="btn btn-primary btn-sm">
-            <IconFilePlus size={18} aria-hidden="true" />
-            Nuevo Trámite
-          </Link>
-        </section>
+                    return (
+                      <th
+                        key={header.id}
+                        className={twJoin(
+                          isSortable &&
+                            'hover:bg-base-200 cursor-pointer transition-colors select-none',
+                        )}
+                        onClick={() => isSortable && handleSort(columnId)}
+                      >
+                        <section className="flex items-center gap-2">
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(header.column.columnDef.header, header.getContext())}
+                          {isSortable && getSortIcon(currentSort, columnId)}
+                        </section>
+                      </th>
+                    )
+                  })}
+                </tr>
+              ))}
+            </thead>
 
-        <section className="bg-base-100 rounded-box overflow-hidden shadow">
-          <section className="overflow-x-auto">
-            <table className="table-zebra table w-full" aria-label="Lista de trámites recientes">
-              <thead>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <tr key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => {
-                      const columnId = header.column.id
-                      const isSortable = ['fut', 'fechaInicio'].includes(columnId)
-
-                      return (
-                        <th
-                          key={header.id}
-                          className={twJoin(
-                            isSortable &&
-                              'hover:bg-base-200 cursor-pointer transition-colors select-none',
-                          )}
-                          onClick={() => isSortable && handleSort(columnId)}
-                        >
-                          <section className="flex items-center gap-2">
-                            {header.isPlaceholder
-                              ? null
-                              : flexRender(header.column.columnDef.header, header.getContext())}
-                            {isSortable && getSortIcon(currentSort, columnId)}
-                          </section>
-                        </th>
-                      )
-                    })}
+            <tbody>
+              {table.getRowModel().rows.length === 0 ? (
+                <tr>
+                  <td colSpan={columns.length} className="py-8 text-center">
+                    No hay trámites para mostrar
+                  </td>
+                </tr>
+              ) : (
+                table.getRowModel().rows.map((row) => (
+                  <tr key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <td key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
+                    ))}
                   </tr>
-                ))}
-              </thead>
-
-              <tbody>
-                {table.getRowModel().rows.length === 0 ? (
-                  <tr>
-                    <td colSpan={columns.length} className="py-8 text-center">
-                      No hay trámites para mostrar
-                    </td>
-                  </tr>
-                ) : (
-                  table.getRowModel().rows.map((row) => (
-                    <tr key={row.id}>
-                      {row.getVisibleCells().map((cell) => (
-                        <td key={cell.id}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </td>
-                      ))}
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </section>
+                ))
+              )}
+            </tbody>
+          </table>
         </section>
-
-        {totalPages > 1 && (
-          <section className="flex items-center justify-between">
-            <output className="text-base-content/60 text-sm" aria-live="polite">
-              Página {page} de {totalPages} - {totalDocs} trámites en total
-            </output>
-            <nav aria-label="Paginación de trámites">
-              <section className="join">
-                <button
-                  className={twJoin('join-item btn btn-sm', !hasPrevPage && 'btn-disabled')}
-                  onClick={() => navigateToPage(page - 1)}
-                  disabled={!hasPrevPage}
-                >
-                  <IconChevronLeft size={16} aria-hidden="true" />
-                  Anterior
-                </button>
-                <button
-                  className={twJoin('join-item btn btn-sm', !hasNextPage && 'btn-disabled')}
-                  onClick={() => navigateToPage(page + 1)}
-                  disabled={!hasNextPage}
-                >
-                  Siguiente
-                  <IconChevronRight size={16} aria-hidden="true" />
-                </button>
-              </section>
-            </nav>
-          </section>
-        )}
       </section>
+
+      {totalPages > 1 && (
+        <section className="flex items-center justify-between">
+          <output className="text-base-content/60 text-sm" aria-live="polite">
+            Página {page} de {totalPages} - {totalDocs} trámites en total
+          </output>
+          <nav aria-label="Paginación de trámites">
+            <section className="join">
+              <button
+                className={twJoin('join-item btn btn-sm', !hasPrevPage && 'btn-disabled')}
+                onClick={() => navigateToPage(page - 1)}
+                disabled={!hasPrevPage}
+              >
+                <IconChevronLeft size={16} aria-hidden="true" />
+                Anterior
+              </button>
+              <button
+                className={twJoin('join-item btn btn-sm', !hasNextPage && 'btn-disabled')}
+                onClick={() => navigateToPage(page + 1)}
+                disabled={!hasNextPage}
+              >
+                Siguiente
+                <IconChevronRight size={16} aria-hidden="true" />
+              </button>
+            </section>
+          </nav>
+        </section>
+      )}
     </section>
   )
 }

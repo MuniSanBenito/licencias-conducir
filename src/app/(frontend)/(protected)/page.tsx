@@ -1,8 +1,9 @@
 import type { Ciudadano, Tramite } from '@/payload-types'
 import { basePayload } from '@/web/libs/payload/server'
+import { DashboardTable } from '@/web/ui/organisms/dashboard-table'
+import { IconCheck, IconClock, IconFilePlus, IconX } from '@tabler/icons-react'
 import type { Metadata } from 'next'
 import type { Where } from 'payload'
-import { DashboardPage } from '../../../web/ui/templates/dashboard-page'
 
 const DEFAULT_LIMIT = 15
 
@@ -64,17 +65,72 @@ export default async function Page({ searchParams }: PageProps<'/'>) {
   )
 
   return (
-    <DashboardPage
-      tramites={tramitesConCiudadano}
-      page={tramites.page ?? 1}
-      totalPages={tramites.totalPages}
-      totalDocs={tramites.totalDocs}
-      stats={{
-        totalTramites: totalTramites.totalDocs,
-        enCurso: enCurso.totalDocs,
-        completados: completados.totalDocs,
-        cancelados: cancelados.totalDocs,
-      }}
-    />
+    <section aria-labelledby="dashboard-heading">
+      <header className="mb-6 flex items-center justify-between">
+        <h2 id="dashboard-heading" className="text-xl font-bold">
+          Tablero de Trámites
+        </h2>
+      </header>
+
+      <section
+        className="mb-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4"
+        aria-label="Estadísticas de trámites"
+      >
+        <article className="card card-border bg-base-100">
+          <section className="card-body flex-row items-center gap-4">
+            <figure className="rounded-btn bg-base-200 text-primary p-3">
+              <IconFilePlus size={24} aria-hidden="true" />
+            </figure>
+            <section>
+              <p className="text-sm opacity-60">Total Trámites</p>
+              <p className="text-primary text-3xl font-bold">{totalTramites.totalDocs}</p>
+            </section>
+          </section>
+        </article>
+
+        <article className="card card-border bg-base-100">
+          <section className="card-body flex-row items-center gap-4">
+            <figure className="rounded-btn bg-base-200 text-warning p-3">
+              <IconClock size={24} aria-hidden="true" />
+            </figure>
+            <section>
+              <p className="text-sm opacity-60">En Curso</p>
+              <p className="text-warning text-3xl font-bold">{enCurso.totalDocs}</p>
+            </section>
+          </section>
+        </article>
+
+        <article className="card card-border bg-base-100">
+          <section className="card-body flex-row items-center gap-4">
+            <figure className="rounded-btn bg-base-200 text-success p-3">
+              <IconCheck size={24} aria-hidden="true" />
+            </figure>
+            <section>
+              <p className="text-sm opacity-60">Completados</p>
+              <p className="text-success text-3xl font-bold">{completados.totalDocs}</p>
+            </section>
+          </section>
+        </article>
+
+        <article className="card card-border bg-base-100">
+          <section className="card-body flex-row items-center gap-4">
+            <figure className="rounded-btn bg-base-200 text-error p-3">
+              <IconX size={24} aria-hidden="true" />
+            </figure>
+            <section>
+              <p className="text-sm opacity-60">Cancelados</p>
+              <p className="text-error text-3xl font-bold">{cancelados.totalDocs}</p>
+            </section>
+          </section>
+        </article>
+      </section>
+
+      <DashboardTable
+        tramites={tramitesConCiudadano}
+        page={tramites.page ?? 1}
+        totalPages={tramites.totalPages}
+        totalDocs={tramites.totalDocs}
+      />
+    </section>
   )
 }
