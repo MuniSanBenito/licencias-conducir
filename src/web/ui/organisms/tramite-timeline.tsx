@@ -32,7 +32,10 @@ interface TramiteTimelineProps {
 
 function turnoFalta(paso: PasoTramite) {
   return Boolean(
-    paso.requiereTurno && (!paso.turno || paso.turno.estado === ESTADO_TURNO.CANCELADO),
+    paso.requiereTurno &&
+      (!paso.turno ||
+        !paso.turno.estado ||
+        paso.turno.estado === ESTADO_TURNO.CANCELADO),
   )
 }
 
@@ -124,7 +127,7 @@ export function TramiteTimeline({
                   </>
                 )}
 
-                {paso.requiereTurno && paso.turno && (
+                {paso.requiereTurno && paso.turno?.estado && (
                   <section
                     className="bg-base-200 mt-2 flex items-center justify-between rounded-lg p-3"
                     aria-label={`Turno para ${paso.label}`}
@@ -139,7 +142,7 @@ export function TramiteTimeline({
                       </section>
                       <TurnoBadge turno={paso.turno} />
                     </section>
-                    {paso.estado === ESTADO_PASO.EN_CURSO &&
+                    {(paso.estado === ESTADO_PASO.EN_CURSO || paso.estado === ESTADO_PASO.PENDIENTE) &&
                       paso.turno.estado === ESTADO_TURNO.PROGRAMADO &&
                       onCancelarTurno && (
                         <button
@@ -154,7 +157,8 @@ export function TramiteTimeline({
                   </section>
                 )}
 
-                {paso.estado === ESTADO_PASO.EN_CURSO && (
+                {(paso.estado === ESTADO_PASO.EN_CURSO ||
+                  (paso.estado === ESTADO_PASO.PENDIENTE && turnoFalta(paso))) && (
                   <section className="mt-3 flex gap-2">
                     {turnoFalta(paso) && onAsignarTurno && (
                       <button
@@ -167,7 +171,7 @@ export function TramiteTimeline({
                           : 'Asignar Turno'}
                       </button>
                     )}
-                    {onAvanzarPaso && (
+                    {paso.estado === ESTADO_PASO.EN_CURSO && onAvanzarPaso && (
                       <button
                         className={twJoin(
                           'btn btn-sm',
