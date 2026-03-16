@@ -1,5 +1,5 @@
 'use client'
-import { IconFilePlus, IconLayoutDashboard, IconLogout, IconUsers } from '@tabler/icons-react'
+import { IconFilePlus, IconHelp, IconLayoutDashboard, IconListCheck, IconLogout, IconUsers } from '@tabler/icons-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -9,6 +9,8 @@ const NAV_ITEMS = [
   { href: '/', label: 'Tablero', icon: IconLayoutDashboard },
   { href: '/ciudadanos', label: 'Ciudadanos', icon: IconUsers },
   { href: '/tramite/nuevo', label: 'Nuevo Trámite', icon: IconFilePlus },
+  { href: '/gestion-examenes/preguntas', label: 'Banco Preguntas', icon: IconHelp },
+  { href: '/gestion-examenes', label: 'Exámenes', icon: IconListCheck },
 ]
 
 export function Navbar() {

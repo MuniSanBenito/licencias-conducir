@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionAfterChangeHook, CollectionConfig } from 'payload'
 
 import { CLASES_LICENCIA } from '@/constants/clases'
 import { DISPLAY_DATE_FORMAT } from '@/constants/fechas'
@@ -11,12 +11,113 @@ import {
   OPCIONES_ESTADO_TURNO,
   OPCIONES_PASO_ID,
   OPCIONES_TIPO_TRAMITE,
+  PASO_ID,
 } from '@/constants/tramites'
 
 const OPCIONES_CLASE = CLASES_LICENCIA.map((clase) => ({
   label: clase,
   value: clase,
 }))
+
+const generarExamenTeorico: CollectionAfterChangeHook = async ({
+  doc,
+  previousDoc,
+  operation,
+  req,
+}) => {
+  if (operation !== 'create' && operation !== 'update') return doc
+
+  const pasoExamenTeorico = doc.pasos?.find((p: any) => p.pasoId === PASO_ID.EXAMEN_TEORICO)
+  const pasoExamenTeoricoPrevio = previousDoc?.pasos?.find((p: any) => p.pasoId === PASO_ID.EXAMEN_TEORICO)
+
+  const turno = pasoExamenTeorico?.turno
+  const previoTurno = pasoExamenTeoricoPrevio?.turno
+
+  const tieneTurnoValido = turno && turno.fecha && turno.hora && turno.estado !== 'cancelado'
+
+  if (tieneTurnoValido && (!previoTurno || previoTurno.fecha !== turno.fecha || previoTurno.hora !== turno.hora)) {
+    const examenesExistentes = await req.payload.find({
+      collection: 'examen',
+      where: {
+        tramite: {
+          equals: doc.id,
+        },
+        estado: {
+          equals: 'abierto',
+        },
+      },
+    })
+
+    if (examenesExistentes.totalDocs === 0) {
+      const clases = doc.items.map((item: any) => item.clase)
+      const preguntasGeneradas: any[] = []
+      const preguntasAgregadasIds = new Set<string>()
+
+      for (const clase of clases) {
+        const preguntasQuery = await req.payload.find({
+          collection: 'pregunta',
+          limit: 100,
+          where: {
+            clases: {
+              contains: clase,
+            },
+          },
+        })
+
+        const preguntasClase = preguntasQuery.docs.filter((p) => !preguntasAgregadasIds.has(p.id))
+        const shuffled = preguntasClase.sort(() => 0.5 - Math.random())
+        const seleccionadas = shuffled.slice(0, 5)
+
+        for (const p of seleccionadas) {
+          preguntasAgregadasIds.add(p.id)
+          preguntasGeneradas.push({
+            preguntaOriginal: p.id,
+            consigna: p.consigna,
+            imagenConsigna: typeof p.imagenConsigna === 'object' ? p.imagenConsigna?.id : p.imagenConsigna,
+            clases: p.clases,
+            opciones: p.opciones?.map((o: any) => ({
+              idOp: o.id || Math.random().toString(36).substring(2, 9),
+              texto: o.texto,
+              imagen: typeof o.imagen === 'object' ? o.imagen?.id : o.imagen,
+              esCorrecta: o.esCorrecta,
+            })),
+          })
+        }
+      }
+
+      if (preguntasGeneradas.length > 0) {
+        let fechaInicio: Date
+        if (turno.fecha.includes('T')) {
+          const [yyyy, mm, dd] = turno.fecha.split('T')[0].split('-')
+          const [hh, min] = turno.hora.split(':')
+          fechaInicio = new Date(Date.UTC(Number(yyyy), Number(mm) - 1, Number(dd), Number(hh), Number(min)))
+        } else {
+          // If already a valid ISO string, though payload stores as ISO string date only
+          const d = new Date(turno.fecha)
+          const [hh, min] = turno.hora.split(':')
+          d.setUTCHours(Number(hh), Number(min), 0, 0)
+          fechaInicio = d
+        }
+        
+        const fechaFin = new Date(fechaInicio.getTime() + 5 * 60000)
+
+        await req.payload.create({
+          collection: 'examen',
+          data: {
+            ciudadano: typeof doc.ciudadano === 'object' ? doc.ciudadano.id : doc.ciudadano,
+            tramite: doc.id,
+            estado: 'abierto',
+            fechaInicio: fechaInicio.toISOString(),
+            fechaFin: fechaFin.toISOString(),
+            preguntasGeneradas,
+          },
+        })
+      }
+    }
+  }
+
+  return doc
+}
 
 export const Tramite: CollectionConfig = {
   slug: 'tramite',
@@ -33,6 +134,9 @@ export const Tramite: CollectionConfig = {
   },
   defaultSort: '-createdAt',
   timestamps: true,
+  hooks: {
+    afterChange: [generarExamenTeorico],
+  },
   fields: [
     {
       type: 'row',
