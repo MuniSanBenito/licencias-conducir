@@ -15,7 +15,8 @@
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "bun run test:int && bun run test:e2e",
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --no-experimental-strip-types\" bun exec playwright test",
-    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
+    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
+    "update": "npx skills update && ncu -i"
   },
   "dependencies": {
     "@payloadcms/db-mongodb": "3.79.0",
@@ -43,7 +44,7 @@
     "sonner": "2.0.7",
     "tailwind-merge": "3.5.0",
     "tailwindcss": "4.2.1",
-    "zustand": "5.0.11"
+    "zustand": "5.0.12"
   },
   "devDependencies": {
     "@playwright/test": "1.58.2",
@@ -56,7 +57,7 @@
     "daisyui": "5.5.19",
     "eslint": "10.0.3",
     "eslint-config-next": "16.1.6",
-    "jsdom": "28.1.0",
+    "jsdom": "29.0.0",
     "playwright": "1.58.2",
     "playwright-core": "1.58.2",
     "prettier": "3.8.1",
