@@ -1,3 +1,2 @@
-- tramites y procesos unificarlos en uno solo para no tener que sobrecargar innecesariamente
-- analizar como implementar logica de turnos y progresos de tramites juntos
-- progresos con nombres y no numericos a la hora de crear/editar
+- no mostrar resultado despues de rendir, mostrar un mensaje mas generico
+- forzar que los turnos sean en el futuro y con steps cada 10min
