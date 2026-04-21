@@ -1,2 +1,8 @@
 - no mostrar resultado despues de rendir, mostrar un mensaje mas generico
 - forzar que los turnos sean en el futuro y con steps cada 10min
+- FUT opcional en los primeros pasos, a coordinar con licencias a partir de cual es Obligatorio
+- agregar checkbox para marcar preguntas como eliminatorias o no
+- agregar consignas con imagens par ala pregunta y tambien para cada una de las opciones
+- cuando un ciudadano finaliza un teorico dejarlo en estado de "revision" para que desde el area licencias revisen que falto y tener ellos la ultima palabra
+- preguntar a licencias si es de un turno a la vez
+- preguntar cuanto tiempo debe ser cada turno
