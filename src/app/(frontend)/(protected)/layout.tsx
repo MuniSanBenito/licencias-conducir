@@ -23,18 +23,6 @@ export default async function ProtectedLayout({ children }: PropsWithChildren) {
       <input id="protected-drawer" type="checkbox" className="drawer-toggle" />
 
       <main id="main-content" className="drawer-content flex flex-col" tabIndex={-1}>
-        {/* <header className="navbar bg-base-100 border-base-300 sticky top-0 z-40 border-b shadow-sm">
-          <section className="flex flex-1 items-center gap-2">
-            <IconCar size={24} className="text-primary" />
-            <h1 className="text-lg font-semibold">Licencias de Conducir</h1>
-          </section>
-          <section className="flex-none">
-            <span className="text-sm opacity-70">
-              Usuario: <strong>{auth.user?.email}</strong>
-            </span>
-          </section>
-        </header> */}
-
         <article className="flex-1 p-8">{children}</article>
       </main>
 
@@ -43,7 +31,7 @@ export default async function ProtectedLayout({ children }: PropsWithChildren) {
         <section className="menu bg-neutral text-neutral-content flex min-h-full w-60 flex-col p-0">
           <header className="border-b border-white/15 p-6 text-center">
             <IconBuildingCommunity size={32} className="mx-auto mb-1" />
-            <p className="text-xs font-bold tracking-wider uppercase">Municipalidad</p>
+            <p className="text-xs font-bold tracking-wider uppercase">Licencias</p>
             <p className="mt-1 text-[11px] opacity-80">San Benito · Entre Ríos</p>
           </header>
 

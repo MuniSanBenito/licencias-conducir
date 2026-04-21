@@ -87,7 +87,7 @@ export function LicenciaItemsForm({ items, onItemsChange }: LicenciaItemsFormPro
 
               <button
                 className={twJoin(
-                  'btn btn-square btn-sm',
+                  'btn btn-square btn-sm self-center',
                   items.length <= 1 ? 'btn-disabled' : 'btn-error btn-ghost',
                 )}
                 onClick={() => eliminarItem(index)}
