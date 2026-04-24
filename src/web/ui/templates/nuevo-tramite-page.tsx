@@ -1,14 +1,11 @@
 'use client'
-import { CLASE_LICENCIA_DEFAULT } from '@/constants/clases'
-import { ESTADO_TRAMITE, TIPO_TRAMITE } from '@/constants/tramites'
+
+import { ESTADO_TRAMITE, TIPO_TRAMITE, TIPO_TRAMITE_LABELS, type TipoTramite, tipoRequiereCurso } from '@/constants/tramites'
 import type { Ciudadano } from '@/payload-types'
 import { sdk } from '@/web/libs/payload/client'
 import { BuscarCiudadanoInput } from '@/web/ui/molecules/buscar-ciudadano-input'
-import { PasosPreview } from '@/web/ui/molecules/pasos-preview'
-import { LicenciaItemsForm, type ItemForm } from '@/web/ui/organisms/licencia-items-form'
-import { getPasosParaTramite } from '@/web/utils/pasos'
 import { PayloadSDKError } from '@payloadcms/sdk'
-import { IconArrowLeft, IconFileText, IconLoader2, IconRocket, IconUser } from '@tabler/icons-react'
+import { IconArrowLeft, IconFileText, IconLoader2, IconRocket, IconSchool, IconStethoscope, IconUser } from '@tabler/icons-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -22,23 +19,18 @@ interface Props {
   totalDocs: number
   currentQuery: string
 }
+
 export function NuevoTramitePage({ ciudadanos, page, totalPages, totalDocs, currentQuery }: Props) {
   const router = useRouter()
 
   const [ciudadanoSeleccionado, setCiudadanoSeleccionado] = useState<Ciudadano | null>(null)
   const [fut, setFut] = useState('')
-  const [items, setItems] = useState<ItemForm[]>([
-    { clase: CLASE_LICENCIA_DEFAULT, tipo: TIPO_TRAMITE.NUEVA },
-  ])
+  const [tipo, setTipo] = useState<TipoTramite>(TIPO_TRAMITE.ORIGINAL)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const pasosPreview = getPasosParaTramite(items)
+  const requiereCurso = tipoRequiereCurso(tipo)
 
   const handleSubmit = async () => {
-    if (!fut.trim()) {
-      toast.error('Ingresá el número de FUT')
-      return
-    }
     if (!ciudadanoSeleccionado) {
       toast.error('Seleccioná un ciudadano antes de continuar')
       return
@@ -47,20 +39,12 @@ export function NuevoTramitePage({ ciudadanos, page, totalPages, totalDocs, curr
     setIsSubmitting(true)
 
     try {
-      const pasos = getPasosParaTramite(items).map((paso, index) => ({
-        pasoId: paso.id,
-        label: paso.label,
-        estado: index === 0 ? ESTADO_TRAMITE.EN_CURSO : paso.estado,
-        requiereTurno: paso.requiereTurno,
-      }))
-
       const response = await sdk.create({
         collection: 'tramite',
         data: {
-          fut: fut.trim(),
           ciudadano: ciudadanoSeleccionado.id,
-          items: items.map((item) => ({ clase: item.clase, tipo: item.tipo })),
-          pasos,
+          tipo,
+          fut: fut.trim() || undefined,
           estado: ESTADO_TRAMITE.EN_CURSO,
           fechaInicio: new Date().toISOString(),
         },
@@ -102,30 +86,6 @@ export function NuevoTramitePage({ ciudadanos, page, totalPages, totalDocs, curr
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
         {/* Formulario */}
         <section className="flex flex-col gap-6">
-          {/* FUT */}
-          <article className="card card-border bg-base-100">
-            <section className="card-body">
-              <h2 className="card-title text-base">
-                <IconFileText size={18} />
-                Formulario Único de Trámite (FUT)
-              </h2>
-              <fieldset className="fieldset mt-2">
-                <label className="fieldset-legend" htmlFor="fut">
-                  Número de FUT
-                </label>
-                <input
-                  id="fut"
-                  className="input input-bordered input-primary w-full max-w-xs font-mono"
-                  placeholder="Ej: FUT-10482"
-                  value={fut}
-                  onChange={(e) => setFut(e.target.value)}
-                  required
-                  aria-required="true"
-                />
-              </fieldset>
-            </section>
-          </article>
-
           {/* Selección de ciudadano */}
           <article className="card card-border bg-base-100">
             <section className="card-body">
@@ -153,8 +113,57 @@ export function NuevoTramitePage({ ciudadanos, page, totalPages, totalDocs, curr
             </section>
           </article>
 
-          {/* Items de licencia */}
-          <LicenciaItemsForm items={items} onItemsChange={setItems} />
+          {/* Tipo de trámite */}
+          <article className="card card-border bg-base-100">
+            <section className="card-body">
+              <h2 className="card-title text-base">
+                <IconFileText size={18} />
+                Tipo de Trámite
+              </h2>
+              <fieldset className="fieldset mt-2">
+                <label className="fieldset-legend" htmlFor="tipo-tramite">
+                  Seleccionar tipo
+                </label>
+                <select
+                  id="tipo-tramite"
+                  className="select select-bordered w-full max-w-xs"
+                  value={tipo}
+                  onChange={(e) => setTipo(e.target.value as TipoTramite)}
+                >
+                  {(Object.entries(TIPO_TRAMITE_LABELS) as [TipoTramite, string][]).map(
+                    ([key, label]) => (
+                      <option key={key} value={key}>
+                        {label}
+                      </option>
+                    ),
+                  )}
+                </select>
+              </fieldset>
+            </section>
+          </article>
+
+          {/* FUT (opcional) */}
+          <article className="card card-border bg-base-100">
+            <section className="card-body">
+              <h2 className="card-title text-base">
+                <IconFileText size={18} />
+                FUT
+                <span className="badge badge-ghost badge-sm">Opcional</span>
+              </h2>
+              <fieldset className="fieldset mt-2">
+                <label className="fieldset-legend" htmlFor="fut">
+                  Número de FUT
+                </label>
+                <input
+                  id="fut"
+                  className="input input-bordered w-full max-w-xs font-mono"
+                  placeholder="Ej: FUT-10482"
+                  value={fut}
+                  onChange={(e) => setFut(e.target.value)}
+                />
+              </fieldset>
+            </section>
+          </article>
 
           {/* Botón submit */}
           <button
@@ -174,8 +183,45 @@ export function NuevoTramitePage({ ciudadanos, page, totalPages, totalDocs, curr
           </button>
         </section>
 
-        {/* Preview pasos */}
-        <PasosPreview pasos={pasosPreview} items={items} />
+        {/* Preview lateral */}
+        <aside className="card card-border bg-base-100 sticky top-6 self-start">
+          <section className="card-body">
+            <h3 className="card-title text-sm">Resumen del Trámite</h3>
+            <p className="mb-4 text-xs opacity-50">
+              Vista previa basada en el tipo seleccionado
+            </p>
+
+            <dl className="grid gap-3">
+              <section>
+                <dt className="text-[10px] tracking-wider uppercase opacity-40">Tipo</dt>
+                <dd className="text-sm font-semibold">{TIPO_TRAMITE_LABELS[tipo]}</dd>
+              </section>
+
+              {fut && (
+                <section>
+                  <dt className="text-[10px] tracking-wider uppercase opacity-40">FUT</dt>
+                  <dd className="font-mono text-sm">{fut}</dd>
+                </section>
+              )}
+            </dl>
+
+            <section className="border-base-200 mt-4 border-t pt-4">
+              <p className="mb-2 text-xs font-semibold opacity-50">Turnos requeridos:</p>
+              <section className="flex flex-col gap-2">
+                {requiereCurso && (
+                  <p className="flex items-center gap-2 text-sm">
+                    <IconSchool size={14} className="text-warning" />
+                    Curso Presencial
+                  </p>
+                )}
+                <p className="flex items-center gap-2 text-sm">
+                  <IconStethoscope size={14} className="text-info" />
+                  Examen Psicofísico
+                </p>
+              </section>
+            </section>
+          </section>
+        </aside>
       </section>
     </section>
   )

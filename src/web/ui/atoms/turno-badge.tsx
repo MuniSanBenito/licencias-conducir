@@ -1,7 +1,8 @@
 import { ESTADO_TURNO, ESTADO_TURNO_LABELS, type EstadoTurno } from '@/constants/tramites'
-import type { Tramite } from '@/payload-types'
 
-type Turno = NonNullable<Tramite['pasos'][number]['turno']>
+interface TurnoBadgeProps {
+  estado: EstadoTurno | null | undefined
+}
 
 const ESTADO_TURNO_CONFIG: Record<EstadoTurno, { label: string; badgeClass: string }> = {
   [ESTADO_TURNO.PROGRAMADO]: {
@@ -26,11 +27,11 @@ const ESTADO_TURNO_CONFIG: Record<EstadoTurno, { label: string; badgeClass: stri
   },
 }
 
-export function TurnoBadge({ turno }: { turno: Turno }) {
-  if (!turno.estado) {
+export function TurnoBadge({ estado }: TurnoBadgeProps) {
+  if (!estado) {
     return <span className="badge badge-ghost badge-sm">Sin estado</span>
   }
 
-  const config = ESTADO_TURNO_CONFIG[turno.estado]
+  const config = ESTADO_TURNO_CONFIG[estado]
   return <span className={config.badgeClass}>{config.label}</span>
 }

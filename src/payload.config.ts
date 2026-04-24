@@ -11,8 +11,6 @@ import { DISPLAY_DATE_FORMAT } from './constants/fechas'
 import { Archivo } from './payload/collections/archivo'
 import { Ciudadano } from './payload/collections/ciudadano'
 import { Dev } from './payload/collections/dev'
-import { Examen } from './payload/collections/examen'
-import { Pregunta } from './payload/collections/pregunta'
 import { Tramite } from './payload/collections/tramite'
 import { Usuario } from './payload/collections/usuario'
 import { storagePlugin } from './payload/plugins/storage'
@@ -39,7 +37,7 @@ export default buildConfig({
       },
     },
   },
-  collections: [Dev, Archivo, Usuario, Ciudadano, Tramite, Pregunta, Examen],
+  collections: [Dev, Archivo, Usuario, Ciudadano, Tramite],
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,
   typescript: {

@@ -1,84 +1,49 @@
 'use client'
 
-import { ESTADO_PASO, ESTADO_TRAMITE, ESTADO_TURNO } from '@/constants/tramites'
+import { ESTADO_TRAMITE, ESTADO_TURNO, TIPO_TURNO, type TipoTurno } from '@/constants/tramites'
 import type { Ciudadano, Tramite } from '@/payload-types'
 import { sdk } from '@/web/libs/payload/client'
 import { AsignarTurnoModal } from '@/web/ui/molecules/asignar-turno-modal'
 import { ConfirmDialog } from '@/web/ui/molecules/confirm-dialog'
 import { TramiteCiudadanoCard } from '@/web/ui/molecules/tramite-ciudadano-card'
 import { TramiteInfoCard } from '@/web/ui/molecules/tramite-info-card'
-import { TramiteLicenciasCard } from '@/web/ui/molecules/tramite-licencias-card'
-import { TramiteTurnosCard } from '@/web/ui/molecules/tramite-turnos-card'
-import { TramiteTimeline } from '@/web/ui/organisms/tramite-timeline'
-import { IconArrowBackUp, IconCalendarX } from '@tabler/icons-react'
+import { TramiteTurnosCard } from '@/web/ui/organisms/tramite-turnos-card'
+import { IconCalendarX, IconCheck } from '@tabler/icons-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { toast } from 'sonner'
 
 type TramiteConCiudadano = Tramite & { ciudadano: Ciudadano }
-type PasoTramite = Tramite['pasos'][number]
+type TurnoGroup = NonNullable<Tramite['turnoCurso']>
 
 interface Props {
   tramite: TramiteConCiudadano
+  turnosCursoExistentes: { fecha: string; hora: string }[]
+  turnosPsicoExistentes: { fecha: string; hora: string }[]
 }
 
-function mapPasoForUpdate(paso: PasoTramite) {
-  return {
-    pasoId: paso.pasoId,
-    label: paso.label,
-    estado: paso.estado,
-    requiereTurno: paso.requiereTurno,
-    fecha: paso.fecha,
-    observaciones: paso.observaciones,
-    turno: paso.turno
-      ? {
-          fecha: paso.turno.fecha,
-          hora: paso.turno.hora,
-          estado: paso.turno.estado,
-          observaciones: paso.turno.observaciones,
-        }
-      : undefined,
-  }
-}
-
-function calcularEstadoTramite(pasos: PasoTramite[]): Tramite['estado'] {
-  const todosCompletados = pasos.every((paso) => paso.estado === ESTADO_PASO.COMPLETADO)
-  return todosCompletados ? ESTADO_TRAMITE.COMPLETADO : ESTADO_TRAMITE.EN_CURSO
-}
-
-export function TramiteDetallePage({ tramite }: Props) {
+export function TramiteDetallePage({
+  tramite,
+  turnosCursoExistentes,
+  turnosPsicoExistentes,
+}: Props) {
   const router = useRouter()
 
   const [tramiteState, setTramiteState] = useState<TramiteConCiudadano>(tramite)
   const [isSaving, setIsSaving] = useState(false)
 
-  const [turnoModalPasoIndex, setTurnoModalPasoIndex] = useState<number | null>(null)
-  const [confirmCancelTurno, setConfirmCancelTurno] = useState<number | null>(null)
-  const [confirmRevertPaso, setConfirmRevertPaso] = useState<number | null>(null)
+  const [turnoModalTipo, setTurnoModalTipo] = useState<TipoTurno | null>(null)
+  const [confirmCancelTurno, setConfirmCancelTurno] = useState<TipoTurno | null>(null)
+  const [confirmCompletar, setConfirmCompletar] = useState(false)
 
-  const pasoActualIndex = tramiteState.pasos.findIndex(
-    (paso) => paso.estado === ESTADO_PASO.EN_CURSO,
-  )
-  const todosCompletados = tramiteState.pasos.every(
-    (paso) => paso.estado === ESTADO_PASO.COMPLETADO,
-  )
-  const progreso = Math.round(
-    (tramiteState.pasos.filter((paso) => paso.estado === ESTADO_PASO.COMPLETADO).length /
-      tramiteState.pasos.length) *
-      100,
-  )
-
-  async function persistTramite(nextPasos: PasoTramite[], nextEstado: Tramite['estado']) {
+  async function persistTramite(updates: Partial<Tramite>) {
     setIsSaving(true)
 
     try {
       const response = await sdk.update({
         collection: 'tramite',
         id: tramiteState.id,
-        data: {
-          pasos: nextPasos.map(mapPasoForUpdate),
-          estado: nextEstado,
-        },
+        data: updates,
       })
 
       if (!response?.id) {
@@ -87,9 +52,8 @@ export function TramiteDetallePage({ tramite }: Props) {
 
       setTramiteState((prev) => ({
         ...prev,
-        pasos: nextPasos,
-        estado: nextEstado,
-      }))
+        ...updates,
+      }) as TramiteConCiudadano)
 
       router.refresh()
       return true
@@ -102,87 +66,36 @@ export function TramiteDetallePage({ tramite }: Props) {
     }
   }
 
-  async function avanzarPaso() {
-    if (pasoActualIndex === -1) return
-
-    const paso = tramiteState.pasos[pasoActualIndex]
-    if (paso.requiereTurno && !paso.turno) {
-      toast.warning('Este paso requiere un turno asignado antes de poder completarlo.')
-      return
-    }
-
-    const nuevosPasos = tramiteState.pasos.map((currentPaso, index) => {
-      if (index === pasoActualIndex) {
-        return {
-          ...currentPaso,
-          estado: ESTADO_PASO.COMPLETADO,
-          fecha: new Date().toISOString(),
-          turno: currentPaso.turno
-            ? { ...currentPaso.turno, estado: ESTADO_TURNO.COMPLETADO }
-            : undefined,
-        }
-      }
-
-      if (index === pasoActualIndex + 1) {
-        return {
-          ...currentPaso,
-          estado: ESTADO_PASO.EN_CURSO,
-        }
-      }
-
-      return currentPaso
-    })
-
-    const nextEstado = calcularEstadoTramite(nuevosPasos)
-    const ok = await persistTramite(nuevosPasos, nextEstado)
-
-    if (ok) {
-      toast.success(`Paso "${paso.label}" completado`)
-    }
-  }
-
   async function asignarTurno(fecha: string, hora: string) {
-    if (turnoModalPasoIndex === null) return
+    if (turnoModalTipo === null) return
 
-    const nuevosPasos = tramiteState.pasos.map((paso, index) => {
-      if (index !== turnoModalPasoIndex) {
-        return paso
-      }
+    const fieldName = turnoModalTipo === TIPO_TURNO.CURSO ? 'turnoCurso' : 'turnoPsicofisico'
+    const turnoData: TurnoGroup = {
+      fecha,
+      hora,
+      estado: ESTADO_TURNO.PROGRAMADO,
+    }
 
-      return {
-        ...paso,
-        turno: {
-          fecha,
-          hora,
-          estado: ESTADO_TURNO.PROGRAMADO,
-        },
-      }
-    })
-
-    const ok = await persistTramite(nuevosPasos, tramiteState.estado)
+    const ok = await persistTramite({ [fieldName]: turnoData })
 
     if (ok) {
-      setTurnoModalPasoIndex(null)
-      toast.success(`Turno asignado para el ${fecha} a las ${hora}`)
+      setTurnoModalTipo(null)
+      toast.success(`Turno asignado para el ${new Date(fecha + 'T12:00:00').toLocaleDateString('es-AR')} a las ${hora}`)
     }
   }
 
-  async function cancelarTurno(pasoIndex: number) {
-    const nuevosPasos = tramiteState.pasos.map((paso, index) => {
-      if (index !== pasoIndex || !paso.turno) {
-        return paso
-      }
+  async function cancelarTurno(tipoTurno: TipoTurno) {
+    const fieldName = tipoTurno === TIPO_TURNO.CURSO ? 'turnoCurso' : 'turnoPsicofisico'
+    const turnoActual = tramiteState[fieldName]
 
-      return {
-        ...paso,
-        turno: {
-          ...paso.turno,
-          estado: ESTADO_TURNO.CANCELADO,
-        },
-      }
+    if (!turnoActual) return
+
+    const ok = await persistTramite({
+      [fieldName]: {
+        ...turnoActual,
+        estado: ESTADO_TURNO.CANCELADO,
+      },
     })
-
-    const ok = await persistTramite(nuevosPasos, tramiteState.estado)
 
     if (ok) {
       setConfirmCancelTurno(null)
@@ -190,62 +103,81 @@ export function TramiteDetallePage({ tramite }: Props) {
     }
   }
 
-  async function revertirAPaso(targetIndex: number) {
-    const nuevosPasos = tramiteState.pasos.map((paso, index) => {
-      if (index === targetIndex) {
-        return {
-          ...paso,
-          estado: ESTADO_PASO.EN_CURSO,
-          fecha: undefined,
-        }
-      }
-
-      if (index > targetIndex) {
-        return {
-          ...paso,
-          estado: ESTADO_PASO.PENDIENTE,
-          fecha: undefined,
-        }
-      }
-
-      return paso
+  async function completarTramite() {
+    const ok = await persistTramite({
+      estado: ESTADO_TRAMITE.COMPLETADO,
+      fechaFin: new Date().toISOString(),
     })
 
-    const ok = await persistTramite(nuevosPasos, ESTADO_TRAMITE.EN_CURSO)
-
     if (ok) {
-      setConfirmRevertPaso(null)
-      toast.success(`Trámite revertido a "${tramiteState.pasos[targetIndex].label}"`)
+      setConfirmCompletar(false)
+      toast.success('Trámite completado exitosamente')
     }
   }
+
+  const estaCompletado = tramiteState.estado === ESTADO_TRAMITE.COMPLETADO
+  const estaCancelado = tramiteState.estado === ESTADO_TRAMITE.CANCELADO
 
   return (
     <>
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_360px]">
-        <TramiteTimeline
-          pasos={tramiteState.pasos}
-          progreso={progreso}
-          todosCompletados={todosCompletados}
-          onAvanzarPaso={isSaving ? undefined : avanzarPaso}
-          onAsignarTurno={isSaving ? undefined : setTurnoModalPasoIndex}
-          onCancelarTurno={isSaving ? undefined : setConfirmCancelTurno}
-          onRevertirPaso={isSaving ? undefined : setConfirmRevertPaso}
-        />
+        <section className="flex flex-col gap-6">
+          <TramiteTurnosCard
+            tipo={tramiteState.tipo}
+            turnoCurso={tramiteState.turnoCurso}
+            turnoPsicofisico={tramiteState.turnoPsicofisico}
+            onAsignarTurnoCurso={
+              isSaving || estaCompletado || estaCancelado
+                ? undefined
+                : () => setTurnoModalTipo(TIPO_TURNO.CURSO)
+            }
+            onAsignarTurnoPsicofisico={
+              isSaving || estaCompletado || estaCancelado
+                ? undefined
+                : () => setTurnoModalTipo(TIPO_TURNO.PSICOFISICO)
+            }
+            onCancelarTurnoCurso={
+              isSaving || estaCompletado || estaCancelado
+                ? undefined
+                : () => setConfirmCancelTurno(TIPO_TURNO.CURSO)
+            }
+            onCancelarTurnoPsicofisico={
+              isSaving || estaCompletado || estaCancelado
+                ? undefined
+                : () => setConfirmCancelTurno(TIPO_TURNO.PSICOFISICO)
+            }
+            disabled={isSaving}
+          />
+
+          {!estaCompletado && !estaCancelado && (
+            <button
+              className="btn btn-success btn-lg self-start"
+              onClick={() => setConfirmCompletar(true)}
+              disabled={isSaving}
+            >
+              <IconCheck size={20} />
+              Completar Trámite
+            </button>
+          )}
+        </section>
 
         <aside className="flex flex-col gap-5">
           <TramiteCiudadanoCard ciudadano={tramiteState.ciudadano} />
-          <TramiteLicenciasCard items={tramiteState.items} />
-          <TramiteTurnosCard pasos={tramiteState.pasos} />
           <TramiteInfoCard tramite={tramiteState} />
         </aside>
       </section>
 
-      {turnoModalPasoIndex !== null && (
+      {turnoModalTipo !== null && (
         <AsignarTurnoModal
-          pasoLabel={tramiteState.pasos[turnoModalPasoIndex]?.label ?? ''}
+          tipoTurno={turnoModalTipo}
           ciudadanoNombre={`${tramiteState.ciudadano.nombre} ${tramiteState.ciudadano.apellido}`}
+          turnosExistentes={
+            turnoModalTipo === TIPO_TURNO.CURSO
+              ? turnosCursoExistentes
+              : turnosPsicoExistentes
+          }
           onConfirm={asignarTurno}
-          onCancel={() => setTurnoModalPasoIndex(null)}
+          onCancel={() => setTurnoModalTipo(null)}
         />
       )}
 
@@ -256,7 +188,7 @@ export function TramiteDetallePage({ tramite }: Props) {
           <>
             ¿Estás seguro de que querés cancelar el turno de{' '}
             <strong>
-              {confirmCancelTurno !== null && tramiteState.pasos[confirmCancelTurno]?.label}
+              {confirmCancelTurno === TIPO_TURNO.CURSO ? 'Curso Presencial' : 'Examen Psicofísico'}
             </strong>
             ?
           </>
@@ -269,22 +201,14 @@ export function TramiteDetallePage({ tramite }: Props) {
       />
 
       <ConfirmDialog
-        open={confirmRevertPaso !== null}
-        title="Revertir progreso"
-        description={
-          <>
-            ¿Estás seguro de que querés volver al paso{' '}
-            <strong>
-              {confirmRevertPaso !== null && tramiteState.pasos[confirmRevertPaso]?.label}
-            </strong>
-            ? Todos los pasos siguientes se marcarán como pendientes.
-          </>
-        }
-        confirmLabel="Sí, revertir"
-        confirmIcon={<IconArrowBackUp size={16} />}
-        variant="warning"
-        onConfirm={() => confirmRevertPaso !== null && revertirAPaso(confirmRevertPaso)}
-        onCancel={() => setConfirmRevertPaso(null)}
+        open={confirmCompletar}
+        title="Completar trámite"
+        description="¿Estás seguro de que querés marcar este trámite como completado?"
+        confirmLabel="Sí, completar"
+        confirmIcon={<IconCheck size={16} />}
+        variant="primary"
+        onConfirm={completarTramite}
+        onCancel={() => setConfirmCompletar(false)}
       />
     </>
   )

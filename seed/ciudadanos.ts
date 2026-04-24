@@ -17,7 +17,7 @@ import {
   SEED_LOCALIDAD,
   SEED_MESES_POR_ANIO,
   SEED_NOMBRES,
-} from 'seed/constants'
+} from './constants'
 
 function randomInt(maxExclusive: number): number {
   return Math.floor(Math.random() * maxExclusive)

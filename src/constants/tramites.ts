@@ -19,21 +19,47 @@ function buildSelectOptions<T extends string>(
   return options
 }
 
+// ─── Tipo de Trámite ───
+
 export const TIPO_TRAMITE = {
-  NUEVA: 'nueva',
+  ORIGINAL: 'original',
   RENOVACION: 'renovacion',
   AMPLIACION: 'ampliacion',
 } as const
 
 export type TipoTramite = (typeof TIPO_TRAMITE)[keyof typeof TIPO_TRAMITE]
 
-export const ESTADO_PASO = {
-  PENDIENTE: 'pendiente',
-  EN_CURSO: 'en_curso',
-  COMPLETADO: 'completado',
-} as const
+export const TIPOS_TRAMITE: TipoTramite[] = [
+  TIPO_TRAMITE.ORIGINAL,
+  TIPO_TRAMITE.RENOVACION,
+  TIPO_TRAMITE.AMPLIACION,
+]
 
-export type EstadoPaso = (typeof ESTADO_PASO)[keyof typeof ESTADO_PASO]
+export const TIPO_TRAMITE_LABELS: Record<TipoTramite, string> = {
+  [TIPO_TRAMITE.ORIGINAL]: 'Original',
+  [TIPO_TRAMITE.RENOVACION]: 'Renovación',
+  [TIPO_TRAMITE.AMPLIACION]: 'Ampliación',
+}
+
+export const TIPO_TRAMITE_BADGE_CLASS: Record<TipoTramite, string> = {
+  [TIPO_TRAMITE.ORIGINAL]: 'badge badge-info',
+  [TIPO_TRAMITE.RENOVACION]: 'badge badge-warning',
+  [TIPO_TRAMITE.AMPLIACION]: 'badge badge-secondary',
+}
+
+export const TIPO_TRAMITE_BADGE_SM_CLASS: Record<TipoTramite, string> = {
+  [TIPO_TRAMITE.ORIGINAL]: 'badge badge-info badge-sm',
+  [TIPO_TRAMITE.RENOVACION]: 'badge badge-warning badge-sm',
+  [TIPO_TRAMITE.AMPLIACION]: 'badge badge-secondary badge-sm',
+}
+
+export const TIPO_TRAMITE_TEXT_CLASS: Record<TipoTramite, string> = {
+  [TIPO_TRAMITE.ORIGINAL]: 'text-info',
+  [TIPO_TRAMITE.RENOVACION]: 'text-warning',
+  [TIPO_TRAMITE.AMPLIACION]: 'text-secondary',
+}
+
+// ─── Estado del Trámite ───
 
 export const ESTADO_TRAMITE = {
   EN_CURSO: 'en_curso',
@@ -42,6 +68,33 @@ export const ESTADO_TRAMITE = {
 } as const
 
 export type EstadoTramite = (typeof ESTADO_TRAMITE)[keyof typeof ESTADO_TRAMITE]
+
+export const ESTADOS_TRAMITE: EstadoTramite[] = [
+  ESTADO_TRAMITE.EN_CURSO,
+  ESTADO_TRAMITE.COMPLETADO,
+  ESTADO_TRAMITE.CANCELADO,
+]
+
+export const ESTADO_TRAMITE_DEFAULT = ESTADO_TRAMITE.EN_CURSO
+
+export const ESTADOS_TRAMITE_CON_FECHA_FIN: EstadoTramite[] = [
+  ESTADO_TRAMITE.COMPLETADO,
+  ESTADO_TRAMITE.CANCELADO,
+]
+
+export const ESTADO_TRAMITE_LABELS: Record<EstadoTramite, string> = {
+  [ESTADO_TRAMITE.EN_CURSO]: 'En Curso',
+  [ESTADO_TRAMITE.COMPLETADO]: 'Completado',
+  [ESTADO_TRAMITE.CANCELADO]: 'Cancelado',
+}
+
+export const ESTADO_TRAMITE_BADGE_SOFT_SM_CLASS: Record<EstadoTramite, string> = {
+  [ESTADO_TRAMITE.EN_CURSO]: 'badge badge-warning badge-soft badge-sm',
+  [ESTADO_TRAMITE.COMPLETADO]: 'badge badge-success badge-soft badge-sm',
+  [ESTADO_TRAMITE.CANCELADO]: 'badge badge-error badge-soft badge-sm',
+}
+
+// ─── Estado del Turno ───
 
 export const ESTADO_TURNO = {
   PROGRAMADO: 'programado',
@@ -53,24 +106,6 @@ export const ESTADO_TURNO = {
 
 export type EstadoTurno = (typeof ESTADO_TURNO)[keyof typeof ESTADO_TURNO]
 
-export const TIPOS_TRAMITE: TipoTramite[] = [
-  TIPO_TRAMITE.NUEVA,
-  TIPO_TRAMITE.RENOVACION,
-  TIPO_TRAMITE.AMPLIACION,
-]
-
-export const ESTADOS_PASO: EstadoPaso[] = [
-  ESTADO_PASO.PENDIENTE,
-  ESTADO_PASO.EN_CURSO,
-  ESTADO_PASO.COMPLETADO,
-]
-
-export const ESTADOS_TRAMITE: EstadoTramite[] = [
-  ESTADO_TRAMITE.EN_CURSO,
-  ESTADO_TRAMITE.COMPLETADO,
-  ESTADO_TRAMITE.CANCELADO,
-]
-
 export const ESTADOS_TURNO: EstadoTurno[] = [
   ESTADO_TURNO.PROGRAMADO,
   ESTADO_TURNO.CONFIRMADO,
@@ -79,32 +114,7 @@ export const ESTADOS_TURNO: EstadoTurno[] = [
   ESTADO_TURNO.CANCELADO,
 ]
 
-export const ESTADO_TRAMITE_DEFAULT = ESTADO_TRAMITE.EN_CURSO
-export const ESTADO_PASO_DEFAULT = ESTADO_PASO.PENDIENTE
 export const ESTADO_TURNO_DEFAULT = ESTADO_TURNO.PROGRAMADO
-
-export const ESTADOS_TRAMITE_CON_FECHA_FIN: EstadoTramite[] = [
-  ESTADO_TRAMITE.COMPLETADO,
-  ESTADO_TRAMITE.CANCELADO,
-]
-
-export const TIPO_TRAMITE_LABELS: Record<TipoTramite, string> = {
-  [TIPO_TRAMITE.NUEVA]: 'Nueva',
-  [TIPO_TRAMITE.RENOVACION]: 'Renovación',
-  [TIPO_TRAMITE.AMPLIACION]: 'Ampliación',
-}
-
-export const ESTADO_TRAMITE_LABELS: Record<EstadoTramite, string> = {
-  [ESTADO_TRAMITE.EN_CURSO]: 'En Curso',
-  [ESTADO_TRAMITE.COMPLETADO]: 'Completado',
-  [ESTADO_TRAMITE.CANCELADO]: 'Cancelado',
-}
-
-export const ESTADO_PASO_LABELS: Record<EstadoPaso, string> = {
-  [ESTADO_PASO.PENDIENTE]: 'Pendiente',
-  [ESTADO_PASO.EN_CURSO]: 'En Curso',
-  [ESTADO_PASO.COMPLETADO]: 'Completado',
-}
 
 export const ESTADO_TURNO_LABELS: Record<EstadoTurno, string> = {
   [ESTADO_TURNO.PROGRAMADO]: 'Programado',
@@ -114,125 +124,57 @@ export const ESTADO_TURNO_LABELS: Record<EstadoTurno, string> = {
   [ESTADO_TURNO.CANCELADO]: 'Cancelado',
 }
 
-export const TIPO_TRAMITE_BADGE_CLASS: Record<TipoTramite, string> = {
-  [TIPO_TRAMITE.NUEVA]: 'badge badge-info',
-  [TIPO_TRAMITE.RENOVACION]: 'badge badge-warning',
-  [TIPO_TRAMITE.AMPLIACION]: 'badge badge-secondary',
-}
+// ─── Tipo de Turno ───
 
-export const TIPO_TRAMITE_BADGE_SM_CLASS: Record<TipoTramite, string> = {
-  [TIPO_TRAMITE.NUEVA]: 'badge badge-info badge-sm',
-  [TIPO_TRAMITE.RENOVACION]: 'badge badge-warning badge-sm',
-  [TIPO_TRAMITE.AMPLIACION]: 'badge badge-secondary badge-sm',
-}
-
-export const TIPO_TRAMITE_TEXT_CLASS: Record<TipoTramite, string> = {
-  [TIPO_TRAMITE.NUEVA]: 'text-info',
-  [TIPO_TRAMITE.RENOVACION]: 'text-warning',
-  [TIPO_TRAMITE.AMPLIACION]: 'text-secondary',
-}
-
-export const ESTADO_TRAMITE_BADGE_SOFT_SM_CLASS: Record<EstadoTramite, string> = {
-  [ESTADO_TRAMITE.EN_CURSO]: 'badge badge-warning badge-soft badge-sm',
-  [ESTADO_TRAMITE.COMPLETADO]: 'badge badge-success badge-soft badge-sm',
-  [ESTADO_TRAMITE.CANCELADO]: 'badge badge-error badge-soft badge-sm',
-}
-
-// ─── Pasos del trámite ───
-
-export const PASO_ID = {
-  MESA_ENTRADAS: 'mesa_entradas',
-  AREA_LICENCIAS: 'area_licencias',
-  PAGO: 'pago',
-  REVISION_LICENCIAS: 'revision_licencias',
-  TURNO_CURSO: 'turno_curso',
-  EXAMEN_TEORICO: 'examen_teorico',
-  EXAMEN_PRACTICO: 'examen_practico',
-  EXAMEN_PSICOFISICO: 'examen_psicofisico',
-  EMISION: 'emision',
+export const TIPO_TURNO = {
+  CURSO: 'curso',
+  PSICOFISICO: 'psicofisico',
 } as const
 
-export type PasoId = (typeof PASO_ID)[keyof typeof PASO_ID]
+export type TipoTurno = (typeof TIPO_TURNO)[keyof typeof TIPO_TURNO]
 
-export const PASO_LABELS: Record<PasoId, string> = {
-  [PASO_ID.MESA_ENTRADAS]: 'Mesa de Entradas',
-  [PASO_ID.AREA_LICENCIAS]: 'Área de Licencias',
-  [PASO_ID.PAGO]: 'Pago',
-  [PASO_ID.REVISION_LICENCIAS]: 'Revisión Licencias',
-  [PASO_ID.TURNO_CURSO]: 'Turno Curso',
-  [PASO_ID.EXAMEN_TEORICO]: 'Examen Teórico',
-  [PASO_ID.EXAMEN_PRACTICO]: 'Examen Práctico',
-  [PASO_ID.EXAMEN_PSICOFISICO]: 'Examen Psicofísico',
-  [PASO_ID.EMISION]: 'Emisión de Licencia',
+export const TIPO_TURNO_LABELS: Record<TipoTurno, string> = {
+  [TIPO_TURNO.CURSO]: 'Curso Presencial',
+  [TIPO_TURNO.PSICOFISICO]: 'Examen Psicofísico',
 }
 
+// ─── Configuración de Turneros ───
+
+export const MAX_TURNOS_CURSO_POR_DIA = 20
+export const DURACION_TURNO_PSICOFISICO_MIN = 20
+
+export const HORARIO_CURSO = {
+  INICIO: '08:30',
+  FIN: '12:30',
+} as const
+
 /**
- * Matriz de pasos requeridos por tipo de trámite.
- * true = el paso es requerido para ese tipo.
+ * Horarios del examen psicofísico por día de semana (0=Domingo, 1=Lunes, ..., 6=Sábado).
+ * null indica que no hay atención ese día.
  */
-export const PASOS_POR_TIPO: Record<TipoTramite, Record<PasoId, boolean>> = {
-  [TIPO_TRAMITE.NUEVA]: {
-    [PASO_ID.MESA_ENTRADAS]: true,
-    [PASO_ID.AREA_LICENCIAS]: true,
-    [PASO_ID.PAGO]: true,
-    [PASO_ID.REVISION_LICENCIAS]: true,
-    [PASO_ID.TURNO_CURSO]: true,
-    [PASO_ID.EXAMEN_TEORICO]: true,
-    [PASO_ID.EXAMEN_PRACTICO]: true,
-    [PASO_ID.EXAMEN_PSICOFISICO]: true,
-    [PASO_ID.EMISION]: true,
-  },
-  [TIPO_TRAMITE.RENOVACION]: {
-    [PASO_ID.MESA_ENTRADAS]: true,
-    [PASO_ID.AREA_LICENCIAS]: true,
-    [PASO_ID.PAGO]: true,
-    [PASO_ID.REVISION_LICENCIAS]: true,
-    [PASO_ID.TURNO_CURSO]: false,
-    [PASO_ID.EXAMEN_TEORICO]: false,
-    [PASO_ID.EXAMEN_PRACTICO]: false,
-    [PASO_ID.EXAMEN_PSICOFISICO]: true,
-    [PASO_ID.EMISION]: true,
-  },
-  [TIPO_TRAMITE.AMPLIACION]: {
-    [PASO_ID.MESA_ENTRADAS]: true,
-    [PASO_ID.AREA_LICENCIAS]: true,
-    [PASO_ID.PAGO]: true,
-    [PASO_ID.REVISION_LICENCIAS]: true,
-    [PASO_ID.TURNO_CURSO]: true,
-    [PASO_ID.EXAMEN_TEORICO]: true,
-    [PASO_ID.EXAMEN_PRACTICO]: true,
-    [PASO_ID.EXAMEN_PSICOFISICO]: true,
-    [PASO_ID.EMISION]: true,
-  },
+export const HORARIOS_PSICOFISICO: Record<number, { inicio: string; fin: string } | null> = {
+  0: null, // Domingo
+  1: { inicio: '08:00', fin: '11:00' }, // Lunes
+  2: { inicio: '07:00', fin: '11:00' }, // Martes
+  3: { inicio: '07:00', fin: '12:30' }, // Miércoles
+  4: { inicio: '07:00', fin: '12:30' }, // Jueves
+  5: { inicio: '07:00', fin: '11:00' }, // Viernes
+  6: null, // Sábado
 }
 
-/** Orden canónico de los pasos */
-export const ORDEN_PASOS: PasoId[] = [
-  PASO_ID.MESA_ENTRADAS,
-  PASO_ID.AREA_LICENCIAS,
-  PASO_ID.PAGO,
-  PASO_ID.REVISION_LICENCIAS,
-  PASO_ID.TURNO_CURSO,
-  PASO_ID.EXAMEN_TEORICO,
-  PASO_ID.EXAMEN_PRACTICO,
-  PASO_ID.EXAMEN_PSICOFISICO,
-  PASO_ID.EMISION,
-]
+/** Día de semana en que se dicta el curso presencial (1 = Lunes) */
+export const DIA_CURSO = 1
 
 /**
- * Pasos que requieren asignación de turno.
- * Extensible: si mañana mesa_entradas o pago necesitan turno,
- * solo se agrega acá.
+ * Determina si un tipo de trámite requiere turno de curso presencial.
+ * Renovaciones no requieren curso.
  */
-export const PASOS_CON_TURNO: Set<PasoId> = new Set([
-  PASO_ID.TURNO_CURSO,
-  PASO_ID.EXAMEN_TEORICO,
-  PASO_ID.EXAMEN_PRACTICO,
-  PASO_ID.EXAMEN_PSICOFISICO,
-])
+export function tipoRequiereCurso(tipo: TipoTramite): boolean {
+  return tipo !== TIPO_TRAMITE.RENOVACION
+}
+
+// ─── Select Options ───
 
 export const OPCIONES_TIPO_TRAMITE = buildSelectOptions(TIPOS_TRAMITE, TIPO_TRAMITE_LABELS)
 export const OPCIONES_ESTADO_TRAMITE = buildSelectOptions(ESTADOS_TRAMITE, ESTADO_TRAMITE_LABELS)
-export const OPCIONES_ESTADO_PASO = buildSelectOptions(ESTADOS_PASO, ESTADO_PASO_LABELS)
 export const OPCIONES_ESTADO_TURNO = buildSelectOptions(ESTADOS_TURNO, ESTADO_TURNO_LABELS)
-export const OPCIONES_PASO_ID = buildSelectOptions(ORDEN_PASOS, PASO_LABELS)

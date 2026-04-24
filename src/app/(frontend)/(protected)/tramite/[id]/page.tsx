@@ -1,3 +1,4 @@
+import { ESTADO_TURNO } from '@/constants/tramites'
 import type { Ciudadano, Tramite } from '@/payload-types'
 import { basePayload } from '@/web/libs/payload/server'
 import { TramiteDetallePage } from '@/web/ui/templates/tramite-detalle-page'
@@ -25,6 +26,32 @@ async function getTramite(tramiteId: string): Promise<TramiteConCiudadano | null
   }
 }
 
+/**
+ * Obtiene todos los turnos activos (no cancelados) de un tipo determinado
+ * para calcular disponibilidad al asignar nuevos turnos.
+ */
+async function getTurnosActivos(campo: 'turnoCurso' | 'turnoPsicofisico') {
+  const estadosCancelados = [ESTADO_TURNO.CANCELADO]
+
+  const result = await basePayload.find({
+    collection: 'tramite',
+    where: {
+      [`${campo}.fecha`]: { exists: true },
+      [`${campo}.estado`]: { not_in: estadosCancelados },
+    },
+    limit: 1000,
+    depth: 0,
+  })
+
+  return result.docs
+    .map((doc) => {
+      const turno = doc[campo]
+      if (!turno?.fecha || !turno?.hora) return null
+      return { fecha: turno.fecha, hora: turno.hora }
+    })
+    .filter(Boolean) as { fecha: string; hora: string }[]
+}
+
 export default async function Page({ params }: PageProps<'/tramite/[id]'>) {
   const { id: tramiteId } = await params
   const tramite = await getTramite(tramiteId)
@@ -32,6 +59,11 @@ export default async function Page({ params }: PageProps<'/tramite/[id]'>) {
   if (!tramite) {
     notFound()
   }
+
+  const [turnosCursoExistentes, turnosPsicoExistentes] = await Promise.all([
+    getTurnosActivos('turnoCurso'),
+    getTurnosActivos('turnoPsicofisico'),
+  ])
 
   const ciudadanoDisplayName = `${tramite.ciudadano.nombre} ${tramite.ciudadano.apellido}`
   const breadcrumbDetail = tramite.fut
@@ -52,7 +84,11 @@ export default async function Page({ params }: PageProps<'/tramite/[id]'>) {
         </ul>
       </nav>
 
-      <TramiteDetallePage tramite={tramite} />
+      <TramiteDetallePage
+        tramite={tramite}
+        turnosCursoExistentes={turnosCursoExistentes}
+        turnosPsicoExistentes={turnosPsicoExistentes}
+      />
     </section>
   )
 }

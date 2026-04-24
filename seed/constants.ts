@@ -98,15 +98,8 @@ export const SEED_FUT_PREFIX = 'FUT'
 export const SEED_FUT_MIN = 10000
 export const SEED_FUT_RANGE = 90000
 
-export const SEED_CANTIDAD_ITEMS_MAX = 2
-export const SEED_PROBABILIDAD_DOS_ITEMS = 0.2
-
 export const SEED_TRAMITES_FECHA_INICIO_YEAR = 2026
 export const SEED_TRAMITES_FECHA_INICIO_MONTH_RANGE = 3
 
-export const SEED_PASO_FECHA_PREFIX = '2026-03-0'
-export const SEED_PASO_FECHA_DAY_CYCLE = 9
-export const SEED_TURNO_HORA_BASE = 8
-export const SEED_TURNO_HORA_RANGE = 4
 export const SEED_TURNO_FECHA_DEFAULT = '2026-03-15'
 export const SEED_TURNO_HORA_DEFAULT = '10:00'

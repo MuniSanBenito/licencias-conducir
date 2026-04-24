@@ -73,8 +73,6 @@ export interface Config {
     usuario: Usuario;
     ciudadano: Ciudadano;
     tramite: Tramite;
-    pregunta: Pregunta;
-    examen: Examan;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -87,8 +85,6 @@ export interface Config {
     usuario: UsuarioSelect<false> | UsuarioSelect<true>;
     ciudadano: CiudadanoSelect<false> | CiudadanoSelect<true>;
     tramite: TramiteSelect<false> | TramiteSelect<true>;
-    pregunta: PreguntaSelect<false> | PreguntaSelect<true>;
-    examen: ExamenSelect<false> | ExamenSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -251,170 +247,29 @@ export interface Ciudadano {
  */
 export interface Tramite {
   id: string;
-  fut: string;
   ciudadano: string | Ciudadano;
+  tipo: 'original' | 'renovacion' | 'ampliacion';
+  fut?: string | null;
   estado: 'en_curso' | 'completado' | 'cancelado';
   fechaInicio: string;
   fechaFin?: string | null;
   /**
-   * Licencias solicitadas en este trámite
+   * Solo para trámites de tipo Original o Ampliación
    */
-  items: {
-    clase:
-      | 'A1'
-      | 'A2'
-      | 'A3'
-      | 'B1'
-      | 'B2'
-      | 'C1'
-      | 'C2'
-      | 'D1'
-      | 'D2'
-      | 'D3'
-      | 'D4'
-      | 'E1'
-      | 'E2'
-      | 'E3'
-      | 'G1'
-      | 'G2'
-      | 'G3';
-    tipo: 'nueva' | 'renovacion' | 'ampliacion';
-    id?: string | null;
-  }[];
-  /**
-   * Progreso del trámite a través de sus pasos requeridos
-   */
-  pasos: {
-    pasoId:
-      | 'mesa_entradas'
-      | 'area_licencias'
-      | 'pago'
-      | 'revision_licencias'
-      | 'turno_curso'
-      | 'examen_teorico'
-      | 'examen_practico'
-      | 'examen_psicofisico'
-      | 'emision';
-    label: string;
-    estado: 'pendiente' | 'en_curso' | 'completado';
-    requiereTurno?: boolean | null;
+  turnoCurso?: {
     fecha?: string | null;
+    hora?: string | null;
+    estado?: ('programado' | 'confirmado' | 'ausente' | 'completado' | 'cancelado') | null;
     observaciones?: string | null;
-    turno?: {
-      fecha?: string | null;
-      hora?: string | null;
-      estado?: ('programado' | 'confirmado' | 'ausente' | 'completado' | 'cancelado') | null;
-      observaciones?: string | null;
-    };
-    id?: string | null;
-  }[];
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Banco de preguntas para exámenes teóricos
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pregunta".
- */
-export interface Pregunta {
-  id: string;
-  consigna: string;
-  imagenConsigna?: (string | null) | Archivo;
-  clases: (
-    | 'todas'
-    | 'A1'
-    | 'A2'
-    | 'A3'
-    | 'B1'
-    | 'B2'
-    | 'C1'
-    | 'C2'
-    | 'D1'
-    | 'D2'
-    | 'D3'
-    | 'D4'
-    | 'E1'
-    | 'E2'
-    | 'E3'
-    | 'G1'
-    | 'G2'
-    | 'G3'
-  )[];
-  opciones: {
-    texto?: string | null;
-    imagen?: (string | null) | Archivo;
-    esCorrecta: boolean;
-    id?: string | null;
-  }[];
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "examen".
- */
-export interface Examan {
-  id: string;
-  ciudadano: string | Ciudadano;
-  tramite: string | Tramite;
-  estado: 'abierto' | 'cerrado';
-  fechaInicio: string;
-  fechaFin: string;
-  preguntasGeneradas: {
-    preguntaOriginal: string | Pregunta;
-    consigna: string;
-    imagenConsigna?: (string | null) | Archivo;
-    clases?:
-      | (
-          | 'todas'
-          | 'A1'
-          | 'A2'
-          | 'A3'
-          | 'B1'
-          | 'B2'
-          | 'C1'
-          | 'C2'
-          | 'D1'
-          | 'D2'
-          | 'D3'
-          | 'D4'
-          | 'E1'
-          | 'E2'
-          | 'E3'
-          | 'G1'
-          | 'G2'
-          | 'G3'
-        )[]
-      | null;
-    opciones: {
-      idOp: string;
-      texto?: string | null;
-      imagen?: (string | null) | Archivo;
-      esCorrecta: boolean;
-      id?: string | null;
-    }[];
-    id?: string | null;
-  }[];
-  respuestasCiudadano?:
-    | {
-        preguntaRef: string;
-        opcionesSeleccionadas:
-          | {
-              [k: string]: unknown;
-            }
-          | unknown[]
-          | string
-          | number
-          | boolean
-          | null;
-        id?: string | null;
-      }[]
-    | null;
-  resultado?: {
-    aprobado?: boolean | null;
-    puntajeTotal?: number | null;
-    puntajeObtenido?: number | null;
+  };
+  /**
+   * Requerido para todos los tipos de trámite
+   */
+  turnoPsicofisico?: {
+    fecha?: string | null;
+    hora?: string | null;
+    estado?: ('programado' | 'confirmado' | 'ausente' | 'completado' | 'cancelado') | null;
+    observaciones?: string | null;
   };
   updatedAt: string;
   createdAt: string;
@@ -462,14 +317,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'tramite';
         value: string | Tramite;
-      } | null)
-    | ({
-        relationTo: 'pregunta';
-        value: string | Pregunta;
-      } | null)
-    | ({
-        relationTo: 'examen';
-        value: string | Examan;
       } | null);
   globalSlug?: string | null;
   user:
@@ -609,100 +456,27 @@ export interface CiudadanoSelect<T extends boolean = true> {
  * via the `definition` "tramite_select".
  */
 export interface TramiteSelect<T extends boolean = true> {
+  ciudadano?: T;
+  tipo?: T;
   fut?: T;
-  ciudadano?: T;
   estado?: T;
   fechaInicio?: T;
   fechaFin?: T;
-  items?:
+  turnoCurso?:
     | T
     | {
-        clase?: T;
-        tipo?: T;
-        id?: T;
-      };
-  pasos?:
-    | T
-    | {
-        pasoId?: T;
-        label?: T;
-        estado?: T;
-        requiereTurno?: T;
         fecha?: T;
+        hora?: T;
+        estado?: T;
         observaciones?: T;
-        turno?:
-          | T
-          | {
-              fecha?: T;
-              hora?: T;
-              estado?: T;
-              observaciones?: T;
-            };
-        id?: T;
       };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pregunta_select".
- */
-export interface PreguntaSelect<T extends boolean = true> {
-  consigna?: T;
-  imagenConsigna?: T;
-  clases?: T;
-  opciones?:
+  turnoPsicofisico?:
     | T
     | {
-        texto?: T;
-        imagen?: T;
-        esCorrecta?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "examen_select".
- */
-export interface ExamenSelect<T extends boolean = true> {
-  ciudadano?: T;
-  tramite?: T;
-  estado?: T;
-  fechaInicio?: T;
-  fechaFin?: T;
-  preguntasGeneradas?:
-    | T
-    | {
-        preguntaOriginal?: T;
-        consigna?: T;
-        imagenConsigna?: T;
-        clases?: T;
-        opciones?:
-          | T
-          | {
-              idOp?: T;
-              texto?: T;
-              imagen?: T;
-              esCorrecta?: T;
-              id?: T;
-            };
-        id?: T;
-      };
-  respuestasCiudadano?:
-    | T
-    | {
-        preguntaRef?: T;
-        opcionesSeleccionadas?: T;
-        id?: T;
-      };
-  resultado?:
-    | T
-    | {
-        aprobado?: T;
-        puntajeTotal?: T;
-        puntajeObtenido?: T;
+        fecha?: T;
+        hora?: T;
+        estado?: T;
+        observaciones?: T;
       };
   updatedAt?: T;
   createdAt?: T;

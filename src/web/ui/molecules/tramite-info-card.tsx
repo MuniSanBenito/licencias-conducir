@@ -1,4 +1,4 @@
-import { ESTADO_PASO } from '@/constants/tramites'
+import { ESTADO_TRAMITE_LABELS, TIPO_TRAMITE_BADGE_CLASS, TIPO_TRAMITE_LABELS } from '@/constants/tramites'
 import type { Tramite } from '@/payload-types'
 import { formatDate } from '@/web/utils/fechas'
 import { IconId } from '@tabler/icons-react'
@@ -16,24 +16,31 @@ export function TramiteInfoCard({ tramite }: TramiteInfoCardProps) {
           Información
         </h3>
         <dl className="mt-2 grid gap-2">
+          {tramite.fut && (
+            <section>
+              <dt className="text-[10px] tracking-wider uppercase opacity-40">FUT</dt>
+              <dd className="font-mono text-sm font-bold">{tramite.fut}</dd>
+            </section>
+          )}
           <section>
-            <dt className="text-[10px] tracking-wider uppercase opacity-40">FUT</dt>
-            <dd className="font-mono text-sm font-bold">{tramite.fut}</dd>
+            <dt className="text-[10px] tracking-wider uppercase opacity-40">Tipo</dt>
+            <dd>
+              <span className={TIPO_TRAMITE_BADGE_CLASS[tramite.tipo]}>
+                {TIPO_TRAMITE_LABELS[tramite.tipo]}
+              </span>
+            </dd>
           </section>
           <section>
-            <dt className="text-[10px] tracking-wider uppercase opacity-40">ID Trámite</dt>
-            <dd className="font-mono text-sm font-semibold">{tramite.id}</dd>
+            <dt className="text-[10px] tracking-wider uppercase opacity-40">Estado</dt>
+            <dd className="text-sm font-medium">{ESTADO_TRAMITE_LABELS[tramite.estado]}</dd>
           </section>
           <section>
             <dt className="text-[10px] tracking-wider uppercase opacity-40">Fecha Inicio</dt>
             <dd className="text-sm font-medium">{formatDate(tramite.fechaInicio)}</dd>
           </section>
           <section>
-            <dt className="text-[10px] tracking-wider uppercase opacity-40">Total Pasos</dt>
-            <dd className="text-sm font-medium">
-              {tramite.pasos.filter((p) => p.estado === ESTADO_PASO.COMPLETADO).length} /{' '}
-              {tramite.pasos.length}
-            </dd>
+            <dt className="text-[10px] tracking-wider uppercase opacity-40">ID Trámite</dt>
+            <dd className="font-mono text-sm font-semibold">{tramite.id}</dd>
           </section>
         </dl>
       </section>

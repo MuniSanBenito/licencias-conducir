@@ -1,12 +1,12 @@
 'use client'
 
 import {
-  ESTADO_PASO,
   ESTADO_TRAMITE,
   ESTADO_TRAMITE_BADGE_SOFT_SM_CLASS,
   ESTADO_TRAMITE_LABELS,
   TIPO_TRAMITE_BADGE_SM_CLASS,
   TIPO_TRAMITE_LABELS,
+  tipoRequiereCurso,
 } from '@/constants/tramites'
 import type { Ciudadano, Tramite } from '@/payload-types'
 import { BuscarForm } from '@/web/ui/atoms/buscar-form'
@@ -16,8 +16,8 @@ import {
   IconChevronLeft,
   IconChevronRight,
   IconChevronUp,
+  IconClock,
   IconFilePlus,
-  IconPlayerPause,
   IconSelector,
   IconX,
 } from '@tabler/icons-react'
@@ -36,13 +36,6 @@ type TramiteConCiudadano = Tramite & {
   ciudadano: Ciudadano
 }
 
-interface DashboardStats {
-  totalTramites: number
-  enCurso: number
-  completados: number
-  cancelados: number
-}
-
 interface Props {
   tramites: TramiteConCiudadano[]
   page: number
@@ -52,34 +45,12 @@ interface Props {
 
 const columnHelper = createColumnHelper<TramiteConCiudadano>()
 
-function getEstadoActual(tramite: TramiteConCiudadano): string {
-  const pasoActivo = tramite.pasos.find((paso) => paso.estado === ESTADO_PASO.EN_CURSO)
+function getTurnoResumen(tramite: TramiteConCiudadano) {
+  const requiereCurso = tipoRequiereCurso(tramite.tipo)
+  const cursoProgramado = Boolean(tramite.turnoCurso?.estado && tramite.turnoCurso.estado !== 'cancelado')
+  const psicoProgramado = Boolean(tramite.turnoPsicofisico?.estado && tramite.turnoPsicofisico.estado !== 'cancelado')
 
-  if (pasoActivo) {
-    return pasoActivo.label
-  }
-
-  const todosCompletados = tramite.pasos.every((paso) => paso.estado === ESTADO_PASO.COMPLETADO)
-
-  if (todosCompletados) {
-    return ESTADO_TRAMITE_LABELS[ESTADO_TRAMITE.COMPLETADO]
-  }
-
-  return 'Pendiente de inicio'
-}
-
-function getProgreso(tramite: TramiteConCiudadano): number {
-  const completados = tramite.pasos.filter((paso) => paso.estado === ESTADO_PASO.COMPLETADO).length
-
-  if (tramite.pasos.length === 0) {
-    return 0
-  }
-
-  return Math.round((completados / tramite.pasos.length) * 100)
-}
-
-function getEstadoBadgeClass(tramite: TramiteConCiudadano): string {
-  return ESTADO_TRAMITE_BADGE_SOFT_SM_CLASS[tramite.estado]
+  return { requiereCurso, cursoProgramado, psicoProgramado }
 }
 
 function getSortIcon(currentSort: string, columnId: string) {
@@ -96,16 +67,16 @@ function getSortIcon(currentSort: string, columnId: string) {
 
 function buildColumns() {
   return [
-    columnHelper.accessor('fut', {
+    columnHelper.accessor((row) => row.fut || '—', {
       id: 'fut',
       header: 'FUT',
       cell: ({ row }) => (
         <Link
           href={`/tramite/${row.original.id}`}
           className="link link-primary font-mono text-sm font-bold"
-          aria-label={`Ver detalle del trámite ${row.original.fut}`}
+          aria-label={`Ver detalle del trámite ${row.original.fut || row.original.id}`}
         >
-          {row.original.fut}
+          {row.original.fut || '—'}
         </Link>
       ),
     }),
@@ -119,55 +90,55 @@ function buildColumns() {
       header: 'Ciudadano',
       cell: (info) => <p className="font-medium">{info.getValue()}</p>,
     }),
-    columnHelper.display({
-      id: 'clases',
-      header: 'Clases',
+    columnHelper.accessor('tipo', {
+      id: 'tipo',
+      header: 'Tipo',
       cell: ({ row }) => (
-        <section className="flex flex-wrap gap-1">
-          {row.original.items.map((item) => (
-            <span
-              key={`${row.original.id}-${item.id ?? item.clase}-${item.tipo}`}
-              className={TIPO_TRAMITE_BADGE_SM_CLASS[item.tipo]}
-            >
-              {item.clase} · {TIPO_TRAMITE_LABELS[item.tipo]}
-            </span>
-          ))}
-        </section>
-      ),
-    }),
-    columnHelper.display({
-      id: 'estado_actual',
-      header: 'Etapa Actual',
-      cell: ({ row }) => (
-        <span className={getEstadoBadgeClass(row.original)}>
-          {row.original.estado === ESTADO_TRAMITE.COMPLETADO && <IconCheck size={12} />}
-          {row.original.estado === ESTADO_TRAMITE.EN_CURSO && <IconPlayerPause size={12} />}
-          {row.original.estado === ESTADO_TRAMITE.CANCELADO && <IconX size={12} />}
-          {getEstadoActual(row.original)}
+        <span className={TIPO_TRAMITE_BADGE_SM_CLASS[row.original.tipo]}>
+          {TIPO_TRAMITE_LABELS[row.original.tipo]}
         </span>
       ),
     }),
     columnHelper.display({
-      id: 'progreso',
-      header: 'Progreso',
+      id: 'turnos',
+      header: 'Turnos',
       cell: ({ row }) => {
-        const progreso = getProgreso(row.original)
+        const { requiereCurso, cursoProgramado, psicoProgramado } = getTurnoResumen(row.original)
 
         return (
-          <section className="flex items-center gap-2">
-            <progress
-              className={twJoin(
-                'progress w-24',
-                progreso === 100 ? 'progress-success' : 'progress-primary',
+          <section className="flex flex-col gap-1">
+            {requiereCurso && (
+              <span className="flex items-center gap-1 text-xs">
+                {cursoProgramado ? (
+                  <IconCheck size={12} className="text-success" />
+                ) : (
+                  <IconClock size={12} className="text-warning" />
+                )}
+                Curso
+              </span>
+            )}
+            <span className="flex items-center gap-1 text-xs">
+              {psicoProgramado ? (
+                <IconCheck size={12} className="text-success" />
+              ) : (
+                <IconClock size={12} className="text-warning" />
               )}
-              value={progreso}
-              max={100}
-              aria-label={`${progreso}% completado`}
-            />
-            <span className="text-xs opacity-60">{progreso}%</span>
+              Psicofísico
+            </span>
           </section>
         )
       },
+    }),
+    columnHelper.accessor('estado', {
+      id: 'estado',
+      header: 'Estado',
+      cell: ({ row }) => (
+        <span className={ESTADO_TRAMITE_BADGE_SOFT_SM_CLASS[row.original.estado]}>
+          {row.original.estado === ESTADO_TRAMITE.COMPLETADO && <IconCheck size={12} />}
+          {row.original.estado === ESTADO_TRAMITE.CANCELADO && <IconX size={12} />}
+          {ESTADO_TRAMITE_LABELS[row.original.estado]}
+        </span>
+      ),
     }),
     columnHelper.accessor('fechaInicio', {
       id: 'fechaInicio',
