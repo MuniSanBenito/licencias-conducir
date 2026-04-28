@@ -1,5 +1,4 @@
-import { ESTADO_TURNO } from '@/constants/tramites'
-import type { Ciudadano, Tramite } from '@/payload-types'
+import type { Ciudadano, Tramite, TurnoCurso, TurnoPsicofisico } from '@/payload-types'
 import { basePayload } from '@/web/libs/payload/server'
 import { TramiteDetallePage } from '@/web/ui/templates/tramite-detalle-page'
 import { IconArrowLeft } from '@tabler/icons-react'
@@ -26,30 +25,65 @@ async function getTramite(tramiteId: string): Promise<TramiteConCiudadano | null
   }
 }
 
-/**
- * Obtiene todos los turnos activos (no cancelados) de un tipo determinado
- * para calcular disponibilidad al asignar nuevos turnos.
- */
-async function getTurnosActivos(campo: 'turnoCurso' | 'turnoPsicofisico') {
-  const estadosCancelados = [ESTADO_TURNO.CANCELADO]
-
+async function getTurnoCurso(tramiteId: string): Promise<TurnoCurso | null> {
   const result = await basePayload.find({
-    collection: 'tramite',
+    collection: 'turno-curso',
+    where: { tramite: { equals: tramiteId } },
+    limit: 1,
+    depth: 0,
+  })
+
+  return result.docs[0] ?? null
+}
+
+async function getTurnoPsicofisico(tramiteId: string): Promise<TurnoPsicofisico | null> {
+  const result = await basePayload.find({
+    collection: 'turno-psicofisico',
+    where: { tramite: { equals: tramiteId } },
+    limit: 1,
+    depth: 0,
+  })
+
+  return result.docs[0] ?? null
+}
+
+/**
+ * Obtiene todos los turnos de curso activos para calcular disponibilidad.
+ * Solo se necesitan fecha y hora para la lógica de slots.
+ */
+async function getTurnosCursoActivos(): Promise<{ fecha: string; hora: string }[]> {
+  const result = await basePayload.find({
+    collection: 'turno-curso',
     where: {
-      [`${campo}.fecha`]: { exists: true },
-      [`${campo}.estado`]: { not_in: estadosCancelados },
+      estado: { not_in: ['cancelado'] },
     },
     limit: 1000,
     depth: 0,
   })
 
-  return result.docs
-    .map((doc) => {
-      const turno = doc[campo]
-      if (!turno?.fecha || !turno?.hora) return null
-      return { fecha: turno.fecha, hora: turno.hora }
-    })
-    .filter(Boolean) as { fecha: string; hora: string }[]
+  return result.docs.map((doc) => ({
+    fecha: doc.fecha,
+    hora: doc.hora ?? '',
+  }))
+}
+
+/**
+ * Obtiene todos los turnos psicofísicos activos para calcular slots disponibles.
+ */
+async function getTurnosPsicoActivos(): Promise<{ fecha: string; hora: string }[]> {
+  const result = await basePayload.find({
+    collection: 'turno-psicofisico',
+    where: {
+      estado: { not_in: ['cancelado'] },
+    },
+    limit: 1000,
+    depth: 0,
+  })
+
+  return result.docs.map((doc) => ({
+    fecha: doc.fecha,
+    hora: doc.hora,
+  }))
 }
 
 export default async function Page({ params }: PageProps<'/tramite/[id]'>) {
@@ -60,9 +94,11 @@ export default async function Page({ params }: PageProps<'/tramite/[id]'>) {
     notFound()
   }
 
-  const [turnosCursoExistentes, turnosPsicoExistentes] = await Promise.all([
-    getTurnosActivos('turnoCurso'),
-    getTurnosActivos('turnoPsicofisico'),
+  const [turnoCurso, turnoPsicofisico, turnosCursoActivos, turnosPsicoActivos] = await Promise.all([
+    getTurnoCurso(tramiteId),
+    getTurnoPsicofisico(tramiteId),
+    getTurnosCursoActivos(),
+    getTurnosPsicoActivos(),
   ])
 
   const ciudadanoDisplayName = `${tramite.ciudadano.nombre} ${tramite.ciudadano.apellido}`
@@ -86,8 +122,10 @@ export default async function Page({ params }: PageProps<'/tramite/[id]'>) {
 
       <TramiteDetallePage
         tramite={tramite}
-        turnosCursoExistentes={turnosCursoExistentes}
-        turnosPsicoExistentes={turnosPsicoExistentes}
+        turnoCurso={turnoCurso}
+        turnoPsicofisico={turnoPsicofisico}
+        turnosCursoActivos={turnosCursoActivos}
+        turnosPsicoActivos={turnosPsicoActivos}
       />
     </section>
   )

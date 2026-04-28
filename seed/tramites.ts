@@ -2,8 +2,8 @@ import {
   ESTADO_TRAMITE,
   ESTADO_TURNO,
   ESTADOS_TRAMITE,
-  TIPOS_TRAMITE,
   tipoRequiereCurso,
+  TIPOS_TRAMITE,
 } from '@/constants/tramites'
 import { basePayload } from '@/web/libs/payload/server'
 import {
@@ -15,7 +15,6 @@ import {
   SEED_TRAMITES_FECHA_INICIO_YEAR,
   SEED_TRAMITES_TOTAL,
   SEED_TURNO_FECHA_DEFAULT,
-  SEED_TURNO_HORA_DEFAULT,
 } from './constants'
 
 function randomInt(maxExclusive: number): number {
@@ -26,7 +25,20 @@ function randomFrom<T>(values: readonly T[]): T {
   return values[randomInt(values.length)]
 }
 
-const HORAS_PSICOFISICO = ['07:00', '07:20', '07:40', '08:00', '08:20', '08:40', '09:00', '09:20', '09:40', '10:00', '10:20', '10:40']
+const HORAS_PSICOFISICO = [
+  '07:00',
+  '07:20',
+  '07:40',
+  '08:00',
+  '08:20',
+  '08:40',
+  '09:00',
+  '09:20',
+  '09:40',
+  '10:00',
+  '10:20',
+  '10:40',
+]
 
 const seed = async () => {
   console.log('🌱 Iniciando seed de trámites...')
@@ -52,9 +64,10 @@ const seed = async () => {
       const estado = randomFrom(ESTADOS_TRAMITE)
       const requiereCurso = tipoRequiereCurso(tipo)
 
-      const fut = Math.random() > 0.3
-        ? `${SEED_FUT_PREFIX}-${SEED_FUT_MIN + randomInt(SEED_FUT_RANGE)}`
-        : undefined
+      const fut =
+        Math.random() > 0.3
+          ? `${SEED_FUT_PREFIX}-${SEED_FUT_MIN + randomInt(SEED_FUT_RANGE)}`
+          : undefined
 
       const fechaInicio = new Date(
         SEED_TRAMITES_FECHA_INICIO_YEAR,
@@ -62,25 +75,7 @@ const seed = async () => {
         1 + randomInt(SEED_DIAS_POR_MES),
       ).toISOString()
 
-      const turnoCurso = requiereCurso
-        ? {
-            fecha: SEED_TURNO_FECHA_DEFAULT,
-            hora: '08:30',
-            estado: estado === ESTADO_TRAMITE.COMPLETADO
-              ? ESTADO_TURNO.COMPLETADO
-              : ESTADO_TURNO.PROGRAMADO,
-          }
-        : undefined
-
-      const turnoPsicofisico = {
-        fecha: SEED_TURNO_FECHA_DEFAULT,
-        hora: randomFrom(HORAS_PSICOFISICO),
-        estado: estado === ESTADO_TRAMITE.COMPLETADO
-          ? ESTADO_TURNO.COMPLETADO
-          : ESTADO_TURNO.PROGRAMADO,
-      }
-
-      await basePayload.create({
+      const tramite = await basePayload.create({
         collection: 'tramite',
         data: {
           ciudadano: ciudadano.id,
@@ -89,8 +84,36 @@ const seed = async () => {
           estado,
           fechaInicio,
           fechaFin: estado === ESTADO_TRAMITE.COMPLETADO ? new Date().toISOString() : undefined,
-          turnoCurso,
-          turnoPsicofisico,
+        },
+      })
+
+      // Crear turno de curso si corresponde
+      if (requiereCurso) {
+        await basePayload.create({
+          collection: 'turno-curso',
+          data: {
+            tramite: tramite.id,
+            fecha: SEED_TURNO_FECHA_DEFAULT,
+            hora: '08:30',
+            estado:
+              estado === ESTADO_TRAMITE.COMPLETADO
+                ? ESTADO_TURNO.COMPLETADO
+                : ESTADO_TURNO.PROGRAMADO,
+          },
+        })
+      }
+
+      // Crear turno de psicofísico
+      await basePayload.create({
+        collection: 'turno-psicofisico',
+        data: {
+          tramite: tramite.id,
+          fecha: SEED_TURNO_FECHA_DEFAULT,
+          hora: randomFrom(HORAS_PSICOFISICO),
+          estado:
+            estado === ESTADO_TRAMITE.COMPLETADO
+              ? ESTADO_TURNO.COMPLETADO
+              : ESTADO_TURNO.PROGRAMADO,
         },
       })
 

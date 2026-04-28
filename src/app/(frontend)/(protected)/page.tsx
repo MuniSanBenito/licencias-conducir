@@ -53,6 +53,10 @@ export default async function Page({ searchParams }: PageProps<'/'>) {
       sort,
       where,
       depth: 1,
+      joins: {
+        turnosCurso: { limit: 1 },
+        turnosPsicofisico: { limit: 1 },
+      },
     }),
     basePayload.count({ collection: 'tramite' }),
     basePayload.count({

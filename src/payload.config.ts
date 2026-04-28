@@ -12,6 +12,8 @@ import { Archivo } from './payload/collections/archivo'
 import { Ciudadano } from './payload/collections/ciudadano'
 import { Dev } from './payload/collections/dev'
 import { Tramite } from './payload/collections/tramite'
+import { TurnoCurso } from './payload/collections/turno-curso'
+import { TurnoPsicofisico } from './payload/collections/turno-psicofisico'
 import { Usuario } from './payload/collections/usuario'
 import { storagePlugin } from './payload/plugins/storage'
 
@@ -37,7 +39,7 @@ export default buildConfig({
       },
     },
   },
-  collections: [Dev, Archivo, Usuario, Ciudadano, Tramite],
+  collections: [Dev, Archivo, Usuario, Ciudadano, Tramite, TurnoCurso, TurnoPsicofisico],
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,
   typescript: {

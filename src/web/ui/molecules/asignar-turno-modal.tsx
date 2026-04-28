@@ -8,15 +8,17 @@ import {
   TIPO_TURNO_LABELS,
   type TipoTurno,
 } from '@/constants/tramites'
+import type { TurnoCurso, TurnoPsicofisico } from '@/payload-types'
 import { contarTurnosCursoPorFecha, esDiaDeCurso, formatFechaISO, getSlotsPsicofisico } from '@/web/utils/turnos'
-import { IconAlertTriangle, IconCalendarPlus } from '@tabler/icons-react'
+import { IconAlertTriangle, IconCalendarPlus, IconEdit } from '@tabler/icons-react'
 import { useState } from 'react'
 
 interface AsignarTurnoModalProps {
   tipoTurno: TipoTurno
   ciudadanoNombre: string
   turnosExistentes: { fecha: string; hora: string }[]
-  onConfirm: (fecha: string, hora: string) => void
+  turnoExistente?: TurnoCurso | TurnoPsicofisico
+  onConfirm: (fecha: string, hora: string, observaciones?: string) => void
   onCancel: () => void
 }
 
@@ -24,14 +26,17 @@ export function AsignarTurnoModal({
   tipoTurno,
   ciudadanoNombre,
   turnosExistentes,
+  turnoExistente,
   onConfirm,
   onCancel,
 }: AsignarTurnoModalProps) {
-  const [fecha, setFecha] = useState('')
-  const [hora, setHora] = useState('')
-  const [confirmoNoFeriado, setConfirmoNoFeriado] = useState(false)
-
+  const esEdicion = Boolean(turnoExistente)
   const esCurso = tipoTurno === TIPO_TURNO.CURSO
+
+  const [fecha, setFecha] = useState(turnoExistente?.fecha?.split('T')[0] ?? '')
+  const [hora, setHora] = useState(turnoExistente?.hora ?? '')
+  const [observaciones, setObservaciones] = useState(turnoExistente?.observaciones ?? '')
+  const [confirmoNoFeriado, setConfirmoNoFeriado] = useState(esEdicion)
 
   const fechaDate = fecha ? new Date(fecha + 'T12:00:00') : null
 
@@ -45,7 +50,9 @@ export function AsignarTurnoModal({
       errorFecha = 'El curso presencial se dicta solo los días lunes'
     } else {
       turnosDelDia = contarTurnosCursoPorFecha(fecha, turnosExistentes)
-      if (turnosDelDia >= MAX_TURNOS_CURSO_POR_DIA) {
+      // Si estamos editando, no contamos el turno actual en la capacidad
+      const capacidadAjustada = esEdicion ? turnosDelDia - 1 : turnosDelDia
+      if (capacidadAjustada >= MAX_TURNOS_CURSO_POR_DIA) {
         errorFecha = `Este lunes ya tiene ${MAX_TURNOS_CURSO_POR_DIA} turnos asignados`
       }
     }
@@ -57,6 +64,11 @@ export function AsignarTurnoModal({
       errorFecha = 'No hay atención de psicofísico este día'
     } else {
       slotsDisponibles = getSlotsPsicofisico(fechaDate, turnosExistentes)
+      // Si estamos editando, agregar el slot actual como disponible
+      if (esEdicion && turnoExistente?.hora && !slotsDisponibles.includes(turnoExistente.hora)) {
+        slotsDisponibles.push(turnoExistente.hora)
+        slotsDisponibles.sort()
+      }
       if (slotsDisponibles.length === 0) {
         errorFecha = 'No quedan turnos disponibles para este día'
       }
@@ -67,12 +79,15 @@ export function AsignarTurnoModal({
     ? fecha && !errorFecha && confirmoNoFeriado
     : fecha && hora && !errorFecha
 
+  const tituloAccion = esEdicion ? 'Modificar' : 'Asignar'
+  const TituloIcon = esEdicion ? IconEdit : IconCalendarPlus
+
   return (
-    <dialog className="modal modal-open" aria-modal="true" role="dialog" aria-label="Asignar turno">
+    <dialog className="modal modal-open" aria-modal="true" role="dialog" aria-label={`${tituloAccion} turno`}>
       <section className="modal-box">
         <h3 className="flex items-center gap-2 text-lg font-bold">
-          <IconCalendarPlus size={20} />
-          Asignar Turno — {TIPO_TURNO_LABELS[tipoTurno]}
+          <TituloIcon size={20} />
+          {tituloAccion} Turno — {TIPO_TURNO_LABELS[tipoTurno]}
         </h3>
         <p className="mt-1 text-sm opacity-60">{ciudadanoNombre}</p>
 
@@ -164,6 +179,22 @@ export function AsignarTurnoModal({
               )}
             </>
           )}
+
+          {/* Observaciones */}
+          <fieldset className="fieldset">
+            <label className="fieldset-legend" htmlFor="turno-observaciones">
+              Observaciones
+              <span className="badge badge-ghost badge-sm ml-2">Opcional</span>
+            </label>
+            <textarea
+              id="turno-observaciones"
+              className="textarea textarea-bordered w-full"
+              placeholder="Ej: El ciudadano requiere asistencia especial..."
+              value={observaciones}
+              onChange={(e) => setObservaciones(e.target.value)}
+              rows={2}
+            />
+          </fieldset>
         </section>
 
         <section className="modal-action">
@@ -174,12 +205,12 @@ export function AsignarTurnoModal({
             className="btn btn-warning"
             onClick={() => {
               const horaFinal = esCurso ? HORARIO_CURSO.INICIO : hora
-              onConfirm(fecha, horaFinal)
+              onConfirm(fecha, horaFinal, observaciones || undefined)
             }}
             disabled={!puedeConfirmar}
           >
-            <IconCalendarPlus size={16} />
-            Confirmar Turno
+            <TituloIcon size={16} />
+            {esEdicion ? 'Guardar Cambios' : 'Confirmar Turno'}
           </button>
         </section>
       </section>

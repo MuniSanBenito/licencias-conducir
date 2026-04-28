@@ -1,7 +1,7 @@
 'use client'
 
 import { ESTADO_TRAMITE, ESTADO_TURNO, TIPO_TURNO, type TipoTurno } from '@/constants/tramites'
-import type { Ciudadano, Tramite } from '@/payload-types'
+import type { Ciudadano, Tramite, TurnoCurso, TurnoPsicofisico } from '@/payload-types'
 import { sdk } from '@/web/libs/payload/client'
 import { AsignarTurnoModal } from '@/web/ui/molecules/asignar-turno-modal'
 import { ConfirmDialog } from '@/web/ui/molecules/confirm-dialog'
@@ -14,109 +14,168 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 
 type TramiteConCiudadano = Tramite & { ciudadano: Ciudadano }
-type TurnoGroup = NonNullable<Tramite['turnoCurso']>
 
 interface Props {
   tramite: TramiteConCiudadano
-  turnosCursoExistentes: { fecha: string; hora: string }[]
-  turnosPsicoExistentes: { fecha: string; hora: string }[]
+  turnoCurso: TurnoCurso | null
+  turnoPsicofisico: TurnoPsicofisico | null
+  turnosCursoActivos: { fecha: string; hora: string }[]
+  turnosPsicoActivos: { fecha: string; hora: string }[]
 }
 
 export function TramiteDetallePage({
   tramite,
-  turnosCursoExistentes,
-  turnosPsicoExistentes,
+  turnoCurso: initialTurnoCurso,
+  turnoPsicofisico: initialTurnoPsicofisico,
+  turnosCursoActivos,
+  turnosPsicoActivos,
 }: Props) {
   const router = useRouter()
 
   const [tramiteState, setTramiteState] = useState<TramiteConCiudadano>(tramite)
+  const [turnoCurso, setTurnoCurso] = useState<TurnoCurso | null>(initialTurnoCurso)
+  const [turnoPsicofisico, setTurnoPsicofisico] = useState<TurnoPsicofisico | null>(initialTurnoPsicofisico)
   const [isSaving, setIsSaving] = useState(false)
 
-  const [turnoModalTipo, setTurnoModalTipo] = useState<TipoTurno | null>(null)
+  // Modal state: null = cerrado, objeto = abrir modal con datos
+  const [turnoModalConfig, setTurnoModalConfig] = useState<{
+    tipoTurno: TipoTurno
+    turnoExistente?: TurnoCurso | TurnoPsicofisico
+  } | null>(null)
+
   const [confirmCancelTurno, setConfirmCancelTurno] = useState<TipoTurno | null>(null)
   const [confirmCompletar, setConfirmCompletar] = useState(false)
 
-  async function persistTramite(updates: Partial<Tramite>) {
+  const estaCompletado = tramiteState.estado === ESTADO_TRAMITE.COMPLETADO
+  const estaCancelado = tramiteState.estado === ESTADO_TRAMITE.CANCELADO
+  const tramiteActivo = !estaCompletado && !estaCancelado
+
+  // ─── Turno CRUD ───
+
+  const handleAsignarOModificarTurno = async (fecha: string, hora: string, observaciones?: string) => {
+    if (!turnoModalConfig) return
+
+    const { tipoTurno, turnoExistente } = turnoModalConfig
+    setIsSaving(true)
+
+    try {
+      if (turnoExistente) {
+        // Modificar turno existente
+        const collection = tipoTurno === TIPO_TURNO.CURSO ? 'turno-curso' : 'turno-psicofisico'
+        const response = await sdk.update({
+          collection: collection as 'turno-curso',
+          id: turnoExistente.id,
+          data: { fecha, hora, observaciones },
+        })
+
+        if (!response?.id) throw new Error('No se pudo actualizar el turno')
+
+        if (tipoTurno === TIPO_TURNO.CURSO) {
+          setTurnoCurso(response as unknown as TurnoCurso)
+        } else {
+          setTurnoPsicofisico(response as unknown as TurnoPsicofisico)
+        }
+
+        toast.success('Turno modificado exitosamente')
+      } else {
+        // Crear turno nuevo
+        const collection = tipoTurno === TIPO_TURNO.CURSO ? 'turno-curso' : 'turno-psicofisico'
+        const response = await sdk.create({
+          collection: collection as 'turno-curso',
+          data: {
+            tramite: tramiteState.id,
+            fecha,
+            hora,
+            estado: ESTADO_TURNO.PROGRAMADO,
+            observaciones,
+          },
+        })
+
+        if (!response?.id) throw new Error('No se pudo crear el turno')
+
+        if (tipoTurno === TIPO_TURNO.CURSO) {
+          setTurnoCurso(response as unknown as TurnoCurso)
+        } else {
+          setTurnoPsicofisico(response as unknown as TurnoPsicofisico)
+        }
+
+        const fechaDisplay = new Date(fecha + 'T12:00:00').toLocaleDateString('es-AR')
+        toast.success(`Turno asignado para el ${fechaDisplay} a las ${hora}`)
+      }
+
+      setTurnoModalConfig(null)
+      router.refresh()
+    } catch (error) {
+      console.error(error)
+      toast.error(error instanceof Error ? error.message : 'Error al gestionar el turno')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleCancelarTurno = async (tipoTurno: TipoTurno) => {
+    const turno = tipoTurno === TIPO_TURNO.CURSO ? turnoCurso : turnoPsicofisico
+    if (!turno) return
+
+    setIsSaving(true)
+
+    try {
+      const collection = tipoTurno === TIPO_TURNO.CURSO ? 'turno-curso' : 'turno-psicofisico'
+      await sdk.delete({
+        collection: collection as 'turno-curso',
+        id: turno.id,
+      })
+
+      if (tipoTurno === TIPO_TURNO.CURSO) {
+        setTurnoCurso(null)
+      } else {
+        setTurnoPsicofisico(null)
+      }
+
+      setConfirmCancelTurno(null)
+      toast.success('Turno eliminado')
+      router.refresh()
+    } catch (error) {
+      console.error(error)
+      toast.error(error instanceof Error ? error.message : 'Error al eliminar el turno')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  // ─── Tramite actions ───
+
+  const handleCompletarTramite = async () => {
     setIsSaving(true)
 
     try {
       const response = await sdk.update({
         collection: 'tramite',
         id: tramiteState.id,
-        data: updates,
+        data: {
+          estado: ESTADO_TRAMITE.COMPLETADO,
+          fechaFin: new Date().toISOString(),
+        },
       })
 
-      if (!response?.id) {
-        throw new Error('No se pudo actualizar el trámite')
-      }
+      if (!response?.id) throw new Error('No se pudo completar el trámite')
 
       setTramiteState((prev) => ({
         ...prev,
-        ...updates,
+        estado: ESTADO_TRAMITE.COMPLETADO,
+        fechaFin: new Date().toISOString(),
       }) as TramiteConCiudadano)
 
+      setConfirmCompletar(false)
+      toast.success('Trámite completado exitosamente')
       router.refresh()
-      return true
     } catch (error) {
       console.error(error)
-      toast.error(error instanceof Error ? error.message : 'Error al actualizar el trámite')
-      return false
+      toast.error(error instanceof Error ? error.message : 'Error al completar el trámite')
     } finally {
       setIsSaving(false)
     }
   }
-
-  async function asignarTurno(fecha: string, hora: string) {
-    if (turnoModalTipo === null) return
-
-    const fieldName = turnoModalTipo === TIPO_TURNO.CURSO ? 'turnoCurso' : 'turnoPsicofisico'
-    const turnoData: TurnoGroup = {
-      fecha,
-      hora,
-      estado: ESTADO_TURNO.PROGRAMADO,
-    }
-
-    const ok = await persistTramite({ [fieldName]: turnoData })
-
-    if (ok) {
-      setTurnoModalTipo(null)
-      toast.success(`Turno asignado para el ${new Date(fecha + 'T12:00:00').toLocaleDateString('es-AR')} a las ${hora}`)
-    }
-  }
-
-  async function cancelarTurno(tipoTurno: TipoTurno) {
-    const fieldName = tipoTurno === TIPO_TURNO.CURSO ? 'turnoCurso' : 'turnoPsicofisico'
-    const turnoActual = tramiteState[fieldName]
-
-    if (!turnoActual) return
-
-    const ok = await persistTramite({
-      [fieldName]: {
-        ...turnoActual,
-        estado: ESTADO_TURNO.CANCELADO,
-      },
-    })
-
-    if (ok) {
-      setConfirmCancelTurno(null)
-      toast.success('Turno cancelado')
-    }
-  }
-
-  async function completarTramite() {
-    const ok = await persistTramite({
-      estado: ESTADO_TRAMITE.COMPLETADO,
-      fechaFin: new Date().toISOString(),
-    })
-
-    if (ok) {
-      setConfirmCompletar(false)
-      toast.success('Trámite completado exitosamente')
-    }
-  }
-
-  const estaCompletado = tramiteState.estado === ESTADO_TRAMITE.COMPLETADO
-  const estaCancelado = tramiteState.estado === ESTADO_TRAMITE.CANCELADO
 
   return (
     <>
@@ -124,32 +183,42 @@ export function TramiteDetallePage({
         <section className="flex flex-col gap-6">
           <TramiteTurnosCard
             tipo={tramiteState.tipo}
-            turnoCurso={tramiteState.turnoCurso}
-            turnoPsicofisico={tramiteState.turnoPsicofisico}
+            turnoCurso={turnoCurso}
+            turnoPsicofisico={turnoPsicofisico}
             onAsignarTurnoCurso={
-              isSaving || estaCompletado || estaCancelado
-                ? undefined
-                : () => setTurnoModalTipo(TIPO_TURNO.CURSO)
+              tramiteActivo && !turnoCurso
+                ? () => setTurnoModalConfig({ tipoTurno: TIPO_TURNO.CURSO })
+                : undefined
             }
             onAsignarTurnoPsicofisico={
-              isSaving || estaCompletado || estaCancelado
-                ? undefined
-                : () => setTurnoModalTipo(TIPO_TURNO.PSICOFISICO)
+              tramiteActivo && !turnoPsicofisico
+                ? () => setTurnoModalConfig({ tipoTurno: TIPO_TURNO.PSICOFISICO })
+                : undefined
+            }
+            onModificarTurnoCurso={
+              tramiteActivo && turnoCurso
+                ? () => setTurnoModalConfig({ tipoTurno: TIPO_TURNO.CURSO, turnoExistente: turnoCurso })
+                : undefined
+            }
+            onModificarTurnoPsicofisico={
+              tramiteActivo && turnoPsicofisico
+                ? () => setTurnoModalConfig({ tipoTurno: TIPO_TURNO.PSICOFISICO, turnoExistente: turnoPsicofisico })
+                : undefined
             }
             onCancelarTurnoCurso={
-              isSaving || estaCompletado || estaCancelado
-                ? undefined
-                : () => setConfirmCancelTurno(TIPO_TURNO.CURSO)
+              tramiteActivo && turnoCurso
+                ? () => setConfirmCancelTurno(TIPO_TURNO.CURSO)
+                : undefined
             }
             onCancelarTurnoPsicofisico={
-              isSaving || estaCompletado || estaCancelado
-                ? undefined
-                : () => setConfirmCancelTurno(TIPO_TURNO.PSICOFISICO)
+              tramiteActivo && turnoPsicofisico
+                ? () => setConfirmCancelTurno(TIPO_TURNO.PSICOFISICO)
+                : undefined
             }
             disabled={isSaving}
           />
 
-          {!estaCompletado && !estaCancelado && (
+          {tramiteActivo && (
             <button
               className="btn btn-success btn-lg self-start"
               onClick={() => setConfirmCompletar(true)}
@@ -163,40 +232,65 @@ export function TramiteDetallePage({
 
         <aside className="flex flex-col gap-5">
           <TramiteCiudadanoCard ciudadano={tramiteState.ciudadano} />
-          <TramiteInfoCard tramite={tramiteState} />
+          <TramiteInfoCard
+            tramite={tramiteState}
+            disabled={isSaving || !tramiteActivo}
+            onFutUpdate={async (fut) => {
+              setIsSaving(true)
+              try {
+                const response = await sdk.update({
+                  collection: 'tramite',
+                  id: tramiteState.id,
+                  data: { fut: fut || undefined },
+                })
+                if (!response?.id) throw new Error('No se pudo actualizar el FUT')
+                setTramiteState((prev) => ({ ...prev, fut: fut || null }) as TramiteConCiudadano)
+                router.refresh()
+                toast.success(fut ? 'FUT actualizado' : 'FUT eliminado')
+                return true
+              } catch (error) {
+                console.error(error)
+                toast.error(error instanceof Error ? error.message : 'Error al actualizar el FUT')
+                return false
+              } finally {
+                setIsSaving(false)
+              }
+            }}
+          />
         </aside>
       </section>
 
-      {turnoModalTipo !== null && (
+      {turnoModalConfig !== null && (
         <AsignarTurnoModal
-          tipoTurno={turnoModalTipo}
+          tipoTurno={turnoModalConfig.tipoTurno}
           ciudadanoNombre={`${tramiteState.ciudadano.nombre} ${tramiteState.ciudadano.apellido}`}
           turnosExistentes={
-            turnoModalTipo === TIPO_TURNO.CURSO
-              ? turnosCursoExistentes
-              : turnosPsicoExistentes
+            turnoModalConfig.tipoTurno === TIPO_TURNO.CURSO
+              ? turnosCursoActivos
+              : turnosPsicoActivos
           }
-          onConfirm={asignarTurno}
-          onCancel={() => setTurnoModalTipo(null)}
+          turnoExistente={turnoModalConfig.turnoExistente}
+          onConfirm={handleAsignarOModificarTurno}
+          onCancel={() => setTurnoModalConfig(null)}
         />
       )}
 
       <ConfirmDialog
         open={confirmCancelTurno !== null}
-        title="Cancelar turno"
+        title="Eliminar turno"
         description={
           <>
-            ¿Estás seguro de que querés cancelar el turno de{' '}
+            ¿Estás seguro de que querés eliminar el turno de{' '}
             <strong>
               {confirmCancelTurno === TIPO_TURNO.CURSO ? 'Curso Presencial' : 'Examen Psicofísico'}
             </strong>
-            ?
+            ? Esta acción no se puede deshacer.
           </>
         }
-        confirmLabel="Sí, cancelar turno"
+        confirmLabel="Sí, eliminar turno"
         confirmIcon={<IconCalendarX size={16} />}
         variant="error"
-        onConfirm={() => confirmCancelTurno !== null && cancelarTurno(confirmCancelTurno)}
+        onConfirm={() => confirmCancelTurno !== null && handleCancelarTurno(confirmCancelTurno)}
         onCancel={() => setConfirmCancelTurno(null)}
       />
 
@@ -207,7 +301,7 @@ export function TramiteDetallePage({
         confirmLabel="Sí, completar"
         confirmIcon={<IconCheck size={16} />}
         variant="primary"
-        onConfirm={completarTramite}
+        onConfirm={handleCompletarTramite}
         onCancel={() => setConfirmCompletar(false)}
       />
     </>

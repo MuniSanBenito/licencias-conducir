@@ -37,3 +37,5 @@ si el lunes es feriado se pasa al dia habil siguiente, como no tenemos forma de 
 - los jueves se da la practica sin turno por orden de llegada de 8 a 10 (10min aprox). si llueve o es feriado se pasa al siguiente dia habil
 
 - si se aprueba la practica se vuelve a la municipalidad a imprimir el carnet. tiene hasta 30 dias de abierto el tramite (FUT) para pasar a imprimir el carnet
+
+y el turnero????

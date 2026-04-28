@@ -73,18 +73,27 @@ export interface Config {
     usuario: Usuario;
     ciudadano: Ciudadano;
     tramite: Tramite;
+    'turno-curso': TurnoCurso;
+    'turno-psicofisico': TurnoPsicofisico;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    tramite: {
+      turnosCurso: 'turno-curso';
+      turnosPsicofisico: 'turno-psicofisico';
+    };
+  };
   collectionsSelect: {
     dev: DevSelect<false> | DevSelect<true>;
     archivo: ArchivoSelect<false> | ArchivoSelect<true>;
     usuario: UsuarioSelect<false> | UsuarioSelect<true>;
     ciudadano: CiudadanoSelect<false> | CiudadanoSelect<true>;
     tramite: TramiteSelect<false> | TramiteSelect<true>;
+    'turno-curso': TurnoCursoSelect<false> | TurnoCursoSelect<true>;
+    'turno-psicofisico': TurnoPsicofisicoSelect<false> | TurnoPsicofisicoSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -253,24 +262,51 @@ export interface Tramite {
   estado: 'en_curso' | 'completado' | 'cancelado';
   fechaInicio: string;
   fechaFin?: string | null;
-  /**
-   * Solo para trámites de tipo Original o Ampliación
-   */
-  turnoCurso?: {
-    fecha?: string | null;
-    hora?: string | null;
-    estado?: ('programado' | 'confirmado' | 'ausente' | 'completado' | 'cancelado') | null;
-    observaciones?: string | null;
+  turnosCurso?: {
+    docs?: (string | TurnoCurso)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
   };
-  /**
-   * Requerido para todos los tipos de trámite
-   */
-  turnoPsicofisico?: {
-    fecha?: string | null;
-    hora?: string | null;
-    estado?: ('programado' | 'confirmado' | 'ausente' | 'completado' | 'cancelado') | null;
-    observaciones?: string | null;
+  turnosPsicofisico?: {
+    docs?: (string | TurnoPsicofisico)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
   };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Turnos para el curso presencial de educación vial
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "turno-curso".
+ */
+export interface TurnoCurso {
+  id: string;
+  tramite: string | Tramite;
+  fecha: string;
+  /**
+   * Horario fijo: 08:30 a 12:30
+   */
+  hora?: string | null;
+  estado: 'programado' | 'confirmado' | 'ausente' | 'completado' | 'cancelado';
+  observaciones?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Turnos para el examen psicofísico
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "turno-psicofisico".
+ */
+export interface TurnoPsicofisico {
+  id: string;
+  tramite: string | Tramite;
+  fecha: string;
+  hora: string;
+  estado: 'programado' | 'confirmado' | 'ausente' | 'completado' | 'cancelado';
+  observaciones?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -317,6 +353,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'tramite';
         value: string | Tramite;
+      } | null)
+    | ({
+        relationTo: 'turno-curso';
+        value: string | TurnoCurso;
+      } | null)
+    | ({
+        relationTo: 'turno-psicofisico';
+        value: string | TurnoPsicofisico;
       } | null);
   globalSlug?: string | null;
   user:
@@ -462,22 +506,34 @@ export interface TramiteSelect<T extends boolean = true> {
   estado?: T;
   fechaInicio?: T;
   fechaFin?: T;
-  turnoCurso?:
-    | T
-    | {
-        fecha?: T;
-        hora?: T;
-        estado?: T;
-        observaciones?: T;
-      };
-  turnoPsicofisico?:
-    | T
-    | {
-        fecha?: T;
-        hora?: T;
-        estado?: T;
-        observaciones?: T;
-      };
+  turnosCurso?: T;
+  turnosPsicofisico?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "turno-curso_select".
+ */
+export interface TurnoCursoSelect<T extends boolean = true> {
+  tramite?: T;
+  fecha?: T;
+  hora?: T;
+  estado?: T;
+  observaciones?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "turno-psicofisico_select".
+ */
+export interface TurnoPsicofisicoSelect<T extends boolean = true> {
+  tramite?: T;
+  fecha?: T;
+  hora?: T;
+  estado?: T;
+  observaciones?: T;
   updatedAt?: T;
   createdAt?: T;
 }

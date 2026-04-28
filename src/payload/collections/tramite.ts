@@ -3,51 +3,10 @@ import type { CollectionConfig } from 'payload'
 import { DISPLAY_DATE_FORMAT } from '@/constants/fechas'
 import {
   ESTADO_TRAMITE_DEFAULT,
-  ESTADO_TURNO_DEFAULT,
   ESTADOS_TRAMITE_CON_FECHA_FIN,
   OPCIONES_ESTADO_TRAMITE,
-  OPCIONES_ESTADO_TURNO,
   OPCIONES_TIPO_TRAMITE,
 } from '@/constants/tramites'
-
-const TURNO_FIELDS = [
-  {
-    type: 'row' as const,
-    fields: [
-      {
-        name: 'fecha',
-        type: 'date' as const,
-        label: 'Fecha del Turno',
-        admin: {
-          width: '35%',
-          date: { displayFormat: DISPLAY_DATE_FORMAT },
-        },
-      },
-      {
-        name: 'hora',
-        type: 'text' as const,
-        label: 'Hora',
-        admin: {
-          width: '25%',
-          placeholder: 'HH:MM',
-        },
-      },
-      {
-        name: 'estado',
-        type: 'select' as const,
-        options: OPCIONES_ESTADO_TURNO,
-        label: 'Estado del Turno',
-        defaultValue: ESTADO_TURNO_DEFAULT,
-        admin: { width: '40%' },
-      },
-    ],
-  },
-  {
-    name: 'observaciones',
-    type: 'textarea' as const,
-    label: 'Observaciones del Turno',
-  },
-]
 
 export const Tramite: CollectionConfig = {
   slug: 'tramite',
@@ -127,27 +86,20 @@ export const Tramite: CollectionConfig = {
       ],
     },
 
-    // ─── Turno Curso Presencial ───
+    // ─── Turnos (joins a colecciones independientes) ───
     {
-      name: 'turnoCurso',
-      type: 'group',
-      label: 'Turno Curso Presencial',
-      admin: {
-        description: 'Solo para trámites de tipo Original o Ampliación',
-        condition: (data) => data?.tipo !== 'renovacion',
-      },
-      fields: TURNO_FIELDS,
+      name: 'turnosCurso',
+      type: 'join',
+      collection: 'turno-curso',
+      on: 'tramite',
+      label: 'Turnos de Curso Presencial',
     },
-
-    // ─── Turno Examen Psicofísico ───
     {
-      name: 'turnoPsicofisico',
-      type: 'group',
-      label: 'Turno Examen Psicofísico',
-      admin: {
-        description: 'Requerido para todos los tipos de trámite',
-      },
-      fields: TURNO_FIELDS,
+      name: 'turnosPsicofisico',
+      type: 'join',
+      collection: 'turno-psicofisico',
+      on: 'tramite',
+      label: 'Turnos de Examen Psicofísico',
     },
   ],
 }

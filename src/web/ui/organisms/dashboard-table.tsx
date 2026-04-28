@@ -47,8 +47,10 @@ const columnHelper = createColumnHelper<TramiteConCiudadano>()
 
 function getTurnoResumen(tramite: TramiteConCiudadano) {
   const requiereCurso = tipoRequiereCurso(tramite.tipo)
-  const cursoProgramado = Boolean(tramite.turnoCurso?.estado && tramite.turnoCurso.estado !== 'cancelado')
-  const psicoProgramado = Boolean(tramite.turnoPsicofisico?.estado && tramite.turnoPsicofisico.estado !== 'cancelado')
+  const cursoDocs = tramite.turnosCurso?.docs ?? []
+  const psicoDocs = tramite.turnosPsicofisico?.docs ?? []
+  const cursoProgramado = cursoDocs.length > 0
+  const psicoProgramado = psicoDocs.length > 0
 
   return { requiereCurso, cursoProgramado, psicoProgramado }
 }

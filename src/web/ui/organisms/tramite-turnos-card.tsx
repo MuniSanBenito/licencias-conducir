@@ -1,43 +1,35 @@
 'use client'
 
 import {
-  ESTADO_TURNO,
   HORARIO_CURSO,
   TIPO_TURNO_LABELS,
   tipoRequiereCurso,
   type TipoTramite,
 } from '@/constants/tramites'
-import type { Tramite } from '@/payload-types'
+import type { TurnoCurso, TurnoPsicofisico } from '@/payload-types'
 import { TurnoBadge } from '@/web/ui/atoms/turno-badge'
 import { formatDate } from '@/web/utils/fechas'
 import {
   IconCalendar,
   IconCalendarPlus,
-  IconCalendarX,
   IconClock,
+  IconEdit,
   IconSchool,
   IconStethoscope,
+  IconTrash,
 } from '@tabler/icons-react'
-
-type TurnoGroup = NonNullable<Tramite['turnoCurso']>
 
 interface TurnoCardProps {
   tipo: TipoTramite
-  turnoCurso: TurnoGroup | undefined | null
-  turnoPsicofisico: TurnoGroup | undefined | null
+  turnoCurso: TurnoCurso | null
+  turnoPsicofisico: TurnoPsicofisico | null
   onAsignarTurnoCurso?: () => void
   onAsignarTurnoPsicofisico?: () => void
+  onModificarTurnoCurso?: () => void
+  onModificarTurnoPsicofisico?: () => void
   onCancelarTurnoCurso?: () => void
   onCancelarTurnoPsicofisico?: () => void
   disabled?: boolean
-}
-
-function turnoTieneEstadoActivo(turno: TurnoGroup | undefined | null): boolean {
-  return Boolean(turno?.estado && turno.estado !== ESTADO_TURNO.CANCELADO)
-}
-
-function turnoEsCancelable(turno: TurnoGroup | undefined | null): boolean {
-  return turno?.estado === ESTADO_TURNO.PROGRAMADO
 }
 
 function TurnoDetalle({
@@ -45,19 +37,21 @@ function TurnoDetalle({
   icon: Icon,
   turno,
   onAsignar,
+  onModificar,
   onCancelar,
   disabled,
   horarioRef,
 }: {
   label: string
   icon: typeof IconSchool
-  turno: TurnoGroup | undefined | null
+  turno: TurnoCurso | TurnoPsicofisico | null
   onAsignar?: () => void
+  onModificar?: () => void
   onCancelar?: () => void
   disabled?: boolean
   horarioRef?: string
 }) {
-  const tieneEstado = turnoTieneEstadoActivo(turno)
+  const tieneTurno = turno !== null
 
   return (
     <article className="bg-base-200 rounded-lg p-4">
@@ -66,10 +60,10 @@ function TurnoDetalle({
           <Icon size={16} />
           {label}
         </h4>
-        <TurnoBadge estado={turno?.estado} />
+        {tieneTurno && <TurnoBadge estado={turno.estado} />}
       </header>
 
-      {tieneEstado && turno?.fecha ? (
+      {tieneTurno ? (
         <section className="mt-3 flex items-center gap-4">
           <p className="flex items-center gap-1 text-sm">
             <IconCalendar size={14} className="opacity-50" />
@@ -88,12 +82,12 @@ function TurnoDetalle({
         </p>
       )}
 
-      {turno?.observaciones && (
+      {tieneTurno && turno.observaciones && (
         <p className="mt-2 text-xs opacity-60">{turno.observaciones}</p>
       )}
 
       <footer className="mt-3 flex gap-2">
-        {!tieneEstado && onAsignar && (
+        {!tieneTurno && onAsignar && (
           <button
             className="btn btn-warning btn-sm"
             onClick={onAsignar}
@@ -103,15 +97,25 @@ function TurnoDetalle({
             Asignar Turno
           </button>
         )}
-        {turnoEsCancelable(turno) && onCancelar && (
+        {tieneTurno && onModificar && (
+          <button
+            className="btn btn-info btn-sm"
+            onClick={onModificar}
+            disabled={disabled}
+          >
+            <IconEdit size={16} />
+            Modificar
+          </button>
+        )}
+        {tieneTurno && onCancelar && (
           <button
             className="btn btn-error btn-ghost btn-xs"
             onClick={onCancelar}
             disabled={disabled}
-            aria-label={`Cancelar turno de ${label}`}
+            aria-label={`Eliminar turno de ${label}`}
           >
-            <IconCalendarX size={14} />
-            Cancelar
+            <IconTrash size={14} />
+            Eliminar
           </button>
         )}
       </footer>
@@ -125,6 +129,8 @@ export function TramiteTurnosCard({
   turnoPsicofisico,
   onAsignarTurnoCurso,
   onAsignarTurnoPsicofisico,
+  onModificarTurnoCurso,
+  onModificarTurnoPsicofisico,
   onCancelarTurnoCurso,
   onCancelarTurnoPsicofisico,
   disabled,
@@ -142,6 +148,7 @@ export function TramiteTurnosCard({
             icon={IconSchool}
             turno={turnoCurso}
             onAsignar={onAsignarTurnoCurso}
+            onModificar={onModificarTurnoCurso}
             onCancelar={onCancelarTurnoCurso}
             disabled={disabled}
             horarioRef={`Lunes ${HORARIO_CURSO.INICIO} a ${HORARIO_CURSO.FIN}`}
@@ -153,6 +160,7 @@ export function TramiteTurnosCard({
           icon={IconStethoscope}
           turno={turnoPsicofisico}
           onAsignar={onAsignarTurnoPsicofisico}
+          onModificar={onModificarTurnoPsicofisico}
           onCancelar={onCancelarTurnoPsicofisico}
           disabled={disabled}
           horarioRef="Variable según día de semana"
