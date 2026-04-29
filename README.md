@@ -45,5 +45,15 @@ src/
 
 Las reglas técnicas y de contribución obligatorias están en [AGENTS.md](AGENTS.md).
 
+## Seguridad de la Información
+
+Este repositorio es público y pertenece a la Municipalidad de San Benito, Entre Ríos.  
+Queda estrictamente prohibido publicar información sensible en código, commits, issues o documentación.
+
+- No subir credenciales, secretos, tokens, contraseñas o claves privadas.
+- No incluir datos personales sensibles de ciudadanos o personal municipal.
+- No exponer archivos `.env` ni configuraciones con valores reales.
+- Usar siempre valores de ejemplo, datos ficticios o mecanismos de variables de entorno.
+
 ---
 © 2026 Municipalidad de San Benito

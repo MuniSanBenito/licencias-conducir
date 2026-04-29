@@ -37,3 +37,10 @@ Este documento define las reglas base que todo agente de IA debe seguir al inter
 - **Uso de Funciones**:
   - **Nunca** utilices _arrow functions_ fuera de la definición de los componentes (por ejemplo, para funciones utilitarias o _helpers_ emplea la palabra clave `function`).
   - **Siempre** utiliza _arrow functions_ para todas las funciones declaradas **dentro** de un componente.
+
+## Seguridad y Repositorio Público
+
+- **Repositorio Público**: Este proyecto es público (Municipalidad de San Benito, Entre Ríos). Debe asumirse visibilidad total del contenido versionado.
+- **Información Sensible**: Está estrictamente prohibido incluir secretos, credenciales, tokens, claves privadas o datos personales sensibles en código, commits, issues y comentarios.
+- **Datos de Ejemplo**: Para desarrollo, pruebas y documentación usar siempre datos ficticios o anonimizados.
+- **Variables de Entorno**: Nunca commitear archivos `.env` con valores reales ni exponer configuraciones sensibles.
