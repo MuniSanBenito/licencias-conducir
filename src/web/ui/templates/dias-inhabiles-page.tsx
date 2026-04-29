@@ -12,6 +12,7 @@ import {
   formatDateISO,
   getMonthGridDays,
 } from '@/web/utils/calendario-mensual'
+import { ConfirmActionDialog } from '@/web/ui/molecules/confirm-action-dialog'
 import { IconChevronLeft, IconChevronRight, IconTrash } from '@tabler/icons-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -28,6 +29,15 @@ function formatFecha(value: string): string {
   return value.split('T')[0]
 }
 
+function fechaLargaEsAR(dateISO: string): string {
+  return new Date(`${dateISO}T12:00:00`).toLocaleDateString('es-AR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+}
+
 export function DiasInhabilesPage({ diasInhabiles }: Props) {
   const [dias, setDias] = useState(diasInhabiles)
   const [isSaving, setIsSaving] = useState(false)
@@ -41,6 +51,8 @@ export function DiasInhabilesPage({ diasInhabiles }: Props) {
   })
 
   const form = useForm<DiaPanelForm>({ defaultValues: { motivo: '', activo: true } })
+  const [confirmMode, setConfirmMode] = useState<null | 'guardar' | 'eliminar'>(null)
+  const [valoresGuardadoPendiente, setValoresGuardadoPendiente] = useState<DiaPanelForm | null>(null)
 
   const monthDays = useMemo(() => getMonthGridDays(calendarMonth), [calendarMonth])
 
@@ -73,22 +85,33 @@ export function DiasInhabilesPage({ diasInhabiles }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDateISO, dias])
 
-  const guardarDia = async (values: DiaPanelForm) => {
+  const validarContextoFecha = (): boolean => {
     if (esFechaAnteriorAHoy(selectedDateISO, todayISO)) {
       toast.error('No se pueden modificar fechas pasadas')
-      return
+      return false
     }
-
     if (esFinDeSemanaDesdeISO(selectedDateISO)) {
       toast.error('No hay actividad los sábados ni domingos')
-      return
+      return false
     }
+    return true
+  }
 
+  const abrirConfirmacionGuardar = (values: DiaPanelForm) => {
+    if (!validarContextoFecha()) return
     const motivo = values.motivo.trim()
     if (!motivo) {
       toast.error('El motivo es obligatorio')
       return
     }
+    setValoresGuardadoPendiente(values)
+    setConfirmMode('guardar')
+  }
+
+  const ejecutarGuardarDia = async () => {
+    const values = valoresGuardadoPendiente
+    if (!values) return
+    const motivo = values.motivo.trim()
 
     setIsSaving(true)
     try {
@@ -112,21 +135,18 @@ export function DiasInhabilesPage({ diasInhabiles }: Props) {
       toast.error(error instanceof Error ? error.message : 'No se pudo guardar el día inhábil')
     } finally {
       setIsSaving(false)
+      setValoresGuardadoPendiente(null)
     }
   }
 
-  const eliminarDia = async () => {
+  const abrirConfirmacionEliminar = () => {
     if (!selectedDia) return
-    if (esFechaAnteriorAHoy(selectedDateISO, todayISO)) {
-      toast.error('No se pueden eliminar registros de fechas pasadas')
-      return
-    }
+    if (!validarContextoFecha()) return
+    setConfirmMode('eliminar')
+  }
 
-    if (esFinDeSemanaDesdeISO(selectedDateISO)) {
-      toast.error('No hay actividad los sábados ni domingos')
-      return
-    }
-
+  const ejecutarEliminarDia = async () => {
+    if (!selectedDia) return
     setIsSaving(true)
     try {
       await sdk.delete({ collection: 'dia-inhabil', id: selectedDia.id })
@@ -139,6 +159,13 @@ export function DiasInhabilesPage({ diasInhabiles }: Props) {
       setIsSaving(false)
     }
   }
+
+  const cerrarConfirmacion = () => {
+    setConfirmMode(null)
+    setValoresGuardadoPendiente(null)
+  }
+
+  const fechaLargaSeleccion = fechaLargaEsAR(selectedDateISO)
 
   return (
     <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_380px]">
@@ -220,9 +247,11 @@ export function DiasInhabilesPage({ diasInhabiles }: Props) {
                       ? `Día ${date.getDate()}, fin de semana, no editable`
                       : isPastDay && isCurrentMonth
                         ? `Día ${date.getDate()}, fecha pasada, no editable`
-                        : isToday
-                          ? `Hoy ${date.getDate()}, ${isSelected ? 'seleccionado' : ''}`
-                          : `Día ${date.getDate()}`
+                        : dia && isSelectable
+                          ? `Día ${date.getDate()}, inhábil registrado, ${isSelected ? 'seleccionado' : 'elegir para editar o eliminar'}`
+                          : isToday
+                            ? `Hoy ${date.getDate()}, ${isSelected ? 'seleccionado' : ''}`
+                            : `Día ${date.getDate()}`
                   }
                 >
                   {date.getDate()}
@@ -235,20 +264,27 @@ export function DiasInhabilesPage({ diasInhabiles }: Props) {
 
       <aside className="card card-border bg-base-100 h-fit">
         <section className="card-body">
-          <h3 className="card-title text-base">Detalle del día</h3>
+          <h3 className="card-title text-base">
+            {selectedDia ? 'Editar día inhábil' : 'Registrar día inhábil'}
+          </h3>
           <p className="text-sm opacity-80">
             Fecha seleccionada:{' '}
-            <time dateTime={selectedDateISO}>
-              {new Date(`${selectedDateISO}T12:00:00`).toLocaleDateString('es-AR', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              })}
-            </time>
+            <time dateTime={selectedDateISO}>{fechaLargaSeleccion}</time>
           </p>
 
-          <form className="mt-4 grid gap-3" onSubmit={form.handleSubmit(guardarDia)}>
+          {selectedDia ? (
+            <p role="status" className="alert alert-warning mt-3 text-sm">
+              Ya hay un registro para esta fecha. Podés corregir el motivo o el bloqueo, o eliminar el
+              día inhábil si se cargó por error.
+            </p>
+          ) : (
+            <p role="status" className="alert alert-info mt-3 text-sm">
+              Elegiste una fecha sin registro. Completá el motivo y guardá para bloquear turnos en esa
+              fecha.
+            </p>
+          )}
+
+          <form className="mt-4 grid gap-3" onSubmit={form.handleSubmit(abrirConfirmacionGuardar)}>
             <label className="fieldset">
               <span className="fieldset-legend">Motivo</span>
               <input
@@ -279,7 +315,7 @@ export function DiasInhabilesPage({ diasInhabiles }: Props) {
                 <button
                   type="button"
                   className="btn btn-error btn-outline"
-                  onClick={() => void eliminarDia()}
+                  onClick={abrirConfirmacionEliminar}
                   disabled={isSaving}
                 >
                   <IconTrash size={14} />
@@ -290,6 +326,33 @@ export function DiasInhabilesPage({ diasInhabiles }: Props) {
           </form>
         </section>
       </aside>
+
+      <ConfirmActionDialog
+        open={confirmMode !== null}
+        onOpenChange={(next) => {
+          if (!next) cerrarConfirmacion()
+        }}
+        title={
+          confirmMode === 'eliminar'
+            ? 'Eliminar día inhábil'
+            : selectedDia
+              ? 'Confirmar cambios'
+              : 'Confirmar registro'
+        }
+        message={
+          confirmMode === 'eliminar'
+            ? `¿Eliminar el día inhábil del ${fechaLargaSeleccion}? Volverán a poder asignarse turnos en esa fecha si las reglas lo permiten.`
+            : selectedDia
+              ? `¿Guardar los cambios para el ${fechaLargaSeleccion}?`
+              : `¿Registrar como inhábil el ${fechaLargaSeleccion} con el motivo indicado?`
+        }
+        confirmLabel={confirmMode === 'eliminar' ? 'Eliminar' : 'Guardar'}
+        confirmVariant={confirmMode === 'eliminar' ? 'error' : 'warning'}
+        onConfirm={() => {
+          if (confirmMode === 'guardar') void ejecutarGuardarDia()
+          if (confirmMode === 'eliminar') void ejecutarEliminarDia()
+        }}
+      />
     </section>
   )
 }

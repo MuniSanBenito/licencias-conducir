@@ -13,6 +13,7 @@ import {
   formatDateISO,
   getMonthGridDays,
 } from '@/web/utils/calendario-mensual'
+import { ConfirmActionDialog } from '@/web/ui/molecules/confirm-action-dialog'
 import { IconChevronLeft, IconChevronRight, IconTrash } from '@tabler/icons-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -27,6 +28,15 @@ type ExcepcionForm = { fecha: string; inicio: string; fin: string; activo: boole
 
 function formatFecha(value: string): string {
   return value.split('T')[0]
+}
+
+function fechaLargaEsAR(dateISO: string): string {
+  return new Date(`${dateISO}T12:00:00`).toLocaleDateString('es-AR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
 }
 
 function defaultHorarioByDate(dateISO: string): { inicio: string; fin: string; activo: boolean } {
@@ -51,6 +61,8 @@ export function ExcepcionesPsicofisicoPage({ excepcionesPsicofisico }: Props) {
   const excepcionForm = useForm<ExcepcionForm>({
     defaultValues: { fecha: '', inicio: '07:00', fin: '11:00', activo: true, motivo: '' },
   })
+  const [confirmMode, setConfirmMode] = useState<null | 'guardar' | 'eliminar'>(null)
+  const [valoresGuardadoPendiente, setValoresGuardadoPendiente] = useState<ExcepcionForm | null>(null)
 
   const monthDays = useMemo(() => getMonthGridDays(calendarMonth), [calendarMonth])
 
@@ -95,16 +107,27 @@ export function ExcepcionesPsicofisicoPage({ excepcionesPsicofisico }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDateISO, excepciones])
 
-  const guardarExcepcion = async (values: ExcepcionForm) => {
-    if (esFechaAnteriorAHoy(values.fecha, todayISO)) {
+  const validarFechaExcepcion = (fecha: string): boolean => {
+    if (esFechaAnteriorAHoy(fecha, todayISO)) {
       toast.error('No se pueden modificar fechas pasadas')
-      return
+      return false
     }
-
-    if (esFinDeSemanaDesdeISO(values.fecha)) {
+    if (esFinDeSemanaDesdeISO(fecha)) {
       toast.error('No hay actividad los sábados ni domingos')
-      return
+      return false
     }
+    return true
+  }
+
+  const abrirConfirmacionGuardar = (values: ExcepcionForm) => {
+    if (!validarFechaExcepcion(values.fecha)) return
+    setValoresGuardadoPendiente(values)
+    setConfirmMode('guardar')
+  }
+
+  const ejecutarGuardarExcepcion = async () => {
+    const values = valoresGuardadoPendiente
+    if (!values) return
 
     setIsSaving(true)
     try {
@@ -132,24 +155,22 @@ export function ExcepcionesPsicofisicoPage({ excepcionesPsicofisico }: Props) {
       toast.error(error instanceof Error ? error.message : 'No se pudo guardar la excepción')
     } finally {
       setIsSaving(false)
+      setValoresGuardadoPendiente(null)
     }
   }
 
-  const eliminarExcepcion = async (id: string) => {
-    if (esFechaAnteriorAHoy(selectedDateISO, todayISO)) {
-      toast.error('No se pueden eliminar registros de fechas pasadas')
-      return
-    }
+  const abrirConfirmacionEliminar = () => {
+    if (!selectedExcepcion) return
+    if (!validarFechaExcepcion(selectedDateISO)) return
+    setConfirmMode('eliminar')
+  }
 
-    if (esFinDeSemanaDesdeISO(selectedDateISO)) {
-      toast.error('No hay actividad los sábados ni domingos')
-      return
-    }
-
+  const ejecutarEliminarExcepcion = async () => {
+    if (!selectedExcepcion) return
     setIsSaving(true)
     try {
-      await sdk.delete({ collection: 'horario-psicofisico-excepcion', id })
-      setExcepciones((prev) => prev.filter((item) => item.id !== id))
+      await sdk.delete({ collection: 'horario-psicofisico-excepcion', id: selectedExcepcion.id })
+      setExcepciones((prev) => prev.filter((item) => item.id !== selectedExcepcion.id))
       toast.success('Excepción eliminada')
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'No se pudo eliminar la excepción')
@@ -157,6 +178,13 @@ export function ExcepcionesPsicofisicoPage({ excepcionesPsicofisico }: Props) {
       setIsSaving(false)
     }
   }
+
+  const cerrarConfirmacion = () => {
+    setConfirmMode(null)
+    setValoresGuardadoPendiente(null)
+  }
+
+  const fechaLargaSeleccion = fechaLargaEsAR(selectedDateISO)
 
   return (
     <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_380px]">
@@ -242,9 +270,11 @@ export function ExcepcionesPsicofisicoPage({ excepcionesPsicofisico }: Props) {
                       ? `Día ${date.getDate()}, fin de semana, no editable`
                       : isPastDay && isCurrentMonth
                         ? `Día ${date.getDate()}, fecha pasada, no editable`
-                        : isToday
-                          ? `Hoy ${date.getDate()}, ${isSelected ? 'seleccionado' : ''}`
-                          : `Día ${date.getDate()}`
+                        : excepcion && isSelectable
+                          ? `Día ${date.getDate()}, excepción registrada, ${isSelected ? 'seleccionado' : 'elegir para editar o eliminar'}`
+                          : isToday
+                            ? `Hoy ${date.getDate()}, ${isSelected ? 'seleccionado' : ''}`
+                            : `Día ${date.getDate()}`
                   }
                 >
                   {date.getDate()}
@@ -257,20 +287,30 @@ export function ExcepcionesPsicofisicoPage({ excepcionesPsicofisico }: Props) {
 
       <aside className="card card-border bg-base-100 h-fit">
         <section className="card-body">
-          <h3 className="card-title text-base">Excepción del día</h3>
+          <h3 className="card-title text-base">
+            {selectedExcepcion ? 'Editar excepción' : 'Nueva excepción de horario'}
+          </h3>
           <p className="text-sm opacity-80">
-            Fecha:{' '}
-            <time dateTime={selectedDateISO}>
-              {new Date(`${selectedDateISO}T12:00:00`).toLocaleDateString('es-AR', {
-                weekday: 'long',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              })}
-            </time>
+            Fecha: <time dateTime={selectedDateISO}>{fechaLargaSeleccion}</time>
           </p>
 
-          <form className="mt-4 grid gap-3" onSubmit={excepcionForm.handleSubmit(guardarExcepcion)}>
+          {selectedExcepcion ? (
+            <p role="status" className="alert alert-warning mt-3 text-sm">
+              Ya hay una excepción guardada para esta fecha. Podés ajustar horarios, el estado de la
+              agenda o el motivo, o eliminar la excepción para volver al horario por defecto del
+              sistema.
+            </p>
+          ) : (
+            <p role="status" className="alert alert-info mt-3 text-sm">
+              Esta fecha usa hoy el horario estándar del código. Guardá para definir un horario
+              especial o cerrar la agenda solo ese día.
+            </p>
+          )}
+
+          <form
+            className="mt-4 grid gap-3"
+            onSubmit={excepcionForm.handleSubmit(abrirConfirmacionGuardar)}
+          >
             <input type="hidden" {...excepcionForm.register('fecha', { required: true })} />
             <section className="grid grid-cols-2 gap-2">
               <label className="fieldset">
@@ -308,13 +348,13 @@ export function ExcepcionesPsicofisicoPage({ excepcionesPsicofisico }: Props) {
             </label>
             <section className="flex flex-wrap gap-2">
               <button type="submit" className="btn btn-primary flex-1" disabled={isSaving}>
-                Guardar excepción
+                {selectedExcepcion ? 'Guardar cambios' : 'Guardar excepción'}
               </button>
               {selectedExcepcion && (
                 <button
                   type="button"
                   className="btn btn-error btn-outline"
-                  onClick={() => void eliminarExcepcion(selectedExcepcion.id)}
+                  onClick={abrirConfirmacionEliminar}
                   disabled={isSaving}
                 >
                   <IconTrash size={14} />
@@ -325,6 +365,33 @@ export function ExcepcionesPsicofisicoPage({ excepcionesPsicofisico }: Props) {
           </form>
         </section>
       </aside>
+
+      <ConfirmActionDialog
+        open={confirmMode !== null}
+        onOpenChange={(next) => {
+          if (!next) cerrarConfirmacion()
+        }}
+        title={
+          confirmMode === 'eliminar'
+            ? 'Eliminar excepción'
+            : selectedExcepcion
+              ? 'Confirmar cambios'
+              : 'Confirmar registro'
+        }
+        message={
+          confirmMode === 'eliminar'
+            ? `¿Eliminar la excepción del ${fechaLargaSeleccion}? Ese día volverá a usar el horario por defecto definido en código.`
+            : selectedExcepcion
+              ? `¿Guardar los cambios de la excepción para el ${fechaLargaSeleccion}?`
+              : `¿Registrar una excepción de horario para el ${fechaLargaSeleccion}?`
+        }
+        confirmLabel={confirmMode === 'eliminar' ? 'Eliminar' : 'Guardar'}
+        confirmVariant={confirmMode === 'eliminar' ? 'error' : 'warning'}
+        onConfirm={() => {
+          if (confirmMode === 'guardar') void ejecutarGuardarExcepcion()
+          if (confirmMode === 'eliminar') void ejecutarEliminarExcepcion()
+        }}
+      />
     </section>
   )
 }
