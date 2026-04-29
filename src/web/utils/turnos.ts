@@ -11,13 +11,6 @@ interface TurnoExistente {
   hora: string
 }
 
-interface HorarioPsicofisicoConfig {
-  diaSemana: number
-  inicio: string
-  fin: string
-  activo: boolean
-}
-
 interface HorarioPsicofisicoExcepcion {
   fecha: string
   inicio: string
@@ -29,18 +22,6 @@ function normalizeFecha(fecha: string): string {
   return fecha.split('T')[0]
 }
 
-function getHorarioPsicofisicoByDay(
-  diaSemana: number,
-  horariosConfig: HorarioPsicofisicoConfig[],
-): { inicio: string; fin: string } | null {
-  const horarioConfig = horariosConfig.find((horario) => horario.diaSemana === diaSemana)
-  if (horarioConfig && horarioConfig.activo) {
-    return { inicio: horarioConfig.inicio, fin: horarioConfig.fin }
-  }
-
-  return HORARIOS_PSICOFISICO[diaSemana] ?? null
-}
-
 /**
  * Genera los slots de 20 minutos para el examen psicofísico en una fecha dada.
  * Filtra los slots ya ocupados por turnos existentes.
@@ -48,7 +29,6 @@ function getHorarioPsicofisicoByDay(
 export function getSlotsPsicofisicoConConfiguracion(
   fecha: Date,
   turnosOcupados: TurnoExistente[],
-  horariosConfig: HorarioPsicofisicoConfig[] = [],
   excepciones: HorarioPsicofisicoExcepcion[] = [],
 ): string[] {
   const fechaISO = formatFechaISO(fecha)
@@ -59,7 +39,7 @@ export function getSlotsPsicofisicoConConfiguracion(
   }
 
   const diaSemana = fecha.getDay()
-  const horario = getHorarioPsicofisicoByDay(diaSemana, horariosConfig)
+  const horario = HORARIOS_PSICOFISICO[diaSemana]
 
   if (!horario) return []
 
@@ -189,7 +169,6 @@ export function validarDisponibilidadPsicofisico(
   hora: string,
   turnosExistentes: TurnoExistente[],
   diasInhabiles: string[],
-  horariosConfig: HorarioPsicofisicoConfig[] = [],
   excepciones: HorarioPsicofisicoExcepcion[] = [],
 ): { ok: boolean; motivo?: string } {
   const fecha = new Date(`${fechaISO}T12:00:00`)
@@ -200,7 +179,7 @@ export function validarDisponibilidadPsicofisico(
     return { ok: false, motivo: 'La fecha seleccionada está marcada como inhábil' }
   }
 
-  const slots = getSlotsPsicofisicoConConfiguracion(fecha, turnosExistentes, horariosConfig, excepciones)
+  const slots = getSlotsPsicofisicoConConfiguracion(fecha, turnosExistentes, excepciones)
   if (!slots.includes(hora)) {
     return { ok: false, motivo: 'El horario seleccionado no está disponible' }
   }

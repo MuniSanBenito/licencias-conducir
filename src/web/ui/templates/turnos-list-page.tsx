@@ -4,7 +4,6 @@ import { TIPO_TURNO_LABELS, type TipoTurno } from '@/constants/turnos'
 import type {
   Ciudadano,
   DiaInhabil,
-  HorarioPsicofisico,
   HorarioPsicofisicoExcepcion,
   TurnoCurso,
   TurnoPsicofisico,
@@ -47,7 +46,6 @@ interface Props {
   tipoTurno: TipoTurno
   turnos: TurnoPopulated[]
   diasInhabiles: DiaInhabil[]
-  horariosPsicofisico: HorarioPsicofisico[]
   excepcionesPsicofisico: HorarioPsicofisicoExcepcion[]
   icon: React.ReactNode
 }
@@ -134,7 +132,6 @@ export function TurnosListPage({
   tipoTurno,
   turnos,
   diasInhabiles,
-  horariosPsicofisico,
   excepcionesPsicofisico,
   icon,
 }: Props) {
@@ -162,16 +159,6 @@ export function TurnosListPage({
         .map((dia) => normalizeDate(dia.fecha)),
     [diasInhabiles],
   )
-  const horariosConfig = useMemo(
-    () =>
-      horariosPsicofisico.map((h) => ({
-        diaSemana: Number(h.diaSemana),
-        inicio: h.inicio,
-        fin: h.fin,
-        activo: h.activo ?? true,
-      })),
-    [horariosPsicofisico],
-  )
   const excepcionesConfig = useMemo(
     () =>
       excepcionesPsicofisico.map((item) => ({
@@ -188,10 +175,9 @@ export function TurnosListPage({
     return getSlotsPsicofisicoConConfiguracion(
       new Date(`${fechaSeleccionada}T12:00:00`),
       turnosExistentes,
-      horariosConfig,
       excepcionesConfig,
     )
-  }, [esCurso, fechaSeleccionada, turnosExistentes, horariosConfig, excepcionesConfig])
+  }, [esCurso, fechaSeleccionada, turnosExistentes, excepcionesConfig])
 
   const turnosDelDiaCurso = useMemo(() => {
     if (!esCurso || !fechaSeleccionada) return 0
@@ -257,7 +243,6 @@ export function TurnosListPage({
           horaFinal,
           turnosExistentes,
           diasInhabilesISO,
-          horariosConfig,
           excepcionesConfig,
         )
 

@@ -24,7 +24,7 @@ describe('turnos domain rules', () => {
     const slots = getSlotsPsicofisicoConConfiguracion(
       new Date('2026-05-12T12:00:00'),
       [],
-      [{ diaSemana: 2, inicio: '07:00', fin: '08:00', activo: true }],
+      [{ fecha: '2026-05-12', inicio: '07:00', fin: '08:00', activo: true }],
     )
     expect(slots).toEqual(['07:00', '07:20', '07:40'])
   })
@@ -35,7 +35,7 @@ describe('turnos domain rules', () => {
       '09:00',
       [],
       [],
-      [{ diaSemana: 2, inicio: '07:00', fin: '08:00', activo: true }],
+      [{ fecha: '2026-05-12', inicio: '07:00', fin: '08:00', activo: true }],
     )
     expect(result.ok).toBe(false)
   })

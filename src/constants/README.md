@@ -13,11 +13,10 @@ Este directorio centraliza la fuente de verdad para valores estaticos de negocio
 
 ## Estructura recomendada
 
-- `clases.ts`: clases de licencia y defaults de clase.
 - `turnos.ts`: tipos, estados, labels, opciones y mapeos visuales de turnos.
 - `fechas.ts`: formatos de fecha compartidos.
 
-## Checklist rapido para nuevos catálogos
+## Checklist rapido para nuevos catalogos
 
 1. Crear objeto canonico (`ESTADO_X`, `TIPO_X`, etc.).
 2. Exportar tipo derivado (`type EstadoX = ...`).

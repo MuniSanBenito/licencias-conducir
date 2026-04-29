@@ -1,49 +1,71 @@
 'use client'
 
-import type {
-  DiaInhabil,
-  HorarioPsicofisico,
-  HorarioPsicofisicoExcepcion,
-} from '@/payload-types'
+import { HORARIOS_PSICOFISICO } from '@/constants/turnos'
+import type { DiaInhabil, HorarioPsicofisicoExcepcion } from '@/payload-types'
 import { sdk } from '@/web/libs/payload/client'
-import { IconClock, IconPlus, IconTrash } from '@tabler/icons-react'
-import { useState } from 'react'
+import { IconChevronLeft, IconChevronRight, IconPlus, IconTrash } from '@tabler/icons-react'
+import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
+import { twJoin } from 'tailwind-merge'
 
 interface Props {
   diasInhabiles: DiaInhabil[]
-  horariosPsicofisico: HorarioPsicofisico[]
   excepcionesPsicofisico: HorarioPsicofisicoExcepcion[]
 }
 
 type DiaInhabilForm = { fecha: string; motivo: string }
-type DiaSemana = '1' | '2' | '3' | '4' | '5'
-type HorarioForm = { diaSemana: DiaSemana; inicio: string; fin: string; activo: boolean }
 type ExcepcionForm = { fecha: string; inicio: string; fin: string; activo: boolean; motivo: string }
 
-const DIA_LABELS: Record<DiaSemana, string> = {
-  '1': 'Lunes',
-  '2': 'Martes',
-  '3': 'Miércoles',
-  '4': 'Jueves',
-  '5': 'Viernes',
+const DAY_LABELS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'] as const
+const MONTH_LABELS = [
+  'Enero',
+  'Febrero',
+  'Marzo',
+  'Abril',
+  'Mayo',
+  'Junio',
+  'Julio',
+  'Agosto',
+  'Septiembre',
+  'Octubre',
+  'Noviembre',
+  'Diciembre',
+] as const
+
+function formatDateISO(date: Date): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 
 function formatFecha(value: string): string {
   return value.split('T')[0]
 }
 
-export function AgendaPage({ diasInhabiles, horariosPsicofisico, excepcionesPsicofisico }: Props) {
+function mondayFirstDay(day: number): number {
+  return day === 0 ? 6 : day - 1
+}
+
+function defaultHorarioByDate(dateISO: string): { inicio: string; fin: string; activo: boolean } {
+  const day = new Date(`${dateISO}T12:00:00`).getDay()
+  const horario = HORARIOS_PSICOFISICO[day]
+  if (!horario) return { inicio: '07:00', fin: '11:00', activo: false }
+  return { inicio: horario.inicio, fin: horario.fin, activo: true }
+}
+
+export function AgendaPage({ diasInhabiles, excepcionesPsicofisico }: Props) {
   const [dias, setDias] = useState(diasInhabiles)
-  const [horarios, setHorarios] = useState(horariosPsicofisico)
   const [excepciones, setExcepciones] = useState(excepcionesPsicofisico)
   const [isSaving, setIsSaving] = useState(false)
+  const [calendarMonth, setCalendarMonth] = useState(() => {
+    const now = new Date()
+    return new Date(now.getFullYear(), now.getMonth(), 1)
+  })
+  const [selectedDateISO, setSelectedDateISO] = useState<string>(() => formatDateISO(new Date()))
 
   const diaForm = useForm<DiaInhabilForm>({ defaultValues: { fecha: '', motivo: '' } })
-  const horarioForm = useForm<HorarioForm>({
-    defaultValues: { diaSemana: '1', inicio: '08:00', fin: '11:00', activo: true },
-  })
   const excepcionForm = useForm<ExcepcionForm>({
     defaultValues: { fecha: '', inicio: '07:00', fin: '11:00', activo: true, motivo: '' },
   })
@@ -73,31 +95,6 @@ export function AgendaPage({ diasInhabiles, horariosPsicofisico, excepcionesPsic
       toast.success('Día inhábil eliminado')
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'No se pudo eliminar el día inhábil')
-    } finally {
-      setIsSaving(false)
-    }
-  }
-
-  async function guardarHorario(values: HorarioForm) {
-    setIsSaving(true)
-    try {
-      const existente = horarios.find((horario) => horario.diaSemana === values.diaSemana)
-      if (existente) {
-        const updated = await sdk.update({
-          collection: 'horario-psicofisico',
-          id: existente.id,
-          data: values,
-        })
-        setHorarios((prev) =>
-          prev.map((item) => (item.id === existente.id ? (updated as HorarioPsicofisico) : item)),
-        )
-      } else {
-        const created = await sdk.create({ collection: 'horario-psicofisico', data: values })
-        setHorarios((prev) => [...prev, created as HorarioPsicofisico])
-      }
-      toast.success('Horario guardado')
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'No se pudo guardar el horario')
     } finally {
       setIsSaving(false)
     }
@@ -145,8 +142,61 @@ export function AgendaPage({ diasInhabiles, horariosPsicofisico, excepcionesPsic
     }
   }
 
+  const monthDays = useMemo(() => {
+    const firstDay = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), 1)
+    const offset = mondayFirstDay(firstDay.getDay())
+    const start = new Date(firstDay)
+    start.setDate(firstDay.getDate() - offset)
+
+    const days: Date[] = []
+    for (let i = 0; i < 42; i++) {
+      const date = new Date(start)
+      date.setDate(start.getDate() + i)
+      days.push(date)
+    }
+    return days
+  }, [calendarMonth])
+
+  const excepcionesMap = useMemo(() => {
+    const map = new Map<string, HorarioPsicofisicoExcepcion>()
+    for (const item of excepciones) {
+      map.set(formatFecha(item.fecha), item)
+    }
+    return map
+  }, [excepciones])
+
+  const selectedExcepcion = excepcionesMap.get(selectedDateISO)
+
+  function selectDate(dateISO: string) {
+    setSelectedDateISO(dateISO)
+    const current = excepcionesMap.get(dateISO)
+    if (current) {
+      excepcionForm.reset({
+        fecha: dateISO,
+        inicio: current.inicio,
+        fin: current.fin,
+        activo: current.activo ?? true,
+        motivo: current.motivo ?? '',
+      })
+      return
+    }
+    const defaults = defaultHorarioByDate(dateISO)
+    excepcionForm.reset({
+      fecha: dateISO,
+      inicio: defaults.inicio,
+      fin: defaults.fin,
+      activo: defaults.activo,
+      motivo: '',
+    })
+  }
+
+  useEffect(() => {
+    selectDate(selectedDateISO)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDateISO, excepciones.length])
+
   return (
-    <section className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+    <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_1.4fr]">
       <article className="card card-border bg-base-100">
         <section className="card-body">
           <h2 className="card-title">Días inhábiles</h2>
@@ -191,64 +241,74 @@ export function AgendaPage({ diasInhabiles, horariosPsicofisico, excepcionesPsic
 
       <article className="card card-border bg-base-100">
         <section className="card-body">
-          <h2 className="card-title">
-            <IconClock size={18} />
-            Horarios psicofísico
-          </h2>
-
-          <form className="grid gap-3" onSubmit={horarioForm.handleSubmit(guardarHorario)}>
-            <select className="select select-bordered" {...horarioForm.register('diaSemana', { required: true })}>
-              {(Object.entries(DIA_LABELS) as [DiaSemana, string][]).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
-            </select>
-            <section className="grid grid-cols-2 gap-2">
-              <input
-                type="time"
-                className="input input-bordered"
-                {...horarioForm.register('inicio', { required: true })}
-              />
-              <input
-                type="time"
-                className="input input-bordered"
-                {...horarioForm.register('fin', { required: true })}
-              />
+          <header className="mb-2 flex items-center justify-between">
+            <h2 className="card-title">Excepciones psicofísico</h2>
+            <section className="join">
+              <button
+                className="btn btn-ghost btn-sm join-item"
+                onClick={() =>
+                  setCalendarMonth(
+                    new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1),
+                  )
+                }
+              >
+                <IconChevronLeft size={16} />
+              </button>
+              <button
+                className="btn btn-ghost btn-sm join-item"
+                onClick={() =>
+                  setCalendarMonth(
+                    new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1),
+                  )
+                }
+              >
+                <IconChevronRight size={16} />
+              </button>
             </section>
-            <label className="label cursor-pointer justify-start gap-2">
-              <input type="checkbox" className="checkbox checkbox-sm" {...horarioForm.register('activo')} />
-              <span className="label-text">Horario activo</span>
-            </label>
-            <button className="btn btn-info" disabled={isSaving}>
-              Guardar horario
-            </button>
-          </form>
+          </header>
 
-          <ul className="mt-2 grid gap-2" role="list">
-            {horarios.map((horario) => (
-              <li key={horario.id} className="bg-base-200 rounded-lg px-3 py-2 text-sm">
-                <strong>{DIA_LABELS[horario.diaSemana as DiaSemana]}</strong>: {horario.inicio} - {horario.fin}{' '}
-                {!horario.activo && <span className="opacity-50">(inactivo)</span>}
-              </li>
-            ))}
-          </ul>
-        </section>
-      </article>
-
-      <article className="card card-border bg-base-100">
-        <section className="card-body">
-          <h2 className="card-title">Excepciones por fecha (psicofísico)</h2>
-          <p className="text-xs opacity-70">
-            Los horarios por defecto quedan en código; acá solo cargás excepciones para fechas puntuales.
+          <p className="text-sm font-semibold">
+            {MONTH_LABELS[calendarMonth.getMonth()]} {calendarMonth.getFullYear()}
           </p>
 
-          <form className="mt-2 grid gap-3" onSubmit={excepcionForm.handleSubmit(guardarExcepcion)}>
-            <input
-              type="date"
-              className="input input-bordered"
-              {...excepcionForm.register('fecha', { required: true })}
-            />
+          <section className="mt-2 grid grid-cols-7 gap-1 text-center text-xs opacity-60">
+            {DAY_LABELS.map((label) => (
+              <p key={label}>{label}</p>
+            ))}
+          </section>
+
+          <section className="mt-1 grid grid-cols-7 gap-1">
+            {monthDays.map((date) => {
+              const dateISO = formatDateISO(date)
+              const isCurrentMonth = date.getMonth() === calendarMonth.getMonth()
+              const isSelected = selectedDateISO === dateISO
+              const excepcion = excepcionesMap.get(dateISO)
+              const buttonClass = excepcion
+                ? excepcion.activo
+                  ? 'btn-success'
+                  : 'btn-error'
+                : 'btn-ghost'
+
+              return (
+                <button
+                  key={dateISO}
+                  className={twJoin(
+                    'btn btn-sm',
+                    buttonClass,
+                    !isCurrentMonth && 'btn-disabled',
+                    isSelected && 'ring ring-primary ring-offset-1',
+                  )}
+                  onClick={() => selectDate(dateISO)}
+                  disabled={!isCurrentMonth}
+                >
+                  {date.getDate()}
+                </button>
+              )
+            })}
+          </section>
+
+          <form className="mt-4 grid gap-3" onSubmit={excepcionForm.handleSubmit(guardarExcepcion)}>
+            <input type="hidden" {...excepcionForm.register('fecha', { required: true })} />
             <section className="grid grid-cols-2 gap-2">
               <input
                 type="time"
@@ -268,38 +328,25 @@ export function AgendaPage({ diasInhabiles, horariosPsicofisico, excepcionesPsic
               {...excepcionForm.register('motivo')}
             />
             <label className="label cursor-pointer justify-start gap-2">
-              <input
-                type="checkbox"
-                className="checkbox checkbox-sm"
-                {...excepcionForm.register('activo')}
-              />
+              <input type="checkbox" className="checkbox checkbox-sm" {...excepcionForm.register('activo')} />
               <span className="label-text">Agenda habilitada para este día</span>
             </label>
-            <button className="btn btn-primary" disabled={isSaving}>
-              Guardar excepción
-            </button>
-          </form>
-
-          <ul className="mt-2 grid gap-2" role="list">
-            {excepciones.map((item) => (
-              <li key={item.id} className="bg-base-200 flex items-center justify-between rounded-lg px-3 py-2">
-                <section>
-                  <p className="font-medium">{new Date(item.fecha).toLocaleDateString('es-AR')}</p>
-                  <p className="text-xs opacity-70">
-                    {item.activo ? `${item.inicio} - ${item.fin}` : 'Sin atención'}
-                    {item.motivo ? ` · ${item.motivo}` : ''}
-                  </p>
-                </section>
+            <section className="flex gap-2">
+              <button className="btn btn-primary flex-1" disabled={isSaving}>
+                Guardar excepción
+              </button>
+              {selectedExcepcion && (
                 <button
-                  className="btn btn-ghost btn-error btn-xs"
-                  onClick={() => eliminarExcepcion(item.id)}
+                  type="button"
+                  className="btn btn-error btn-outline"
+                  onClick={() => eliminarExcepcion(selectedExcepcion.id)}
                   disabled={isSaving}
                 >
                   <IconTrash size={14} />
                 </button>
-              </li>
-            ))}
-          </ul>
+              )}
+            </section>
+          </form>
         </section>
       </article>
     </section>
