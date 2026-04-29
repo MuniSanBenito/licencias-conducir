@@ -1,5 +1,13 @@
 'use client'
-import { IconCalendarCog, IconLayoutDashboard, IconLogout, IconSchool, IconStethoscope, IconUsers } from '@tabler/icons-react'
+import {
+  IconCalendarOff,
+  IconCalendarTime,
+  IconLayoutDashboard,
+  IconLogout,
+  IconSchool,
+  IconStethoscope,
+  IconUsers,
+} from '@tabler/icons-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -10,7 +18,8 @@ const NAV_ITEMS = [
   { href: '/ciudadanos', label: 'Ciudadanos', icon: IconUsers },
   { href: '/turnos-curso', label: 'Turnos Curso', icon: IconSchool },
   { href: '/turnos-psicofisico', label: 'Turnos Psicofísico', icon: IconStethoscope },
-  { href: '/agenda', label: 'Agenda', icon: IconCalendarCog },
+  { href: '/dias-inhabiles', label: 'Días inhábiles', icon: IconCalendarOff },
+  { href: '/excepciones-psicofisico', label: 'Excepciones psicofísico', icon: IconCalendarTime },
 ]
 
 export function Navbar() {

@@ -33,7 +33,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { twJoin } from 'tailwind-merge'
@@ -141,6 +141,8 @@ export function TurnosListPage({
   const [searchCiudadano, setSearchCiudadano] = useState('')
   const [searchResults, setSearchResults] = useState<Ciudadano[]>([])
   const [isSearching, setIsSearching] = useState(false)
+  const [searchOverlayOpen, setSearchOverlayOpen] = useState(false)
+  const searchFieldRef = useRef<HTMLLabelElement>(null)
 
   const form = useForm<TurnoFormValues>({
     defaultValues: { ciudadanoId: '', fecha: '', hora: '', observaciones: '' },
@@ -184,40 +186,53 @@ export function TurnosListPage({
     return contarTurnosCursoPorFecha(fechaSeleccionada, turnosExistentes)
   }, [esCurso, fechaSeleccionada, turnosExistentes])
 
-  useEffect(() => {
-    async function loadCiudadanos() {
-      const query = searchCiudadano.trim()
-      if (query.length < 2) {
-        setSearchResults([])
-        return
-      }
+  const buscarCiudadanos = async () => {
+    const query = searchCiudadano.trim()
+    if (query.length < 2) {
+      toast.error('Ingresá al menos 2 caracteres para buscar')
+      setSearchResults([])
+      setSearchOverlayOpen(false)
+      return
+    }
 
-      setIsSearching(true)
-      try {
-        const result = await sdk.find({
-          collection: 'ciudadano',
-          limit: 15,
-          sort: 'apellido',
-          where: {
-            or: [
-              { dni: { contains: query } },
-              { apellido: { contains: query } },
-              { nombre: { contains: query } },
-              { email: { contains: query } },
-            ],
-          },
-        })
-        setSearchResults(result.docs)
-      } catch {
-        setSearchResults([])
-      } finally {
-        setIsSearching(false)
+    setIsSearching(true)
+    setSearchOverlayOpen(true)
+    try {
+      const result = await sdk.find({
+        collection: 'ciudadano',
+        limit: 15,
+        sort: 'apellido',
+        where: {
+          or: [
+            { dni: { contains: query } },
+            { apellido: { contains: query } },
+            { nombre: { contains: query } },
+            { email: { contains: query } },
+          ],
+        },
+      })
+      setSearchResults(result.docs)
+    } catch {
+      setSearchResults([])
+      toast.error('No se pudo buscar ciudadanos')
+    } finally {
+      setIsSearching(false)
+    }
+  }
+
+  useEffect(() => {
+    if (!searchOverlayOpen) return
+
+    const onPointerDown = (event: PointerEvent) => {
+      const root = searchFieldRef.current
+      if (root && event.target instanceof Node && !root.contains(event.target)) {
+        setSearchOverlayOpen(false)
       }
     }
 
-    const timeout = setTimeout(loadCiudadanos, 300)
-    return () => clearTimeout(timeout)
-  }, [searchCiudadano])
+    document.addEventListener('pointerdown', onPointerDown)
+    return () => document.removeEventListener('pointerdown', onPointerDown)
+  }, [searchOverlayOpen])
 
   async function onDelete(turno: TurnoPopulated) {
     const collection: TurnoCollection = esCurso ? 'turno-curso' : 'turno-psicofisico'
@@ -297,6 +312,7 @@ export function TurnosListPage({
       form.reset({ ciudadanoId: '', fecha: '', hora: '', observaciones: '' })
       setSearchCiudadano('')
       setSearchResults([])
+      setSearchOverlayOpen(false)
       setEditingTurno(null)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'No se pudo guardar el turno')
@@ -308,7 +324,8 @@ export function TurnosListPage({
   function onEdit(turno: TurnoPopulated) {
     setEditingTurno(turno)
     setSearchCiudadano(`${turno.ciudadano.apellido}, ${turno.ciudadano.nombre} (${turno.ciudadano.dni})`)
-    setSearchResults([turno.ciudadano])
+    setSearchResults([])
+    setSearchOverlayOpen(false)
     form.reset({
       ciudadanoId: turno.ciudadano.id,
       fecha: normalizeDate(turno.fecha),
@@ -389,41 +406,87 @@ export function TurnosListPage({
           </h3>
 
           <form className="grid gap-3" onSubmit={form.handleSubmit(onSubmit)}>
-            <label className="fieldset">
+            <label className="fieldset relative" ref={searchFieldRef}>
               <span className="fieldset-legend">Ciudadano</span>
-              <input
-                type="text"
-                className="input input-bordered"
-                placeholder="Buscar por DNI, apellido, nombre o email"
-                value={searchCiudadano}
-                onChange={(e) => setSearchCiudadano(e.target.value)}
-              />
+              <section className="flex gap-2">
+                <input
+                  type="text"
+                  className="input input-bordered flex-1"
+                  placeholder="DNI, apellido, nombre o email"
+                  value={searchCiudadano}
+                  onChange={(e) => setSearchCiudadano(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') setSearchOverlayOpen(false)
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      void buscarCiudadanos()
+                    }
+                  }}
+                  autoComplete="off"
+                  aria-autocomplete="list"
+                  aria-expanded={searchOverlayOpen}
+                  aria-controls="resultados-ciudadano-turno"
+                />
+                <button
+                  type="button"
+                  className="btn btn-outline"
+                  onClick={() => void buscarCiudadanos()}
+                  disabled={isSearching}
+                >
+                  <IconSearch size={16} />
+                  Buscar
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  onClick={() => {
+                    form.setValue('ciudadanoId', '', { shouldValidate: true })
+                    setSearchCiudadano('')
+                    setSearchResults([])
+                    setSearchOverlayOpen(false)
+                  }}
+                >
+                  <IconX size={16} />
+                  Limpiar
+                </button>
+              </section>
               <input type="hidden" {...form.register('ciudadanoId', { required: true })} />
-              {isSearching ? (
-                <p className="mt-1 text-xs opacity-60">Buscando ciudadanos...</p>
-              ) : (
-                <ul className="mt-1 grid gap-1" role="list">
-                  {searchResults.map((ciudadano) => (
-                    <li key={ciudadano.id}>
-                      <button
-                        type="button"
-                        className={twJoin(
-                          'btn btn-sm w-full justify-start',
-                          form.getValues('ciudadanoId') === ciudadano.id ? 'btn-primary' : 'btn-ghost',
-                        )}
-                        onClick={() => {
-                          form.setValue('ciudadanoId', ciudadano.id, { shouldValidate: true })
-                          setSearchCiudadano(
-                            `${ciudadano.apellido}, ${ciudadano.nombre} (${ciudadano.dni})`,
-                          )
-                        }}
-                      >
-                        <IconSearch size={14} />
-                        {ciudadano.apellido}, {ciudadano.nombre} · {ciudadano.dni}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+              {searchOverlayOpen && (
+                <section
+                  id="resultados-ciudadano-turno"
+                  className="bg-base-100 border-base-300 absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-y-auto rounded-box border shadow-lg"
+                  role="listbox"
+                  aria-label="Resultados de búsqueda de ciudadanos"
+                >
+                  {isSearching ? (
+                    <p className="p-3 text-sm opacity-70">Buscando ciudadanos...</p>
+                  ) : searchResults.length === 0 ? (
+                    <p className="p-3 text-sm opacity-70">No se encontraron ciudadanos</p>
+                  ) : (
+                    <ul className="menu menu-sm w-full p-1" role="list">
+                      {searchResults.map((ciudadano) => (
+                        <li key={ciudadano.id} role="none">
+                          <button
+                            type="button"
+                            role="option"
+                            className={twJoin(
+                              form.getValues('ciudadanoId') === ciudadano.id && 'active',
+                            )}
+                            onClick={() => {
+                              form.setValue('ciudadanoId', ciudadano.id, { shouldValidate: true })
+                              setSearchCiudadano(
+                                `${ciudadano.apellido}, ${ciudadano.nombre} (${ciudadano.dni})`,
+                              )
+                              setSearchOverlayOpen(false)
+                            }}
+                          >
+                            {ciudadano.apellido}, {ciudadano.nombre} · {ciudadano.dni}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
               )}
             </label>
 
@@ -484,6 +547,9 @@ export function TurnosListPage({
                   onClick={() => {
                     setEditingTurno(null)
                     form.reset({ ciudadanoId: '', fecha: '', hora: '', observaciones: '' })
+                    setSearchCiudadano('')
+                    setSearchResults([])
+                    setSearchOverlayOpen(false)
                   }}
                 >
                   <IconX size={16} />
