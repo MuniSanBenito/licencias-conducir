@@ -2,6 +2,13 @@
 
 Este documento define las reglas base que todo agente de IA debe seguir al interactuar con este proyecto.
 
+## Contexto del Producto
+
+- **Alcance vigente**: El proyecto se encuentra en etapa de **MVP de turnero de licencias**.
+- **Prioridad funcional**: Cualquier implementación nueva debe priorizar flujos de turnos, agenda y atención operativa.
+- **Fuera de alcance inmediato**: Módulos de sistema integral de licencias (expedientes completos, gestión documental avanzada y flujos administrativos extendidos), salvo requerimiento explícito.
+- **Coherencia documental**: Toda actualización técnica o funcional debe mantenerse alineada con el alcance declarado en `README.md`.
+
 ## Arquitectura y Principios
 
 - **SOLID**: Respeta estrictamente los principios SOLID en cada desarrollo.

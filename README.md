@@ -1,19 +1,22 @@
-# Sistema de Gestión de Licencias de Conducir
+# Turnero de Licencias de Conducir
 ## Municipalidad de San Benito
 
-Este repositorio contiene el sistema integral para la administración y seguimiento de trámites de licencias de conducir de la Municipalidad de San Benito. El objetivo principal de la plataforma es centralizar la información del padrón de ciudadanos y optimizar los flujos de trabajo administrativos.
+Este repositorio contiene el turnero para la gestión de atención del área de licencias de conducir de la Municipalidad de San Benito. El objetivo principal de esta primera etapa es ordenar la demanda, asignar turnos y mejorar la trazabilidad operativa de la atención.
 
 ---
 
-### Descripción del Proyecto
+### Estado y Alcance del Proyecto
 
-La aplicación permite la gestión del ciclo de vida completo de un trámite de licencia, desde la solicitud inicial hasta su finalización. Está construida sobre una arquitectura robusta que garantiza la integridad de los datos y la escalabilidad del sistema.
+El proyecto originalmente fue concebido como un sistema integral de gestión de licencias.  
+Por requerimientos del área de Licencias, el alcance actual se enfoca exclusivamente en un **MVP de turnero**.
 
-#### Funcionalidades Principales
-*   **Administración de Ciudadanos**: Registro y consulta centralizada de datos personales e historial.
-*   **Gestión de Trámites**: Control de estados, requisitos y fechas del proceso de licencias.
-*   **Gestión Documental**: Almacenamiento y validación de la documentación requerida por normativa.
-*   **Seguridad y Auditoría**: Control de acceso basado en roles para el personal municipal.
+La aplicación está orientada a gestionar el circuito de turnos y su operación diaria, con una arquitectura preparada para crecer en fases posteriores.
+
+#### Funcionalidades Principales (MVP Turnero)
+*   **Asignación de turnos**: Registro y gestión de turnos para la atención de licencias.
+*   **Agenda operativa**: Visualización y seguimiento de disponibilidad por día y franja horaria.
+*   **Gestión de atención**: Estado de turnos (pendiente, atendido, reprogramado, cancelado).
+*   **Soporte administrativo**: Herramientas para el personal municipal y control de acceso por roles.
 
 ### Especificaciones Técnicas
 
@@ -26,9 +29,9 @@ El proyecto está desarrollado utilizando una pila tecnológica moderna y establ
 *   **Base de Datos**: MongoDB
 *   **Entorno de Ejecución**: Bun
 
-### Arquitectura
+### Arquitectura y Organización
 
-El sistema sigue los principios de **Screaming Architecture** y **SOLID**, asegurando que la estructura del código refleje el dominio del negocio (Gestión Municipal).
+El sistema sigue los principios de **Screaming Architecture** y **SOLID**, asegurando que la estructura del código refleje el dominio del negocio actual: **Turnero de Licencias**.
 
 ```text
 src/
@@ -59,11 +62,16 @@ src/
 
 ### Estándares de Desarrollo
 
-Todas las contribuciones deben seguir las normativas técnicas definidas en el archivo [AGENTS.md](AGENTS.md):
+Todas las contribuciones deben seguir las normativas técnicas definidas en [AGENTS.md](AGENTS.md):
 *   Uso estricto de **Atomic Design** en `src/web/ui/`.
 *   Implementación de tablas mediante `@tanstack/react-table`.
 *   Uso de iconos de `@tabler/icons-react`.
 *   Validación de formularios con `react-hook-form`.
+
+### Roadmap de Producto
+
+El objetivo actual es estabilizar y poner en producción el módulo de turnero.  
+Los módulos de gestión integral de licencias (expedientes, documentación completa y circuito administrativo extendido) se consideran evolución futura y quedan fuera del alcance inmediato.
 
 ---
 © 2026 Municipalidad de San Benito.
