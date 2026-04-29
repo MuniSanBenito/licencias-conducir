@@ -31,6 +31,7 @@ Este documento define las reglas base que todo agente de IA debe seguir al inter
 ## Convenciones de Código y Nomenclatura
 
 - **Documentación**: El código debe intentar ser lo más autoexplicativo posible. Si de todas formas es necesario explicar algo complejo de documentar, **debe hacerse obligatoriamente a través de comentarios en el mismo código**.
+- **Documentación en Archivos**: Está prohibido crear nuevos archivos de documentación. Si se requiere documentación adicional, debe incorporarse en `README.md` o `AGENTS.md`.
 - **Archivos y Carpetas**: Todo archivo y directorio debe estar escrito en `kebab-case`.
 - **Constantes**: Todas las constantes deben definirse utilizando `SNAKE_CASE` (todo en mayúsculas).
 - **Uso de Funciones**:
