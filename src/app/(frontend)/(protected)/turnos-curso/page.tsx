@@ -1,5 +1,5 @@
-import { TIPO_TURNO } from '@/constants/tramites'
-import type { Ciudadano, Tramite, TurnoCurso } from '@/payload-types'
+import { TIPO_TURNO } from '@/constants/turnos'
+import type { Ciudadano, TurnoCurso } from '@/payload-types'
 import { basePayload } from '@/web/libs/payload/server'
 import { TurnosListPage } from '@/web/ui/templates/turnos-list-page'
 import { IconSchool } from '@tabler/icons-react'
@@ -9,28 +9,35 @@ export const metadata: Metadata = {
   title: 'Turnos de Curso Presencial',
 }
 
-type TurnoCursoPopulated = TurnoCurso & { tramite: Tramite & { ciudadano: Ciudadano } }
+type TurnoCursoPopulated = TurnoCurso & { ciudadano: Ciudadano }
 
 export default async function Page() {
-  const result = await basePayload.find({
-    collection: 'turno-curso',
-    where: {
-      estado: { not_in: ['cancelado'] },
-    },
-    sort: 'fecha',
-    limit: 100,
-    depth: 2,
-  })
+  const [result, ciudadanos, diasInhabiles, horariosPsicofisico] = await Promise.all([
+    basePayload.find({
+      collection: 'turno-curso',
+      where: {
+        estado: { not_in: ['cancelado'] },
+      },
+      sort: 'fecha',
+      limit: 100,
+      depth: 1,
+    }),
+    basePayload.find({ collection: 'ciudadano', sort: 'apellido', limit: 500 }),
+    basePayload.find({ collection: 'dia-inhabil', where: { activo: { equals: true } }, limit: 365 }),
+    basePayload.find({ collection: 'horario-psicofisico', sort: 'diaSemana', limit: 10 }),
+  ])
 
   const turnos = result.docs.filter(
-    (t): t is TurnoCursoPopulated =>
-      typeof t.tramite !== 'string' && typeof (t.tramite as Tramite).ciudadano !== 'string',
+    (t): t is TurnoCursoPopulated => typeof t.ciudadano !== 'string',
   )
 
   return (
     <TurnosListPage
       tipoTurno={TIPO_TURNO.CURSO}
       turnos={turnos}
+      ciudadanos={ciudadanos.docs}
+      diasInhabiles={diasInhabiles.docs}
+      horariosPsicofisico={horariosPsicofisico.docs}
       icon={<IconSchool size={22} className="text-warning" />}
     />
   )

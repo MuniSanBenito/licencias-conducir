@@ -10,7 +10,7 @@ export const Ciudadano: CollectionConfig = {
   admin: {
     useAsTitle: 'dni',
     group: 'Trámites',
-    description: 'Registro de ciudadanos que realizan trámites de licencias de conducir',
+    description: 'Registro de ciudadanos para asignación de turnos de licencias de conducir',
     defaultColumns: ['dni', 'nombreCompleto', 'celular', 'domicilio'],
     listSearchableFields: ['dni', 'nombre', 'apellido'],
   },

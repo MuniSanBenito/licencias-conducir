@@ -1,5 +1,5 @@
-import { TIPO_TURNO } from '@/constants/tramites'
-import type { Ciudadano, Tramite, TurnoPsicofisico } from '@/payload-types'
+import { TIPO_TURNO } from '@/constants/turnos'
+import type { Ciudadano, TurnoPsicofisico } from '@/payload-types'
 import { basePayload } from '@/web/libs/payload/server'
 import { TurnosListPage } from '@/web/ui/templates/turnos-list-page'
 import { IconStethoscope } from '@tabler/icons-react'
@@ -9,28 +9,35 @@ export const metadata: Metadata = {
   title: 'Turnos de Examen Psicofísico',
 }
 
-type TurnoPsicoPopulated = TurnoPsicofisico & { tramite: Tramite & { ciudadano: Ciudadano } }
+type TurnoPsicoPopulated = TurnoPsicofisico & { ciudadano: Ciudadano }
 
 export default async function Page() {
-  const result = await basePayload.find({
-    collection: 'turno-psicofisico',
-    where: {
-      estado: { not_in: ['cancelado'] },
-    },
-    sort: 'fecha',
-    limit: 100,
-    depth: 2,
-  })
+  const [result, ciudadanos, diasInhabiles, horariosPsicofisico] = await Promise.all([
+    basePayload.find({
+      collection: 'turno-psicofisico',
+      where: {
+        estado: { not_in: ['cancelado'] },
+      },
+      sort: 'fecha',
+      limit: 150,
+      depth: 1,
+    }),
+    basePayload.find({ collection: 'ciudadano', sort: 'apellido', limit: 500 }),
+    basePayload.find({ collection: 'dia-inhabil', where: { activo: { equals: true } }, limit: 365 }),
+    basePayload.find({ collection: 'horario-psicofisico', sort: 'diaSemana', limit: 10 }),
+  ])
 
   const turnos = result.docs.filter(
-    (t): t is TurnoPsicoPopulated =>
-      typeof t.tramite !== 'string' && typeof (t.tramite as Tramite).ciudadano !== 'string',
+    (t): t is TurnoPsicoPopulated => typeof t.ciudadano !== 'string',
   )
 
   return (
     <TurnosListPage
       tipoTurno={TIPO_TURNO.PSICOFISICO}
       turnos={turnos}
+      ciudadanos={ciudadanos.docs}
+      diasInhabiles={diasInhabiles.docs}
+      horariosPsicofisico={horariosPsicofisico.docs}
       icon={<IconStethoscope size={22} className="text-info" />}
     />
   )

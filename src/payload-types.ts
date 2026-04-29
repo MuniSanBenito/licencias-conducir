@@ -72,7 +72,8 @@ export interface Config {
     archivo: Archivo;
     usuario: Usuario;
     ciudadano: Ciudadano;
-    tramite: Tramite;
+    'dia-inhabil': DiaInhabil;
+    'horario-psicofisico': HorarioPsicofisico;
     'turno-curso': TurnoCurso;
     'turno-psicofisico': TurnoPsicofisico;
     'payload-kv': PayloadKv;
@@ -80,18 +81,14 @@ export interface Config {
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {
-    tramite: {
-      turnosCurso: 'turno-curso';
-      turnosPsicofisico: 'turno-psicofisico';
-    };
-  };
+  collectionsJoins: {};
   collectionsSelect: {
     dev: DevSelect<false> | DevSelect<true>;
     archivo: ArchivoSelect<false> | ArchivoSelect<true>;
     usuario: UsuarioSelect<false> | UsuarioSelect<true>;
     ciudadano: CiudadanoSelect<false> | CiudadanoSelect<true>;
-    tramite: TramiteSelect<false> | TramiteSelect<true>;
+    'dia-inhabil': DiaInhabilSelect<false> | DiaInhabilSelect<true>;
+    'horario-psicofisico': HorarioPsicofisicoSelect<false> | HorarioPsicofisicoSelect<true>;
     'turno-curso': TurnoCursoSelect<false> | TurnoCursoSelect<true>;
     'turno-psicofisico': TurnoPsicofisicoSelect<false> | TurnoPsicofisicoSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -230,7 +227,7 @@ export interface Usuario {
   collection: 'usuario';
 }
 /**
- * Registro de ciudadanos que realizan trámites de licencias de conducir
+ * Registro de ciudadanos para asignación de turnos de licencias de conducir
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ciudadano".
@@ -249,29 +246,32 @@ export interface Ciudadano {
   createdAt: string;
 }
 /**
- * Gestión de trámites de licencias de conducir
+ * Fechas inhabilitadas para asignación de turnos
  *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tramite".
+ * via the `definition` "dia-inhabil".
  */
-export interface Tramite {
+export interface DiaInhabil {
   id: string;
-  ciudadano: string | Ciudadano;
-  tipo: 'original' | 'renovacion' | 'ampliacion';
-  fut?: string | null;
-  estado: 'en_curso' | 'completado' | 'cancelado';
-  fechaInicio: string;
-  fechaFin?: string | null;
-  turnosCurso?: {
-    docs?: (string | TurnoCurso)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  turnosPsicofisico?: {
-    docs?: (string | TurnoPsicofisico)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
+  fecha: string;
+  motivo: string;
+  activo: boolean;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Horario de atención por día para examen psicofísico
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "horario-psicofisico".
+ */
+export interface HorarioPsicofisico {
+  id: string;
+  diaSemana: '1' | '2' | '3' | '4' | '5';
+  diaSemanaLabel?: string | null;
+  inicio: string;
+  fin: string;
+  activo: boolean;
   updatedAt: string;
   createdAt: string;
 }
@@ -283,7 +283,7 @@ export interface Tramite {
  */
 export interface TurnoCurso {
   id: string;
-  tramite: string | Tramite;
+  ciudadano: string | Ciudadano;
   fecha: string;
   /**
    * Horario fijo: 08:30 a 12:30
@@ -302,7 +302,7 @@ export interface TurnoCurso {
  */
 export interface TurnoPsicofisico {
   id: string;
-  tramite: string | Tramite;
+  ciudadano: string | Ciudadano;
   fecha: string;
   hora: string;
   estado: 'programado' | 'confirmado' | 'ausente' | 'completado' | 'cancelado';
@@ -351,8 +351,12 @@ export interface PayloadLockedDocument {
         value: string | Ciudadano;
       } | null)
     | ({
-        relationTo: 'tramite';
-        value: string | Tramite;
+        relationTo: 'dia-inhabil';
+        value: string | DiaInhabil;
+      } | null)
+    | ({
+        relationTo: 'horario-psicofisico';
+        value: string | HorarioPsicofisico;
       } | null)
     | ({
         relationTo: 'turno-curso';
@@ -497,17 +501,25 @@ export interface CiudadanoSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tramite_select".
+ * via the `definition` "dia-inhabil_select".
  */
-export interface TramiteSelect<T extends boolean = true> {
-  ciudadano?: T;
-  tipo?: T;
-  fut?: T;
-  estado?: T;
-  fechaInicio?: T;
-  fechaFin?: T;
-  turnosCurso?: T;
-  turnosPsicofisico?: T;
+export interface DiaInhabilSelect<T extends boolean = true> {
+  fecha?: T;
+  motivo?: T;
+  activo?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "horario-psicofisico_select".
+ */
+export interface HorarioPsicofisicoSelect<T extends boolean = true> {
+  diaSemana?: T;
+  diaSemanaLabel?: T;
+  inicio?: T;
+  fin?: T;
+  activo?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -516,7 +528,7 @@ export interface TramiteSelect<T extends boolean = true> {
  * via the `definition` "turno-curso_select".
  */
 export interface TurnoCursoSelect<T extends boolean = true> {
-  tramite?: T;
+  ciudadano?: T;
   fecha?: T;
   hora?: T;
   estado?: T;
@@ -529,7 +541,7 @@ export interface TurnoCursoSelect<T extends boolean = true> {
  * via the `definition` "turno-psicofisico_select".
  */
 export interface TurnoPsicofisicoSelect<T extends boolean = true> {
-  tramite?: T;
+  ciudadano?: T;
   fecha?: T;
   hora?: T;
   estado?: T;

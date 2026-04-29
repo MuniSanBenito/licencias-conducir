@@ -14,7 +14,7 @@ Este directorio centraliza la fuente de verdad para valores estaticos de negocio
 ## Estructura recomendada
 
 - `clases.ts`: clases de licencia y defaults de clase.
-- `tramites.ts`: tipos, estados, labels, opciones y mapeos visuales de tramites/pasos/turnos.
+- `turnos.ts`: tipos, estados, labels, opciones y mapeos visuales de turnos.
 - `fechas.ts`: formatos de fecha compartidos.
 
 ## Checklist rapido para nuevos catálogos

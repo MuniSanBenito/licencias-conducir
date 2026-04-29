@@ -1,7 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { DISPLAY_DATE_FORMAT } from '@/constants/fechas'
-import { ESTADO_TURNO_DEFAULT, OPCIONES_ESTADO_TURNO } from '@/constants/tramites'
+import { ESTADO_TURNO_DEFAULT, OPCIONES_ESTADO_TURNO } from '@/constants/turnos'
 
 export const TurnoPsicofisico: CollectionConfig = {
   slug: 'turno-psicofisico',
@@ -12,18 +12,17 @@ export const TurnoPsicofisico: CollectionConfig = {
   admin: {
     group: 'Trámites',
     description: 'Turnos para el examen psicofísico',
-    defaultColumns: ['tramite', 'fecha', 'hora', 'estado'],
+    defaultColumns: ['ciudadano', 'fecha', 'hora', 'estado'],
   },
   defaultSort: 'fecha',
   timestamps: true,
   fields: [
     {
-      name: 'tramite',
+      name: 'ciudadano',
       type: 'relationship',
-      relationTo: 'tramite',
+      relationTo: 'ciudadano',
       required: true,
-      unique: true,
-      label: 'Trámite',
+      label: 'Ciudadano',
     },
     {
       type: 'row',

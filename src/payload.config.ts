@@ -10,8 +10,9 @@ import { DATABASE_URI, PAYLOAD_SECRET } from './config'
 import { DISPLAY_DATE_FORMAT } from './constants/fechas'
 import { Archivo } from './payload/collections/archivo'
 import { Ciudadano } from './payload/collections/ciudadano'
+import { DiaInhabil } from './payload/collections/dia-inhabil'
 import { Dev } from './payload/collections/dev'
-import { Tramite } from './payload/collections/tramite'
+import { HorarioPsicofisico } from './payload/collections/horario-psicofisico'
 import { TurnoCurso } from './payload/collections/turno-curso'
 import { TurnoPsicofisico } from './payload/collections/turno-psicofisico'
 import { Usuario } from './payload/collections/usuario'
@@ -39,7 +40,16 @@ export default buildConfig({
       },
     },
   },
-  collections: [Dev, Archivo, Usuario, Ciudadano, Tramite, TurnoCurso, TurnoPsicofisico],
+  collections: [
+    Dev,
+    Archivo,
+    Usuario,
+    Ciudadano,
+    DiaInhabil,
+    HorarioPsicofisico,
+    TurnoCurso,
+    TurnoPsicofisico,
+  ],
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,
   typescript: {

@@ -1,4 +1,4 @@
-import { ESTADO_TURNO, ESTADO_TURNO_LABELS, type EstadoTurno } from '@/constants/tramites'
+import { ESTADO_TURNO, ESTADO_TURNO_LABELS, type EstadoTurno } from '@/constants/turnos'
 
 interface TurnoBadgeProps {
   estado: EstadoTurno | null | undefined
