@@ -13,6 +13,7 @@ import { Ciudadano } from './payload/collections/ciudadano'
 import { DiaInhabil } from './payload/collections/dia-inhabil'
 import { Dev } from './payload/collections/dev'
 import { HorarioPsicofisico } from './payload/collections/horario-psicofisico'
+import { HorarioPsicofisicoExcepcion } from './payload/collections/horario-psicofisico-excepcion'
 import { TurnoCurso } from './payload/collections/turno-curso'
 import { TurnoPsicofisico } from './payload/collections/turno-psicofisico'
 import { Usuario } from './payload/collections/usuario'
@@ -47,6 +48,7 @@ export default buildConfig({
     Ciudadano,
     DiaInhabil,
     HorarioPsicofisico,
+    HorarioPsicofisicoExcepcion,
     TurnoCurso,
     TurnoPsicofisico,
   ],

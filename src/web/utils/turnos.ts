@@ -18,6 +18,17 @@ interface HorarioPsicofisicoConfig {
   activo: boolean
 }
 
+interface HorarioPsicofisicoExcepcion {
+  fecha: string
+  inicio: string
+  fin: string
+  activo: boolean
+}
+
+function normalizeFecha(fecha: string): string {
+  return fecha.split('T')[0]
+}
+
 function getHorarioPsicofisicoByDay(
   diaSemana: number,
   horariosConfig: HorarioPsicofisicoConfig[],
@@ -38,14 +49,31 @@ export function getSlotsPsicofisicoConConfiguracion(
   fecha: Date,
   turnosOcupados: TurnoExistente[],
   horariosConfig: HorarioPsicofisicoConfig[] = [],
+  excepciones: HorarioPsicofisicoExcepcion[] = [],
 ): string[] {
+  const fechaISO = formatFechaISO(fecha)
+  const excepcion = excepciones.find((e) => normalizeFecha(e.fecha) === fechaISO)
+  if (excepcion) {
+    if (!excepcion.activo) return []
+    return getSlotsFromHorario(fecha, turnosOcupados, excepcion.inicio, excepcion.fin)
+  }
+
   const diaSemana = fecha.getDay()
   const horario = getHorarioPsicofisicoByDay(diaSemana, horariosConfig)
 
   if (!horario) return []
 
-  const [inicioHora, inicioMin] = horario.inicio.split(':').map(Number)
-  const [finHora, finMin] = horario.fin.split(':').map(Number)
+  return getSlotsFromHorario(fecha, turnosOcupados, horario.inicio, horario.fin)
+}
+
+function getSlotsFromHorario(
+  fecha: Date,
+  turnosOcupados: TurnoExistente[],
+  inicio: string,
+  fin: string,
+): string[] {
+  const [inicioHora, inicioMin] = inicio.split(':').map(Number)
+  const [finHora, finMin] = fin.split(':').map(Number)
 
   const inicioMinutos = inicioHora * 60 + inicioMin
   const finMinutos = finHora * 60 + finMin
@@ -162,6 +190,7 @@ export function validarDisponibilidadPsicofisico(
   turnosExistentes: TurnoExistente[],
   diasInhabiles: string[],
   horariosConfig: HorarioPsicofisicoConfig[] = [],
+  excepciones: HorarioPsicofisicoExcepcion[] = [],
 ): { ok: boolean; motivo?: string } {
   const fecha = new Date(`${fechaISO}T12:00:00`)
   if (!esDiaDePsicofisico(fecha)) {
@@ -171,7 +200,7 @@ export function validarDisponibilidadPsicofisico(
     return { ok: false, motivo: 'La fecha seleccionada está marcada como inhábil' }
   }
 
-  const slots = getSlotsPsicofisicoConConfiguracion(fecha, turnosExistentes, horariosConfig)
+  const slots = getSlotsPsicofisicoConConfiguracion(fecha, turnosExistentes, horariosConfig, excepciones)
   if (!slots.includes(hora)) {
     return { ok: false, motivo: 'El horario seleccionado no está disponible' }
   }

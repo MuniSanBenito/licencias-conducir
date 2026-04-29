@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 type TurnoPsicoPopulated = TurnoPsicofisico & { ciudadano: Ciudadano }
 
 export default async function Page() {
-  const [result, ciudadanos, diasInhabiles, horariosPsicofisico] = await Promise.all([
+  const [result, diasInhabiles, horariosPsicofisico, excepcionesPsicofisico] = await Promise.all([
     basePayload.find({
       collection: 'turno-psicofisico',
       where: {
@@ -22,9 +22,9 @@ export default async function Page() {
       limit: 150,
       depth: 1,
     }),
-    basePayload.find({ collection: 'ciudadano', sort: 'apellido', limit: 500 }),
     basePayload.find({ collection: 'dia-inhabil', where: { activo: { equals: true } }, limit: 365 }),
     basePayload.find({ collection: 'horario-psicofisico', sort: 'diaSemana', limit: 10 }),
+    basePayload.find({ collection: 'horario-psicofisico-excepcion', sort: '-fecha', limit: 365 }),
   ])
 
   const turnos = result.docs.filter(
@@ -35,9 +35,9 @@ export default async function Page() {
     <TurnosListPage
       tipoTurno={TIPO_TURNO.PSICOFISICO}
       turnos={turnos}
-      ciudadanos={ciudadanos.docs}
       diasInhabiles={diasInhabiles.docs}
       horariosPsicofisico={horariosPsicofisico.docs}
+      excepcionesPsicofisico={excepcionesPsicofisico.docs}
       icon={<IconStethoscope size={22} className="text-info" />}
     />
   )

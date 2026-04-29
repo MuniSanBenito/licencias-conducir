@@ -74,6 +74,7 @@ export interface Config {
     ciudadano: Ciudadano;
     'dia-inhabil': DiaInhabil;
     'horario-psicofisico': HorarioPsicofisico;
+    'horario-psicofisico-excepcion': HorarioPsicofisicoExcepcion;
     'turno-curso': TurnoCurso;
     'turno-psicofisico': TurnoPsicofisico;
     'payload-kv': PayloadKv;
@@ -89,6 +90,7 @@ export interface Config {
     ciudadano: CiudadanoSelect<false> | CiudadanoSelect<true>;
     'dia-inhabil': DiaInhabilSelect<false> | DiaInhabilSelect<true>;
     'horario-psicofisico': HorarioPsicofisicoSelect<false> | HorarioPsicofisicoSelect<true>;
+    'horario-psicofisico-excepcion': HorarioPsicofisicoExcepcionSelect<false> | HorarioPsicofisicoExcepcionSelect<true>;
     'turno-curso': TurnoCursoSelect<false> | TurnoCursoSelect<true>;
     'turno-psicofisico': TurnoPsicofisicoSelect<false> | TurnoPsicofisicoSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -276,6 +278,25 @@ export interface HorarioPsicofisico {
   createdAt: string;
 }
 /**
+ * Permite configurar horario especial de psicofísico para fechas puntuales
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "horario-psicofisico-excepcion".
+ */
+export interface HorarioPsicofisicoExcepcion {
+  id: string;
+  fecha: string;
+  inicio: string;
+  fin: string;
+  /**
+   * Si está inactivo, se bloquea la agenda de psicofísico en esta fecha
+   */
+  activo: boolean;
+  motivo?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Turnos para el curso presencial de educación vial
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -357,6 +378,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'horario-psicofisico';
         value: string | HorarioPsicofisico;
+      } | null)
+    | ({
+        relationTo: 'horario-psicofisico-excepcion';
+        value: string | HorarioPsicofisicoExcepcion;
       } | null)
     | ({
         relationTo: 'turno-curso';
@@ -520,6 +545,19 @@ export interface HorarioPsicofisicoSelect<T extends boolean = true> {
   inicio?: T;
   fin?: T;
   activo?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "horario-psicofisico-excepcion_select".
+ */
+export interface HorarioPsicofisicoExcepcionSelect<T extends boolean = true> {
+  fecha?: T;
+  inicio?: T;
+  fin?: T;
+  activo?: T;
+  motivo?: T;
   updatedAt?: T;
   createdAt?: T;
 }

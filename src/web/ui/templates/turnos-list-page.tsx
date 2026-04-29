@@ -5,6 +5,7 @@ import type {
   Ciudadano,
   DiaInhabil,
   HorarioPsicofisico,
+  HorarioPsicofisicoExcepcion,
   TurnoCurso,
   TurnoPsicofisico,
 } from '@/payload-types'
@@ -22,6 +23,7 @@ import {
   IconCalendar,
   IconCalendarPlus,
   IconClock,
+  IconSearch,
   IconTrash,
   IconUser,
   IconX,
@@ -32,7 +34,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import { twJoin } from 'tailwind-merge'
@@ -44,9 +46,9 @@ type TurnoFormValues = { ciudadanoId: string; fecha: string; hora: string; obser
 interface Props {
   tipoTurno: TipoTurno
   turnos: TurnoPopulated[]
-  ciudadanos: Ciudadano[]
   diasInhabiles: DiaInhabil[]
   horariosPsicofisico: HorarioPsicofisico[]
+  excepcionesPsicofisico: HorarioPsicofisicoExcepcion[]
   icon: React.ReactNode
 }
 
@@ -131,14 +133,17 @@ function normalizeDate(dateValue: string): string {
 export function TurnosListPage({
   tipoTurno,
   turnos,
-  ciudadanos,
   diasInhabiles,
   horariosPsicofisico,
+  excepcionesPsicofisico,
   icon,
 }: Props) {
   const [rows, setRows] = useState(turnos)
   const [isSaving, setIsSaving] = useState(false)
   const [editingTurno, setEditingTurno] = useState<TurnoPopulated | null>(null)
+  const [searchCiudadano, setSearchCiudadano] = useState('')
+  const [searchResults, setSearchResults] = useState<Ciudadano[]>([])
+  const [isSearching, setIsSearching] = useState(false)
 
   const form = useForm<TurnoFormValues>({
     defaultValues: { ciudadanoId: '', fecha: '', hora: '', observaciones: '' },
@@ -167,6 +172,16 @@ export function TurnosListPage({
       })),
     [horariosPsicofisico],
   )
+  const excepcionesConfig = useMemo(
+    () =>
+      excepcionesPsicofisico.map((item) => ({
+        fecha: normalizeDate(item.fecha),
+        inicio: item.inicio,
+        fin: item.fin,
+        activo: item.activo ?? true,
+      })),
+    [excepcionesPsicofisico],
+  )
 
   const slotsDisponibles = useMemo(() => {
     if (esCurso || !fechaSeleccionada) return []
@@ -174,13 +189,49 @@ export function TurnosListPage({
       new Date(`${fechaSeleccionada}T12:00:00`),
       turnosExistentes,
       horariosConfig,
+      excepcionesConfig,
     )
-  }, [esCurso, fechaSeleccionada, turnosExistentes, horariosConfig])
+  }, [esCurso, fechaSeleccionada, turnosExistentes, horariosConfig, excepcionesConfig])
 
   const turnosDelDiaCurso = useMemo(() => {
     if (!esCurso || !fechaSeleccionada) return 0
     return contarTurnosCursoPorFecha(fechaSeleccionada, turnosExistentes)
   }, [esCurso, fechaSeleccionada, turnosExistentes])
+
+  useEffect(() => {
+    async function loadCiudadanos() {
+      const query = searchCiudadano.trim()
+      if (query.length < 2) {
+        setSearchResults([])
+        return
+      }
+
+      setIsSearching(true)
+      try {
+        const result = await sdk.find({
+          collection: 'ciudadano',
+          limit: 15,
+          sort: 'apellido',
+          where: {
+            or: [
+              { dni: { contains: query } },
+              { apellido: { contains: query } },
+              { nombre: { contains: query } },
+              { email: { contains: query } },
+            ],
+          },
+        })
+        setSearchResults(result.docs)
+      } catch {
+        setSearchResults([])
+      } finally {
+        setIsSearching(false)
+      }
+    }
+
+    const timeout = setTimeout(loadCiudadanos, 300)
+    return () => clearTimeout(timeout)
+  }, [searchCiudadano])
 
   async function onDelete(turno: TurnoPopulated) {
     const collection: TurnoCollection = esCurso ? 'turno-curso' : 'turno-psicofisico'
@@ -207,6 +258,7 @@ export function TurnosListPage({
           turnosExistentes,
           diasInhabilesISO,
           horariosConfig,
+          excepcionesConfig,
         )
 
     if (!validacion.ok) {
@@ -258,6 +310,8 @@ export function TurnosListPage({
       }
 
       form.reset({ ciudadanoId: '', fecha: '', hora: '', observaciones: '' })
+      setSearchCiudadano('')
+      setSearchResults([])
       setEditingTurno(null)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'No se pudo guardar el turno')
@@ -268,6 +322,8 @@ export function TurnosListPage({
 
   function onEdit(turno: TurnoPopulated) {
     setEditingTurno(turno)
+    setSearchCiudadano(`${turno.ciudadano.apellido}, ${turno.ciudadano.nombre} (${turno.ciudadano.dni})`)
+    setSearchResults([turno.ciudadano])
     form.reset({
       ciudadanoId: turno.ciudadano.id,
       fecha: normalizeDate(turno.fecha),
@@ -350,17 +406,40 @@ export function TurnosListPage({
           <form className="grid gap-3" onSubmit={form.handleSubmit(onSubmit)}>
             <label className="fieldset">
               <span className="fieldset-legend">Ciudadano</span>
-              <select
-                className="select select-bordered"
-                {...form.register('ciudadanoId', { required: true })}
-              >
-                <option value="">Seleccionar</option>
-                {ciudadanos.map((ciudadano) => (
-                  <option key={ciudadano.id} value={ciudadano.id}>
-                    {ciudadano.apellido}, {ciudadano.nombre} ({ciudadano.dni})
-                  </option>
-                ))}
-              </select>
+              <input
+                type="text"
+                className="input input-bordered"
+                placeholder="Buscar por DNI, apellido, nombre o email"
+                value={searchCiudadano}
+                onChange={(e) => setSearchCiudadano(e.target.value)}
+              />
+              <input type="hidden" {...form.register('ciudadanoId', { required: true })} />
+              {isSearching ? (
+                <p className="mt-1 text-xs opacity-60">Buscando ciudadanos...</p>
+              ) : (
+                <ul className="mt-1 grid gap-1" role="list">
+                  {searchResults.map((ciudadano) => (
+                    <li key={ciudadano.id}>
+                      <button
+                        type="button"
+                        className={twJoin(
+                          'btn btn-sm w-full justify-start',
+                          form.getValues('ciudadanoId') === ciudadano.id ? 'btn-primary' : 'btn-ghost',
+                        )}
+                        onClick={() => {
+                          form.setValue('ciudadanoId', ciudadano.id, { shouldValidate: true })
+                          setSearchCiudadano(
+                            `${ciudadano.apellido}, ${ciudadano.nombre} (${ciudadano.dni})`,
+                          )
+                        }}
+                      >
+                        <IconSearch size={14} />
+                        {ciudadano.apellido}, {ciudadano.nombre} · {ciudadano.dni}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </label>
 
             <label className="fieldset">

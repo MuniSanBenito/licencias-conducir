@@ -7,10 +7,17 @@ export const metadata: Metadata = {
 }
 
 export default async function Page() {
-  const [diasInhabiles, horariosPsicofisico] = await Promise.all([
+  const [diasInhabiles, horariosPsicofisico, excepcionesPsicofisico] = await Promise.all([
     basePayload.find({ collection: 'dia-inhabil', sort: '-fecha', limit: 365 }),
     basePayload.find({ collection: 'horario-psicofisico', sort: 'diaSemana', limit: 10 }),
+    basePayload.find({ collection: 'horario-psicofisico-excepcion', sort: '-fecha', limit: 365 }),
   ])
 
-  return <AgendaPage diasInhabiles={diasInhabiles.docs} horariosPsicofisico={horariosPsicofisico.docs} />
+  return (
+    <AgendaPage
+      diasInhabiles={diasInhabiles.docs}
+      horariosPsicofisico={horariosPsicofisico.docs}
+      excepcionesPsicofisico={excepcionesPsicofisico.docs}
+    />
+  )
 }
