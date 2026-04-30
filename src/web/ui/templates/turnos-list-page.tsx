@@ -142,6 +142,7 @@ export function TurnosListPage({
   const [searchResults, setSearchResults] = useState<Ciudadano[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false)
+  const [isFormModalOpen, setIsFormModalOpen] = useState(false)
   const searchBlockRef = useRef<HTMLLabelElement>(null)
 
   const form = useForm<TurnoFormValues>({
@@ -311,11 +312,30 @@ export function TurnosListPage({
       setSearchResults([])
       setSearchOverlayOpen(false)
       setEditingTurno(null)
+      setIsFormModalOpen(false)
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'No se pudo guardar el turno')
     } finally {
       setIsSaving(false)
     }
+  }
+
+  function resetFormState() {
+    setEditingTurno(null)
+    form.reset({ ciudadanoId: '', fecha: '', hora: '', observaciones: '' })
+    setSearchCiudadano('')
+    setSearchResults([])
+    setSearchOverlayOpen(false)
+  }
+
+  function onCreateTurno() {
+    resetFormState()
+    setIsFormModalOpen(true)
+  }
+
+  function onCloseModal() {
+    setIsFormModalOpen(false)
+    resetFormState()
   }
 
   function onEdit(turno: TurnoPopulated) {
@@ -331,6 +351,7 @@ export function TurnosListPage({
       hora: turno.hora ?? '',
       observaciones: turno.observaciones ?? '',
     })
+    setIsFormModalOpen(true)
   }
 
   const columns = buildColumns()
@@ -344,62 +365,63 @@ export function TurnosListPage({
 
   return (
     <section className="grid gap-6">
-      <header>
-        <h2 className="flex items-center gap-2 text-xl font-bold">
-          {icon}
-          Turnos — {TIPO_TURNO_LABELS[tipoTurno]}
-        </h2>
-        <p className="mt-1 text-sm opacity-60">
-          {rows.length === 0
-            ? 'No hay turnos asignados'
-            : `${rows.length} turno${rows.length !== 1 ? 's' : ''} asignado${rows.length !== 1 ? 's' : ''}`}
-        </p>
+      <header className="flex items-start justify-between gap-4">
+        <section>
+          <h2 className="flex items-center gap-2 text-xl font-bold">
+            {icon}
+            Turnos — {TIPO_TURNO_LABELS[tipoTurno]}
+          </h2>
+          <p className="mt-1 text-sm opacity-60">
+            {rows.length === 0
+              ? 'No hay turnos asignados'
+              : `${rows.length} turno${rows.length !== 1 ? 's' : ''} asignado${rows.length !== 1 ? 's' : ''}`}
+          </p>
+        </section>
+        <button type="button" className="btn btn-warning" onClick={onCreateTurno}>
+          <IconCalendarPlus size={16} />
+          Crear turno
+        </button>
       </header>
 
-      <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_380px]">
-        <section className="bg-base-100 rounded-box min-w-0 overflow-hidden shadow">
-          <section className="overflow-x-auto">
-            <table
-              className="table-zebra table w-full"
-              aria-label={`Turnos de ${TIPO_TURNO_LABELS[tipoTurno]}`}
-            >
-              <thead>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <tr key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => (
-                      <th key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(header.column.columnDef.header, header.getContext())}
-                      </th>
+      <section className="bg-base-100 rounded-box min-w-0 overflow-hidden shadow">
+        <section className="overflow-x-auto">
+          <table className="table-zebra table w-full" aria-label={`Turnos de ${TIPO_TURNO_LABELS[tipoTurno]}`}>
+            <thead>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <tr key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <th key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(header.column.columnDef.header, header.getContext())}
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody>
+              {table.getRowModel().rows.length === 0 ? (
+                <tr>
+                  <td colSpan={columns.length} className="py-8 text-center">
+                    No hay turnos para mostrar
+                  </td>
+                </tr>
+              ) : (
+                table.getRowModel().rows.map((row) => (
+                  <tr key={row.id}>
+                    {row.getVisibleCells().map((cell) => (
+                      <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
                     ))}
                   </tr>
-                ))}
-              </thead>
-              <tbody>
-                {table.getRowModel().rows.length === 0 ? (
-                  <tr>
-                    <td colSpan={columns.length} className="py-8 text-center">
-                      No hay turnos para mostrar
-                    </td>
-                  </tr>
-                ) : (
-                  table.getRowModel().rows.map((row) => (
-                    <tr key={row.id}>
-                      {row.getVisibleCells().map((cell) => (
-                        <td key={cell.id}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </td>
-                      ))}
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </section>
+                ))
+              )}
+            </tbody>
+          </table>
         </section>
+      </section>
 
-        <aside className="card card-border bg-base-100 h-fit">
+      <dialog className={twJoin('modal', isFormModalOpen && 'modal-open')} aria-label="Formulario de turno">
+        <aside className="modal-box max-w-xl">
           <section className="card-body">
             <h3 className="card-title text-base">
               <IconCalendarPlus size={18} />
@@ -554,27 +576,20 @@ export function TurnosListPage({
                   <IconUser size={16} />
                   {editingTurno ? 'Guardar cambios' : 'Crear turno'}
                 </button>
-                {editingTurno && (
-                  <button
-                    type="button"
-                    className="btn btn-ghost"
-                    onClick={() => {
-                      setEditingTurno(null)
-                      form.reset({ ciudadanoId: '', fecha: '', hora: '', observaciones: '' })
-                      setSearchCiudadano('')
-                      setSearchResults([])
-                      setSearchOverlayOpen(false)
-                    }}
-                  >
-                    <IconX size={16} />
-                    Cancelar edición
-                  </button>
-                )}
+                <button type="button" className="btn btn-ghost" onClick={onCloseModal}>
+                  <IconX size={16} />
+                  Cancelar
+                </button>
               </section>
             </form>
           </section>
         </aside>
-      </section>
+        <form method="dialog" className="modal-backdrop">
+          <button type="button" onClick={onCloseModal}>
+            Cerrar
+          </button>
+        </form>
+      </dialog>
     </section>
   )
 }
