@@ -142,7 +142,7 @@ export function TurnosListPage({
   const [searchResults, setSearchResults] = useState<Ciudadano[]>([])
   const [isSearching, setIsSearching] = useState(false)
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false)
-  const searchFieldRef = useRef<HTMLLabelElement>(null)
+  const searchBlockRef = useRef<HTMLLabelElement>(null)
 
   const form = useForm<TurnoFormValues>({
     defaultValues: { ciudadanoId: '', fecha: '', hora: '', observaciones: '' },
@@ -155,10 +155,7 @@ export function TurnosListPage({
     [rows],
   )
   const diasInhabilesISO = useMemo(
-    () =>
-      diasInhabiles
-        .filter((dia) => dia.activo)
-        .map((dia) => normalizeDate(dia.fecha)),
+    () => diasInhabiles.filter((dia) => dia.activo).map((dia) => normalizeDate(dia.fecha)),
     [diasInhabiles],
   )
   const excepcionesConfig = useMemo(
@@ -224,7 +221,7 @@ export function TurnosListPage({
     if (!searchOverlayOpen) return
 
     const onPointerDown = (event: PointerEvent) => {
-      const root = searchFieldRef.current
+      const root = searchBlockRef.current
       if (root && event.target instanceof Node && !root.contains(event.target)) {
         setSearchOverlayOpen(false)
       }
@@ -323,7 +320,9 @@ export function TurnosListPage({
 
   function onEdit(turno: TurnoPopulated) {
     setEditingTurno(turno)
-    setSearchCiudadano(`${turno.ciudadano.apellido}, ${turno.ciudadano.nombre} (${turno.ciudadano.dni})`)
+    setSearchCiudadano(
+      `${turno.ciudadano.apellido}, ${turno.ciudadano.nombre} (${turno.ciudadano.dni})`,
+    )
     setSearchResults([])
     setSearchOverlayOpen(false)
     form.reset({
@@ -344,9 +343,8 @@ export function TurnosListPage({
   })
 
   return (
-    <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_380px]">
-      <section>
-      <header className="mb-6">
+    <section className="grid gap-6">
+      <header>
         <h2 className="flex items-center gap-2 text-xl font-bold">
           {icon}
           Turnos — {TIPO_TURNO_LABELS[tipoTurno]}
@@ -358,208 +356,225 @@ export function TurnosListPage({
         </p>
       </header>
 
-      <section className="bg-base-100 rounded-box overflow-hidden shadow">
-        <section className="overflow-x-auto">
-          <table className="table-zebra table w-full" aria-label={`Turnos de ${TIPO_TURNO_LABELS[tipoTurno]}`}>
-            <thead>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <tr key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <th key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(header.column.columnDef.header, header.getContext())}
-                    </th>
-                  ))}
-                </tr>
-              ))}
-            </thead>
-            <tbody>
-              {table.getRowModel().rows.length === 0 ? (
-                <tr>
-                  <td colSpan={columns.length} className="py-8 text-center">
-                    No hay turnos para mostrar
-                  </td>
-                </tr>
-              ) : (
-                table.getRowModel().rows.map((row) => (
-                  <tr key={row.id}>
-                    {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
+      <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_380px]">
+        <section className="bg-base-100 rounded-box min-w-0 overflow-hidden shadow">
+          <section className="overflow-x-auto">
+            <table
+              className="table-zebra table w-full"
+              aria-label={`Turnos de ${TIPO_TURNO_LABELS[tipoTurno]}`}
+            >
+              <thead>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <tr key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <th key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(header.column.columnDef.header, header.getContext())}
+                      </th>
                     ))}
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </section>
-      </section>
-      </section>
-
-      <aside className="card card-border bg-base-100 h-fit">
-        <section className="card-body">
-          <h3 className="card-title text-base">
-            <IconCalendarPlus size={18} />
-            {editingTurno ? 'Editar turno' : 'Nuevo turno'}
-          </h3>
-
-          <form className="grid gap-3" onSubmit={form.handleSubmit(onSubmit)}>
-            <label className="fieldset relative" ref={searchFieldRef}>
-              <span className="fieldset-legend">Ciudadano</span>
-              <section className="flex gap-2">
-                <input
-                  type="text"
-                  className="input input-bordered flex-1"
-                  placeholder="DNI, apellido, nombre o email"
-                  value={searchCiudadano}
-                  onChange={(e) => setSearchCiudadano(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Escape') setSearchOverlayOpen(false)
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      void buscarCiudadanos()
-                    }
-                  }}
-                  autoComplete="off"
-                  aria-autocomplete="list"
-                  aria-expanded={searchOverlayOpen}
-                  aria-controls="resultados-ciudadano-turno"
-                />
-                <button
-                  type="button"
-                  className="btn btn-outline"
-                  onClick={() => void buscarCiudadanos()}
-                  disabled={isSearching}
-                >
-                  <IconSearch size={16} />
-                  Buscar
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-ghost"
-                  onClick={() => {
-                    form.setValue('ciudadanoId', '', { shouldValidate: true })
-                    setSearchCiudadano('')
-                    setSearchResults([])
-                    setSearchOverlayOpen(false)
-                  }}
-                >
-                  <IconX size={16} />
-                  Limpiar
-                </button>
-              </section>
-              <input type="hidden" {...form.register('ciudadanoId', { required: true })} />
-              {searchOverlayOpen && (
-                <section
-                  id="resultados-ciudadano-turno"
-                  className="bg-base-100 border-base-300 absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-y-auto rounded-box border shadow-lg"
-                  role="listbox"
-                  aria-label="Resultados de búsqueda de ciudadanos"
-                >
-                  {isSearching ? (
-                    <p className="p-3 text-sm opacity-70">Buscando ciudadanos...</p>
-                  ) : searchResults.length === 0 ? (
-                    <p className="p-3 text-sm opacity-70">No se encontraron ciudadanos</p>
-                  ) : (
-                    <ul className="menu menu-sm w-full p-1" role="list">
-                      {searchResults.map((ciudadano) => (
-                        <li key={ciudadano.id} role="none">
-                          <button
-                            type="button"
-                            role="option"
-                            className={twJoin(
-                              form.getValues('ciudadanoId') === ciudadano.id && 'active',
-                            )}
-                            onClick={() => {
-                              form.setValue('ciudadanoId', ciudadano.id, { shouldValidate: true })
-                              setSearchCiudadano(
-                                `${ciudadano.apellido}, ${ciudadano.nombre} (${ciudadano.dni})`,
-                              )
-                              setSearchOverlayOpen(false)
-                            }}
-                          >
-                            {ciudadano.apellido}, {ciudadano.nombre} · {ciudadano.dni}
-                          </button>
-                        </li>
+                ))}
+              </thead>
+              <tbody>
+                {table.getRowModel().rows.length === 0 ? (
+                  <tr>
+                    <td colSpan={columns.length} className="py-8 text-center">
+                      No hay turnos para mostrar
+                    </td>
+                  </tr>
+                ) : (
+                  table.getRowModel().rows.map((row) => (
+                    <tr key={row.id}>
+                      {row.getVisibleCells().map((cell) => (
+                        <td key={cell.id}>
+                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        </td>
                       ))}
-                    </ul>
-                  )}
-                </section>
-              )}
-            </label>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </section>
+        </section>
 
-            <label className="fieldset">
-              <span className="fieldset-legend">Fecha</span>
+        <aside className="card card-border bg-base-100 h-fit">
+          <section className="card-body">
+            <h3 className="card-title text-base">
+              <IconCalendarPlus size={18} />
+              {editingTurno ? 'Editar turno' : 'Nuevo turno'}
+            </h3>
+
+            <form className="grid gap-3" onSubmit={form.handleSubmit(onSubmit)}>
+              <label className="fieldset relative" ref={searchBlockRef}>
+                <span className="fieldset-legend">Ciudadano</span>
+                <section className="flex gap-2">
+                  <input
+                    type="text"
+                    className="input input-bordered flex-1"
+                    placeholder="DNI, apellido"
+                    value={searchCiudadano}
+                    onChange={(e) => setSearchCiudadano(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape') setSearchOverlayOpen(false)
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        void buscarCiudadanos()
+                      }
+                    }}
+                    autoComplete="off"
+                    aria-autocomplete="list"
+                    aria-expanded={searchOverlayOpen}
+                    aria-controls="resultados-ciudadano-turno"
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-outline"
+                    onClick={() => void buscarCiudadanos()}
+                    disabled={isSearching}
+                  >
+                    <IconSearch size={16} />
+                    Buscar
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-ghost"
+                    onClick={() => {
+                      form.setValue('ciudadanoId', '', { shouldValidate: true })
+                      setSearchCiudadano('')
+                      setSearchResults([])
+                      setSearchOverlayOpen(false)
+                    }}
+                  >
+                    <IconX size={16} />
+                    Limpiar
+                  </button>
+                </section>
+                {searchOverlayOpen && (
+                  <section
+                    id="resultados-ciudadano-turno"
+                    className="bg-base-100 border-base-300 rounded-box absolute top-full right-0 left-0 z-50 mt-1 max-h-60 overflow-y-auto border shadow-lg"
+                    role="listbox"
+                    aria-label="Resultados de búsqueda de ciudadanos"
+                  >
+                    {isSearching ? (
+                      <p className="p-3 text-sm opacity-70">Buscando ciudadanos...</p>
+                    ) : searchResults.length === 0 ? (
+                      <p className="p-3 text-sm opacity-70">No se encontraron ciudadanos</p>
+                    ) : (
+                      <ul className="menu menu-sm w-full p-1" role="list">
+                        {searchResults.map((ciudadano) => (
+                          <li key={ciudadano.id} role="none">
+                            <button
+                              type="button"
+                              role="option"
+                              className={twJoin(
+                                form.getValues('ciudadanoId') === ciudadano.id && 'active',
+                              )}
+                              onClick={() => {
+                                form.setValue('ciudadanoId', ciudadano.id, { shouldValidate: true })
+                                setSearchCiudadano(
+                                  `${ciudadano.apellido}, ${ciudadano.nombre} (${ciudadano.dni})`,
+                                )
+                                setSearchOverlayOpen(false)
+                              }}
+                            >
+                              {ciudadano.apellido}, {ciudadano.nombre} · {ciudadano.dni}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </section>
+                )}
+              </label>
+
               <input
-                type="date"
-                className="input input-bordered"
-                min={new Date().toISOString().split('T')[0]}
-                {...form.register('fecha', {
-                  required: true,
-                  validate: (value) => {
-                    const date = new Date(`${value}T12:00:00`)
-                    if (isDiaInhabil(date, diasInhabilesISO)) return 'Día inhábil'
-                    if (esCurso && date.getDay() !== 1) return 'Solo lunes'
-                    if (!esCurso && (date.getDay() === 0 || date.getDay() === 6))
-                      return 'Solo lunes a viernes'
-                    return true
-                  },
+                type="hidden"
+                {...form.register('ciudadanoId', {
+                  required: 'Seleccioná un ciudadano desde la búsqueda superior.',
                 })}
               />
-            </label>
 
-            {!esCurso && (
               <label className="fieldset">
-                <span className="fieldset-legend">Hora</span>
-                <select className="select select-bordered" {...form.register('hora', { required: true })}>
-                  <option value="">Seleccionar</option>
-                  {slotsDisponibles.map((slot) => (
-                    <option key={slot} value={slot}>
-                      {slot}
-                    </option>
-                  ))}
-                </select>
+                <span className="fieldset-legend">Fecha</span>
+                <input
+                  type="date"
+                  className="input input-bordered"
+                  min={new Date().toISOString().split('T')[0]}
+                  {...form.register('fecha', {
+                    required: true,
+                    validate: (value) => {
+                      const date = new Date(`${value}T12:00:00`)
+                      if (isDiaInhabil(date, diasInhabilesISO)) return 'Día inhábil'
+                      if (esCurso && date.getDay() !== 1) return 'Solo lunes'
+                      if (!esCurso && (date.getDay() === 0 || date.getDay() === 6))
+                        return 'Solo lunes a viernes'
+                      return true
+                    },
+                  })}
+                />
               </label>
-            )}
 
-            <label className="fieldset">
-              <span className="fieldset-legend">Observaciones</span>
-              <textarea className="textarea textarea-bordered" {...form.register('observaciones')} />
-            </label>
-
-            {esCurso && fechaSeleccionada && (
-              <p className="text-xs opacity-70">
-                Cupo utilizado: {turnosDelDiaCurso} / 20
-              </p>
-            )}
-
-            <section className="mt-2 flex gap-2">
-              <button className={twJoin('btn btn-warning', isSaving && 'btn-disabled')} disabled={isSaving}>
-                <IconUser size={16} />
-                {editingTurno ? 'Guardar cambios' : 'Crear turno'}
-              </button>
-              {editingTurno && (
-                <button
-                  type="button"
-                  className="btn btn-ghost"
-                  onClick={() => {
-                    setEditingTurno(null)
-                    form.reset({ ciudadanoId: '', fecha: '', hora: '', observaciones: '' })
-                    setSearchCiudadano('')
-                    setSearchResults([])
-                    setSearchOverlayOpen(false)
-                  }}
-                >
-                  <IconX size={16} />
-                  Cancelar edición
-                </button>
+              {!esCurso && (
+                <label className="fieldset">
+                  <span className="fieldset-legend">Hora</span>
+                  <select
+                    className="select select-bordered"
+                    {...form.register('hora', { required: true })}
+                  >
+                    <option value="">Seleccionar</option>
+                    {slotsDisponibles.map((slot) => (
+                      <option key={slot} value={slot}>
+                        {slot}
+                      </option>
+                    ))}
+                  </select>
+                </label>
               )}
-            </section>
-          </form>
-        </section>
-      </aside>
+
+              <label className="fieldset">
+                <span className="fieldset-legend">Observaciones</span>
+                <textarea
+                  className="textarea textarea-bordered"
+                  {...form.register('observaciones')}
+                />
+              </label>
+
+              {esCurso && fechaSeleccionada && (
+                <p className="text-xs opacity-70">Cupo utilizado: {turnosDelDiaCurso} / 20</p>
+              )}
+
+              <section className="mt-2 flex gap-2">
+                <button
+                  className={twJoin('btn btn-warning', isSaving && 'btn-disabled')}
+                  disabled={isSaving}
+                >
+                  <IconUser size={16} />
+                  {editingTurno ? 'Guardar cambios' : 'Crear turno'}
+                </button>
+                {editingTurno && (
+                  <button
+                    type="button"
+                    className="btn btn-ghost"
+                    onClick={() => {
+                      setEditingTurno(null)
+                      form.reset({ ciudadanoId: '', fecha: '', hora: '', observaciones: '' })
+                      setSearchCiudadano('')
+                      setSearchResults([])
+                      setSearchOverlayOpen(false)
+                    }}
+                  >
+                    <IconX size={16} />
+                    Cancelar edición
+                  </button>
+                )}
+              </section>
+            </form>
+          </section>
+        </aside>
+      </section>
     </section>
   )
 }
