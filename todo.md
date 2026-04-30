@@ -1,3 +1,6 @@
+- el navbar debe mostrar o diferenciar de alguna manera la ruta actual
+- si se puede, al presionar la tecla escape cuando hay algun modal abierto cerrar el modal
+
 - no mostrar resultado despues de rendir, mostrar un mensaje mas generico
 - forzar que los turnos sean en el futuro y con steps cada 10min
 - FUT opcional en los primeros pasos, a coordinar con licencias a partir de cual es Obligatorio

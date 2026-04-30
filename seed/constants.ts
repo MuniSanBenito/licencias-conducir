@@ -1,5 +1,4 @@
 export const SEED_CIUDADANOS_TOTAL = 35
-export const SEED_TRAMITES_TOTAL = 25
 
 export const SEED_NOMBRES = [
   'Juan',
@@ -97,9 +96,6 @@ export const SEED_DIAS_POR_MES = 28
 export const SEED_FUT_PREFIX = 'FUT'
 export const SEED_FUT_MIN = 10000
 export const SEED_FUT_RANGE = 90000
-
-export const SEED_TRAMITES_FECHA_INICIO_YEAR = 2026
-export const SEED_TRAMITES_FECHA_INICIO_MONTH_RANGE = 3
 
 export const SEED_TURNO_FECHA_DEFAULT = '2026-03-15'
 export const SEED_TURNO_HORA_DEFAULT = '10:00'

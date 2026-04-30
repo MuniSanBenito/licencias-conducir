@@ -13,6 +13,7 @@ import { TurnoBadge } from '@/web/ui/atoms/turno-badge'
 import { formatDate } from '@/web/utils/fechas'
 import {
   contarTurnosCursoPorFecha,
+  formatFechaISO,
   getSlotsPsicofisicoConConfiguracion,
   isDiaInhabil,
   validarDisponibilidadCurso,
@@ -126,6 +127,73 @@ interface TableMeta {
 
 function normalizeDate(dateValue: string): string {
   return dateValue.split('T')[0]
+}
+
+function getTodayISODate(): string {
+  return formatFechaISO(new Date())
+}
+
+function getTurnoSaveErrorMessage(error: unknown): string {
+  if (!(error instanceof Error)) {
+    return 'No se pudo guardar el turno'
+  }
+
+  return error.message
+}
+
+function buildTurnoPayload(values: TurnoFormValues, hora: string) {
+  return {
+    ciudadano: values.ciudadanoId,
+    fecha: values.fecha,
+    hora,
+    observaciones: values.observaciones || undefined,
+  }
+}
+
+async function createTurno(
+  collection: TurnoCollection,
+  values: TurnoFormValues,
+  hora: string,
+): Promise<TurnoCurso | TurnoPsicofisico> {
+  const response = await fetch(`/api/${collection}?depth=1`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      ...buildTurnoPayload(values, hora),
+      estado: 'programado',
+    }),
+  })
+
+  const payload = await response.json()
+  if (!response.ok) {
+    throw new Error(
+      payload?.errors?.[0]?.message ?? payload?.message ?? 'No se pudo guardar el turno',
+    )
+  }
+
+  return payload as TurnoCurso | TurnoPsicofisico
+}
+
+async function updateTurno(
+  collection: TurnoCollection,
+  turnoId: string,
+  values: TurnoFormValues,
+  hora: string,
+): Promise<TurnoCurso | TurnoPsicofisico> {
+  const response = await fetch(`/api/${collection}/${turnoId}?depth=1`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(buildTurnoPayload(values, hora)),
+  })
+
+  const payload = await response.json()
+  if (!response.ok) {
+    throw new Error(
+      payload?.errors?.[0]?.message ?? payload?.message ?? 'No se pudo guardar el turno',
+    )
+  }
+
+  return payload as TurnoCurso | TurnoPsicofisico
 }
 
 export function TurnosListPage({
@@ -267,17 +335,7 @@ export function TurnosListPage({
     setIsSaving(true)
     try {
       if (editingTurno) {
-        const updated = await sdk.update({
-          collection,
-          id: editingTurno.id,
-          data: {
-            ciudadano: values.ciudadanoId,
-            fecha: values.fecha,
-            hora: horaFinal,
-            observaciones: values.observaciones || undefined,
-          },
-          depth: 1,
-        })
+        const updated = await updateTurno(collection, editingTurno.id, values, horaFinal)
         const ciudadano = updated.ciudadano as Ciudadano
         setRows((prev) =>
           prev.map((row) =>
@@ -291,17 +349,7 @@ export function TurnosListPage({
         )
         toast.success('Turno actualizado')
       } else {
-        const created = await sdk.create({
-          collection,
-          data: {
-            ciudadano: values.ciudadanoId,
-            fecha: values.fecha,
-            hora: horaFinal,
-            estado: 'programado',
-            observaciones: values.observaciones || undefined,
-          },
-          depth: 1,
-        })
+        const created = await createTurno(collection, values, horaFinal)
         const ciudadano = created.ciudadano as Ciudadano
         setRows((prev) => [...prev, { ...(created as TurnoCurso | TurnoPsicofisico), ciudadano }])
         toast.success('Turno creado')
@@ -314,7 +362,7 @@ export function TurnosListPage({
       setEditingTurno(null)
       setIsFormModalOpen(false)
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'No se pudo guardar el turno')
+      toast.error(getTurnoSaveErrorMessage(error))
     } finally {
       setIsSaving(false)
     }
@@ -385,7 +433,10 @@ export function TurnosListPage({
 
       <section className="bg-base-100 rounded-box min-w-0 overflow-hidden shadow">
         <section className="overflow-x-auto">
-          <table className="table-zebra table w-full" aria-label={`Turnos de ${TIPO_TURNO_LABELS[tipoTurno]}`}>
+          <table
+            className="table-zebra table w-full"
+            aria-label={`Turnos de ${TIPO_TURNO_LABELS[tipoTurno]}`}
+          >
             <thead>
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>
@@ -410,7 +461,9 @@ export function TurnosListPage({
                 table.getRowModel().rows.map((row) => (
                   <tr key={row.id}>
                     {row.getVisibleCells().map((cell) => (
-                      <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                      <td key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
                     ))}
                   </tr>
                 ))
@@ -420,7 +473,10 @@ export function TurnosListPage({
         </section>
       </section>
 
-      <dialog className={twJoin('modal', isFormModalOpen && 'modal-open')} aria-label="Formulario de turno">
+      <dialog
+        className={twJoin('modal', isFormModalOpen && 'modal-open')}
+        aria-label="Formulario de turno"
+      >
         <aside className="modal-box max-w-xl">
           <section className="card-body">
             <h3 className="card-title text-base">
@@ -524,7 +580,7 @@ export function TurnosListPage({
                 <input
                   type="date"
                   className="input input-bordered"
-                  min={new Date().toISOString().split('T')[0]}
+                  min={getTodayISODate()}
                   {...form.register('fecha', {
                     required: true,
                     validate: (value) => {
