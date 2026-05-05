@@ -35,7 +35,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, type FieldErrors } from 'react-hook-form'
 import { toast } from 'sonner'
 import { twJoin } from 'tailwind-merge'
 
@@ -125,8 +125,25 @@ interface TableMeta {
   onDelete: (turno: TurnoPopulated) => void
 }
 
-function normalizeDate(dateValue: string): string {
+function normalizeDate(dateValue: string | null | undefined): string {
+  if (dateValue == null || dateValue === '') {
+    return ''
+  }
   return dateValue.split('T')[0]
+}
+
+function getFirstFormErrorMessage(errors: FieldErrors<TurnoFormValues>): string {
+  for (const value of Object.values(errors)) {
+    if (
+      value &&
+      typeof value === 'object' &&
+      'message' in value &&
+      typeof value.message === 'string'
+    ) {
+      return value.message
+    }
+  }
+  return 'Completá los campos obligatorios del formulario.'
 }
 
 function getTodayISODate(): string {
@@ -220,21 +237,30 @@ export function TurnosListPage({
   const fechaSeleccionada = form.watch('fecha')
   const esCurso = tipoTurno === 'curso'
   const turnosExistentes = useMemo(
-    () => rows.map((row) => ({ fecha: normalizeDate(row.fecha), hora: row.hora ?? '' })),
+    () =>
+      rows
+        .map((row) => ({ fecha: normalizeDate(row.fecha), hora: row.hora ?? '' }))
+        .filter((t) => t.fecha !== ''),
     [rows],
   )
   const diasInhabilesISO = useMemo(
-    () => diasInhabiles.filter((dia) => dia.activo).map((dia) => normalizeDate(dia.fecha)),
+    () =>
+      diasInhabiles
+        .filter((dia) => dia.activo)
+        .map((dia) => normalizeDate(dia.fecha))
+        .filter((iso) => iso !== ''),
     [diasInhabiles],
   )
   const excepcionesConfig = useMemo(
     () =>
-      excepcionesPsicofisico.map((item) => ({
-        fecha: normalizeDate(item.fecha),
-        inicio: item.inicio,
-        fin: item.fin,
-        activo: item.activo ?? true,
-      })),
+      excepcionesPsicofisico
+        .map((item) => ({
+          fecha: normalizeDate(item.fecha),
+          inicio: item.inicio,
+          fin: item.fin,
+          activo: item.activo ?? true,
+        }))
+        .filter((item) => item.fecha !== ''),
     [excepcionesPsicofisico],
   )
 
@@ -484,7 +510,12 @@ export function TurnosListPage({
               {editingTurno ? 'Editar turno' : 'Nuevo turno'}
             </h3>
 
-            <form className="grid gap-3" onSubmit={form.handleSubmit(onSubmit)}>
+            <form
+              className="grid gap-3"
+              onSubmit={form.handleSubmit(onSubmit, (errors) => {
+                toast.error(getFirstFormErrorMessage(errors))
+              })}
+            >
               <label className="fieldset relative" ref={searchBlockRef}>
                 <span className="fieldset-legend">Ciudadano</span>
                 <section className="flex gap-2">
@@ -626,6 +657,7 @@ export function TurnosListPage({
 
               <section className="mt-2 flex gap-2">
                 <button
+                  type="submit"
                   className={twJoin('btn btn-warning', isSaving && 'btn-disabled')}
                   disabled={isSaving}
                 >
