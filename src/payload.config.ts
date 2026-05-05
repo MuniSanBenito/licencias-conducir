@@ -17,6 +17,7 @@ import { TurnoCurso } from './payload/collections/turno-curso'
 import { TurnoPsicofisico } from './payload/collections/turno-psicofisico'
 import { Usuario } from './payload/collections/usuario'
 import { storagePlugin } from './payload/plugins/storage'
+import { MensajesWp } from './payload/globals/mensajes-wp'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -50,6 +51,7 @@ export default buildConfig({
     TurnoCurso,
     TurnoPsicofisico,
   ],
+  globals: [MensajesWp],
   editor: lexicalEditor(),
   secret: PAYLOAD_SECRET,
   typescript: {
@@ -66,4 +68,34 @@ export default buildConfig({
       es,
     },
   },
+  endpoints: [
+    {
+      method: 'get',
+      path: '/psicofisico',
+      handler: async (req) => {
+        const mensajes = await req.payload.findGlobal({
+          slug: 'mensajes-wp',
+          req,
+        })
+
+        console.log('mensajes', mensajes)
+
+        if (!mensajes.mensajes_psicofisico) {
+          return Response.json(
+            {
+              error: 'No se encontraron mensajes para Psicofísico',
+            },
+            { status: 404 },
+          )
+        }
+
+        const res = {
+          mensajes: mensajes.mensajes_psicofisico.map((mensaje) => mensaje.mensaje),
+        }
+        console.log('response', res)
+
+        return Response.json(res)
+      },
+    },
+  ],
 })

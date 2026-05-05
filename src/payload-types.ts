@@ -100,8 +100,12 @@ export interface Config {
     defaultIDType: string;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'mensajes-wp': MensajesWp;
+  };
+  globalsSelect: {
+    'mensajes-wp': MensajesWpSelect<false> | MensajesWpSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -591,6 +595,50 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * Mensajes para el bot de Whatsapp
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mensajes-wp".
+ */
+export interface MensajesWp {
+  id: string;
+  mensajes_psicofisico?:
+    | {
+        mensaje: string;
+        id?: string | null;
+      }[]
+    | null;
+  mensajes_curso?:
+    | {
+        mensaje: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mensajes-wp_select".
+ */
+export interface MensajesWpSelect<T extends boolean = true> {
+  mensajes_psicofisico?:
+    | T
+    | {
+        mensaje?: T;
+        id?: T;
+      };
+  mensajes_curso?:
+    | T
+    | {
+        mensaje?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
