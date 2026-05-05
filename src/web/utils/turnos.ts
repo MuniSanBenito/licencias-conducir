@@ -1,4 +1,6 @@
 import {
+  CURSO_MSJ_DIA_INHABIL,
+  CURSO_MSJ_FIN_DE_SEMANA,
   DIA_CURSO,
   DIAS_HABILES_PSICOFISICO,
   DURACION_TURNO_PSICOFISICO_MIN,
@@ -99,7 +101,8 @@ export function tieneCupoCurso(fecha: string, turnosExistentes: TurnoExistente[]
 }
 
 /**
- * Verifica si una fecha corresponde a un día de curso (lunes por defecto).
+ * Indica si la fecha es el día habitual de curso (lunes). El turno puede agendarse
+ * en otros días hábiles si el lunes es inhábil; en ese caso la UI pide confirmación.
  */
 export function esDiaDeCurso(fecha: Date): boolean {
   return fecha.getDay() === DIA_CURSO
@@ -127,6 +130,10 @@ export function isDiaInhabil(fecha: Date, diasInhabiles: string[]): boolean {
   return diasInhabiles.includes(fechaISO)
 }
 
+/**
+ * Primeras fechas hábiles (lun–vie) sin inhábil a partir de `fechaDesde`.
+ * Incluye días que no sean lunes para reflejar traslados cuando el lunes es inhábil.
+ */
 export function getFechasHabilitadasCurso(
   fechaDesde: Date,
   cantidad: number,
@@ -136,7 +143,7 @@ export function getFechasHabilitadasCurso(
   const cursor = new Date(fechaDesde)
 
   while (fechas.length < cantidad) {
-    if (esDiaDeCurso(cursor) && !isDiaInhabil(cursor, diasInhabiles)) {
+    if (esDiaDePsicofisico(cursor) && !isDiaInhabil(cursor, diasInhabiles)) {
       fechas.push(formatFechaISO(cursor))
     }
     cursor.setDate(cursor.getDate() + 1)
@@ -151,11 +158,11 @@ export function validarDisponibilidadCurso(
   diasInhabiles: string[],
 ): { ok: boolean; motivo?: string } {
   const fecha = new Date(`${fechaISO}T12:00:00`)
-  if (!esDiaDeCurso(fecha)) {
-    return { ok: false, motivo: 'El curso presencial solo se dicta los lunes' }
+  if (!esDiaDePsicofisico(fecha)) {
+    return { ok: false, motivo: CURSO_MSJ_FIN_DE_SEMANA }
   }
   if (isDiaInhabil(fecha, diasInhabiles)) {
-    return { ok: false, motivo: 'La fecha seleccionada está marcada como inhábil' }
+    return { ok: false, motivo: CURSO_MSJ_DIA_INHABIL }
   }
   if (!tieneCupoCurso(fechaISO, turnosExistentes)) {
     return { ok: false, motivo: 'No hay cupo disponible para esa fecha' }

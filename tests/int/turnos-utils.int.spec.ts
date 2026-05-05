@@ -6,6 +6,16 @@ import {
 import { describe, expect, it } from 'vitest'
 
 describe('turnos domain rules', () => {
+  it('permite curso un día hábil que no es lunes (p. ej. traslado por feriado el lunes)', () => {
+    const result = validarDisponibilidadCurso('2026-05-05', [], [])
+    expect(result.ok).toBe(true)
+  })
+
+  it('rechaza curso en fin de semana', () => {
+    const result = validarDisponibilidadCurso('2026-05-09', [], [])
+    expect(result.ok).toBe(false)
+  })
+
   it('rechaza curso en día inhábil', () => {
     const result = validarDisponibilidadCurso('2026-05-04', [], ['2026-05-04'])
     expect(result.ok).toBe(false)

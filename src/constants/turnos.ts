@@ -87,9 +87,23 @@ export const HORARIOS_PSICOFISICO: Record<number, { inicio: string; fin: string 
   6: null, // Sábado
 }
 
-/** Día de semana en que se dicta el curso presencial (1 = Lunes) */
+/** Día de semana habitual del curso presencial (1 = Lunes). Puede trasladarse a otro día hábil si el lunes es inhábil. */
 export const DIA_CURSO = 1
 export const DIAS_HABILES_PSICOFISICO = [1, 2, 3, 4, 5] as const
+
+/** Validación de fecha: curso solo lun–vie (mismos días hábiles que el psicofísico). */
+export const CURSO_MSJ_FIN_DE_SEMANA =
+  'El curso no se agenda sábados ni domingos. Elegí un día de lunes a viernes; si el lunes habitual es inhábil o feriado, podés usar el siguiente día hábil y al guardar se pedirá confirmación.'
+
+/** Fecha marcada como inhábil en el calendario */
+export const CURSO_MSJ_DIA_INHABIL =
+  'Esta fecha está marcada como inhábil y no admite turnos de curso.'
+
+/**
+ * Confirmación al guardar un turno de curso en un día que no es lunes (traslado por feriado u otra excepción).
+ */
+export const CURSO_MSJ_CONFIRMACION_FECHA_NO_LUNES =
+  'El día elegido no es lunes. Habitualmente el curso es los lunes; si ese lunes es inhábil, suele trasladarse al siguiente día hábil. ¿Confirmás que esta fecha es la correcta para este caso?'
 
 // ─── Select Options ───
 

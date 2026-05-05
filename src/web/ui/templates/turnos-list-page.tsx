@@ -1,6 +1,13 @@
 'use client'
 
-import { TIPO_TURNO_LABELS, type TipoTurno } from '@/constants/turnos'
+import {
+  CURSO_MSJ_CONFIRMACION_FECHA_NO_LUNES,
+  CURSO_MSJ_DIA_INHABIL,
+  CURSO_MSJ_FIN_DE_SEMANA,
+  DIA_CURSO,
+  TIPO_TURNO_LABELS,
+  type TipoTurno,
+} from '@/constants/turnos'
 import type {
   Ciudadano,
   DiaInhabil,
@@ -11,6 +18,7 @@ import type {
 import { sdk } from '@/web/libs/payload/client'
 import { TurnoBadge } from '@/web/ui/atoms/turno-badge'
 import { formatDate } from '@/web/utils/fechas'
+import { isCiudadanoDocument } from '@/web/utils/is-ciudadano-document'
 import {
   contarTurnosCursoPorFecha,
   formatFechaISO,
@@ -20,6 +28,7 @@ import {
   validarDisponibilidadPsicofisico,
 } from '@/web/utils/turnos'
 import {
+  IconAlertTriangle,
   IconCalendar,
   IconCalendarPlus,
   IconClock,
@@ -51,16 +60,52 @@ interface Props {
   icon: React.ReactNode
 }
 
+async function fetchCiudadanoDocumentPorId(ciudadanoId: string): Promise<Ciudadano | null> {
+  try {
+    const result = await sdk.find({
+      collection: 'ciudadano',
+      limit: 1,
+      depth: 0,
+      where: { id: { equals: ciudadanoId } },
+    })
+    const doc = result.docs[0]
+    return isCiudadanoDocument(doc) ? doc : null
+  } catch {
+    return null
+  }
+}
+
+async function resolveCiudadanoDesdeTurno(
+  turno: TurnoCurso | TurnoPsicofisico,
+  ciudadanoId: string,
+  candidatosBusqueda: Ciudadano[],
+): Promise<Ciudadano | null> {
+  if (isCiudadanoDocument(turno.ciudadano)) return turno.ciudadano
+  const hit = candidatosBusqueda.find((c) => c.id === ciudadanoId)
+  if (isCiudadanoDocument(hit)) return hit
+  return fetchCiudadanoDocumentPorId(ciudadanoId)
+}
+
+function formatCiudadanoNombreTabla(row: TurnoPopulated): string {
+  if (!isCiudadanoDocument(row.ciudadano)) return 'Ciudadano no disponible'
+  return `${row.ciudadano.apellido}, ${row.ciudadano.nombre}`
+}
+
+function formatCiudadanoDniTabla(row: TurnoPopulated): string {
+  if (!isCiudadanoDocument(row.ciudadano)) return '—'
+  return row.ciudadano.dni
+}
+
 const columnHelper = createColumnHelper<TurnoPopulated>()
 
 function buildColumns() {
   return [
-    columnHelper.accessor((row) => `${row.ciudadano.apellido}, ${row.ciudadano.nombre}`, {
+    columnHelper.accessor((row) => formatCiudadanoNombreTabla(row), {
       id: 'ciudadano',
       header: 'Ciudadano',
       cell: (info) => <p className="font-medium">{info.getValue()}</p>,
     }),
-    columnHelper.accessor((row) => row.ciudadano.dni, {
+    columnHelper.accessor((row) => formatCiudadanoDniTabla(row), {
       id: 'dni',
       header: 'DNI',
       cell: (info) => <p className="font-mono text-sm">{info.getValue()}</p>,
@@ -228,7 +273,9 @@ export function TurnosListPage({
   const [isSearching, setIsSearching] = useState(false)
   const [searchOverlayOpen, setSearchOverlayOpen] = useState(false)
   const [isFormModalOpen, setIsFormModalOpen] = useState(false)
+  const [cursoNoLunesConfirmOpen, setCursoNoLunesConfirmOpen] = useState(false)
   const searchBlockRef = useRef<HTMLLabelElement>(null)
+  const pendingCursoSubmitRef = useRef<TurnoFormValues | null>(null)
 
   const form = useForm<TurnoFormValues>({
     defaultValues: { ciudadanoId: '', fecha: '', hora: '', observaciones: '' },
@@ -340,7 +387,7 @@ export function TurnosListPage({
     }
   }
 
-  async function onSubmit(values: TurnoFormValues) {
+  async function persistTurno(values: TurnoFormValues) {
     const collection: TurnoCollection = esCurso ? 'turno-curso' : 'turno-psicofisico'
     const horaFinal = esCurso ? '08:30' : values.hora
     const validacion = esCurso
@@ -362,7 +409,19 @@ export function TurnosListPage({
     try {
       if (editingTurno) {
         const updated = await updateTurno(collection, editingTurno.id, values, horaFinal)
-        const ciudadano = updated.ciudadano as Ciudadano
+        const ciudadano = await resolveCiudadanoDesdeTurno(
+          updated,
+          values.ciudadanoId,
+          searchResults,
+        )
+        if (!ciudadano) {
+          toast.error(
+            'El turno se guardó, pero no pudimos cargar los datos del ciudadano. Recargá la página.',
+          )
+          setIsFormModalOpen(false)
+          resetFormState()
+          return
+        }
         setRows((prev) =>
           prev.map((row) =>
             row.id === editingTurno.id
@@ -376,7 +435,19 @@ export function TurnosListPage({
         toast.success('Turno actualizado')
       } else {
         const created = await createTurno(collection, values, horaFinal)
-        const ciudadano = created.ciudadano as Ciudadano
+        const ciudadano = await resolveCiudadanoDesdeTurno(
+          created,
+          values.ciudadanoId,
+          searchResults,
+        )
+        if (!ciudadano) {
+          toast.error(
+            'El turno se creó, pero no pudimos cargar los datos del ciudadano. Recargá la página.',
+          )
+          setIsFormModalOpen(false)
+          resetFormState()
+          return
+        }
         setRows((prev) => [...prev, { ...(created as TurnoCurso | TurnoPsicofisico), ciudadano }])
         toast.success('Turno creado')
       }
@@ -394,7 +465,34 @@ export function TurnosListPage({
     }
   }
 
+  async function onSubmit(values: TurnoFormValues) {
+    if (esCurso) {
+      const date = new Date(`${values.fecha}T12:00:00`)
+      if (date.getDay() !== DIA_CURSO) {
+        pendingCursoSubmitRef.current = values
+        setCursoNoLunesConfirmOpen(true)
+        return
+      }
+    }
+    await persistTurno(values)
+  }
+
+  async function onConfirmarCursoNoLunes() {
+    const values = pendingCursoSubmitRef.current
+    setCursoNoLunesConfirmOpen(false)
+    pendingCursoSubmitRef.current = null
+    if (!values) return
+    await persistTurno(values)
+  }
+
+  function onCancelarCursoNoLunes() {
+    setCursoNoLunesConfirmOpen(false)
+    pendingCursoSubmitRef.current = null
+  }
+
   function resetFormState() {
+    setCursoNoLunesConfirmOpen(false)
+    pendingCursoSubmitRef.current = null
     setEditingTurno(null)
     form.reset({ ciudadanoId: '', fecha: '', hora: '', observaciones: '' })
     setSearchCiudadano('')
@@ -413,6 +511,14 @@ export function TurnosListPage({
   }
 
   function onEdit(turno: TurnoPopulated) {
+    if (!isCiudadanoDocument(turno.ciudadano)) {
+      toast.error(
+        'Este turno no tiene los datos del ciudadano disponibles. Recargá la página o revisá el registro en el panel admin.',
+      )
+      return
+    }
+    setCursoNoLunesConfirmOpen(false)
+    pendingCursoSubmitRef.current = null
     setEditingTurno(turno)
     setSearchCiudadano(
       `${turno.ciudadano.apellido}, ${turno.ciudadano.nombre} (${turno.ciudadano.dni})`,
@@ -616,10 +722,20 @@ export function TurnosListPage({
                     required: true,
                     validate: (value) => {
                       const date = new Date(`${value}T12:00:00`)
-                      if (isDiaInhabil(date, diasInhabilesISO)) return 'Día inhábil'
-                      if (esCurso && date.getDay() !== 1) return 'Solo lunes'
-                      if (!esCurso && (date.getDay() === 0 || date.getDay() === 6))
-                        return 'Solo lunes a viernes'
+                      if (isDiaInhabil(date, diasInhabilesISO)) {
+                        return esCurso
+                          ? CURSO_MSJ_DIA_INHABIL
+                          : 'Esta fecha está marcada como inhábil y no admite turnos de examen psicofísico.'
+                      }
+                      if (esCurso) {
+                        if (date.getDay() === 0 || date.getDay() === 6) {
+                          return CURSO_MSJ_FIN_DE_SEMANA
+                        }
+                        return true
+                      }
+                      if (date.getDay() === 0 || date.getDay() === 6) {
+                        return 'El examen psicofísico solo se agenda de lunes a viernes.'
+                      }
                       return true
                     },
                   })}
@@ -674,6 +790,42 @@ export function TurnosListPage({
         </aside>
         <form method="dialog" className="modal-backdrop">
           <button type="button" onClick={onCloseModal}>
+            Cerrar
+          </button>
+        </form>
+      </dialog>
+
+      <dialog
+        className={twJoin('modal', cursoNoLunesConfirmOpen && 'modal-open')}
+        aria-labelledby="titulo-confirmacion-curso-no-lunes"
+        aria-describedby="texto-confirmacion-curso-no-lunes"
+      >
+        <aside className="modal-box max-w-lg">
+          <section className="card-body gap-4">
+            <h3 id="titulo-confirmacion-curso-no-lunes" className="card-title text-base">
+              <IconAlertTriangle size={20} className="text-warning" aria-hidden />
+              Confirmar fecha del curso
+            </h3>
+            <p id="texto-confirmacion-curso-no-lunes" className="text-sm leading-relaxed">
+              {CURSO_MSJ_CONFIRMACION_FECHA_NO_LUNES}
+            </p>
+            <section className="mt-2 flex flex-wrap gap-2">
+              <button
+                type="button"
+                className={twJoin('btn btn-warning', isSaving && 'btn-disabled')}
+                disabled={isSaving}
+                onClick={() => void onConfirmarCursoNoLunes()}
+              >
+                Sí, confirmar fecha
+              </button>
+              <button type="button" className="btn btn-ghost" onClick={onCancelarCursoNoLunes}>
+                Volver y revisar
+              </button>
+            </section>
+          </section>
+        </aside>
+        <form method="dialog" className="modal-backdrop">
+          <button type="button" onClick={onCancelarCursoNoLunes}>
             Cerrar
           </button>
         </form>

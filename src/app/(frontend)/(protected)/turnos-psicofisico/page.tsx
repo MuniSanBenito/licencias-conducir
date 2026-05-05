@@ -1,6 +1,7 @@
 import { TIPO_TURNO } from '@/constants/turnos'
 import type { Ciudadano, TurnoPsicofisico } from '@/payload-types'
 import { basePayload } from '@/web/libs/payload/server'
+import { isCiudadanoDocument } from '@/web/utils/is-ciudadano-document'
 import { TurnosListPage } from '@/web/ui/templates/turnos-list-page'
 import { IconStethoscope } from '@tabler/icons-react'
 import type { Metadata } from 'next'
@@ -26,8 +27,8 @@ export default async function Page() {
     basePayload.find({ collection: 'horario-psicofisico-excepcion', sort: '-fecha', limit: 365 }),
   ])
 
-  const turnos = result.docs.filter(
-    (t): t is TurnoPsicoPopulated => typeof t.ciudadano !== 'string',
+  const turnos = result.docs.filter((t): t is TurnoPsicoPopulated =>
+    isCiudadanoDocument(t.ciudadano),
   )
 
   return (
